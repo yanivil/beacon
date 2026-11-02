@@ -17,9 +17,16 @@ hard-of-hearing seniors. Follow every rule below in every session.
   design is titled "Visual Alerts": ignore that, the app is called **Beacon**.
 - **When the design and these rules disagree, the rules win.** Name the
   conflict and how you resolved it in the PR draft.
-- **Plan gate:** Step 1 (feasibility tests on a real phone) is reported and
-  approved before any Step 2 screens (Home, Alert settings, Test alert
-  overlay, widget) are built.
+
+## Plan gate
+
+- Step 1 (feasibility tests on a real phone) is reported and approved
+  before any Step 2 screens (Home, Alert settings, Test alert overlay,
+  widget) are built.
+- Report each Step 1 result as **"Tested on <phone model>, Android
+  <version>"** or **"Not tested"**. "Should work" counts as not tested.
+- Step 1 also runs the camera light at **Fast for 60 minutes** and records
+  any overheating warning and the battery drop.
 
 ## Accessibility (non-negotiable)
 
@@ -33,6 +40,12 @@ hard-of-hearing seniors. Follow every rule below in every session.
 - Navigation is a **flat bottom bar with exactly 2 tabs**.
 - Must stay usable at the **largest system font size**: text in sp, layouts
   that wrap and scroll, no fixed text heights, nothing clipped or truncated.
+- Every control works with **TalkBack**: correct roles (Switch, RadioButton,
+  Tab), state read aloud ("On"/"Off", "Selected"), and a spoken label for
+  every icon. Check each screen with TalkBack on.
+- All user-facing text lives in **`strings.xml`**, never hard-coded; layouts
+  use **start/end, never left/right**, so a Hebrew (right-to-left) version
+  stays possible.
 
 ## Blink safety
 
@@ -49,9 +62,9 @@ hard-of-hearing seniors. Follow every rule below in every session.
   branches.
 - Every change comes with a full **PR draft**: Title, Context/Why, Summary
   of Changes, Test Steps, Doc Impact.
-- `origin` is `https://yanivil@github.com/yanivil/beacon.git`. Its token is a
-  repo-scoped keychain entry (`credential.usehttppath true` in this repo's
-  config): leave both as they are.
+- Authenticate only through the configured **gh login**
+  (`gh auth setup-git`). **Never read, use or create credentials, tokens or
+  keychain entries yourself.** If access fails, stop and ask me.
 
 ## Code comments
 
