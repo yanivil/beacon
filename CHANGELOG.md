@@ -33,3 +33,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md`: minSdk 29 reach updated to about 94% of active phones
   (Android 8 and 9 about 5%), per Google's October 2026 data; the rules
   summary, Step 1 scope and contributing notes updated to match.
+- `CLAUDE.md` Git rules: GitHub access now uses only the repo-scoped
+  keychain token for `yanivil/beacon.git`. git picks it up through its
+  credential helper, and gh receives it for one command at a time. The token
+  is never printed or saved elsewhere, and keychain entries are never
+  changed. This replaces the gh-login-only rule. `README.md` contributing
+  note updated to match.

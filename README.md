@@ -70,7 +70,9 @@ The full rules are in [`CLAUDE.md`](CLAUDE.md). In short:
 ## Contributing
 
 - Work on a `feature/<desc>` or `fix/<desc>` branch, never on `main`.
-- Git access goes only through the gh login (`gh auth setup-git`).
+- GitHub access uses only the repo-scoped token in the macOS keychain
+  (`github.com`, path `yanivil/beacon.git`); see the Git rules in
+  [`CLAUDE.md`](CLAUDE.md).
 - Every change comes with a PR draft (Title, Context/Why, Summary of Changes,
   Test Steps, Doc Impact), an updated README, and an entry under
   `[Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md).
