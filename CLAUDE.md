@@ -62,9 +62,24 @@ hard-of-hearing seniors. Follow every rule below in every session.
   branches.
 - Every change comes with a full **PR draft**: Title, Context/Why, Summary
   of Changes, Test Steps, Doc Impact.
-- Authenticate only through the configured **gh login**
-  (`gh auth setup-git`). **Never read, use or create credentials, tokens or
-  keychain entries yourself.** If access fails, stop and ask me.
+- Authenticate to GitHub **only with the repo-scoped token in the macOS
+  keychain**: server `github.com`, path `yanivil/beacon.git`, account
+  `yanivil`. Don't use gh's own login or any other credential, and don't run
+  `gh auth login` or `gh auth setup-git`.
+  - **git** (fetch, pull, push) uses it by itself through the `osxkeychain`
+    helper, because this repo's config has `credential.usehttppath true` and
+    `origin` is `https://yanivil@github.com/yanivil/beacon.git`. Leave both
+    as they are.
+  - **gh** (PRs, merges) gets it for one command at a time, run from the
+    repo root:
+
+    ```bash
+    GH_TOKEN="$(printf 'protocol=https\nhost=github.com\npath=yanivil/beacon.git\nusername=yanivil\n\n' | GIT_TERMINAL_PROMPT=0 git credential fill | sed -n 's/^password=//p')" gh pr create ...
+    ```
+
+  - **Never print, log, commit or save the token anywhere else**, and never
+    create, change or delete keychain entries.
+  - If access fails, stop and ask me.
 
 ## Code comments
 
