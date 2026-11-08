@@ -14,7 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -30,10 +37,23 @@ import dev.beacon.ui.theme.BeaconColors
  * of cutting it off at large font sizes, and be read by TalkBack as a Button.
  * Filled and outline buttons differ only in colours and border, so both draw
  * through ButtonBody and cannot drift apart on those rules.
+ *
+ * Why a disabled outline button is dashed: the project rules say state is
+ * never shown by colour alone. White against the disabled grey is only about
+ * 2.2:1, below the 3:1 WCAG asks for a non-text change, so a disabled
+ * Shorter/Longer button also swaps its solid border for a dashed one. The
+ * shape change shows the state even to someone who can't tell the two greys
+ * apart.
  */
 
 /** The smallest touch target in either direction (project rule). */
 private val MinTouch = 64.dp
+
+/** Dash length of a disabled outline button's border. */
+private val DashLength = 10.dp
+
+/** Gap between the dashes of a disabled outline button's border. */
+private val DashGap = 6.dp
 
 /**
  * A solid button, such as "Pause all alerts", "Test alert" or "Stop".
@@ -73,8 +93,9 @@ fun FilledButton(
 /**
  * A see-through button with a 3 dp border, such as "Change settings" or
  * "Shorter". When disabled, its border, text and icon turn
- * [BeaconColors.Disabled] (7.78:1 on a card), so the state shows without
- * relying on TalkBack alone.
+ * [BeaconColors.Disabled] (7.78:1 on a card, so the text stays readable) and
+ * the border turns dashed (10 dp dashes, 6 dp gaps). The dashes carry the
+ * state, because the grey alone differs too little from white to show it.
  *
  * @param text the visible label, which is also TalkBack's label.
  * @param onClick called when the button is tapped.
@@ -84,7 +105,7 @@ fun FilledButton(
  * @param style the text style, such as BeaconType.SmallButton.
  * @param cornerRadius the corner radius (18 dp by default).
  * @param modifier the modifier for the button.
- * @param enabled false to grey the button out, ignore taps and have TalkBack say "Disabled".
+ * @param enabled false to grey the button out, dash its border, ignore taps and have TalkBack say "Disabled".
  */
 @Composable
 fun OutlineButton(
@@ -101,7 +122,7 @@ fun OutlineButton(
     val colour = if (enabled) content else BeaconColors.Disabled
     ButtonBody(
         text, onClick, Color.Transparent, colour, BorderStroke(3.dp, colour),
-        icon, minHeight, style, cornerRadius, modifier, enabled,
+        icon, minHeight, style, cornerRadius, modifier, enabled, dashedBorder = !enabled,
     )
 }
 
@@ -120,6 +141,7 @@ fun OutlineButton(
  * @param cornerRadius the corner radius.
  * @param modifier the caller's modifier.
  * @param enabled whether taps are accepted.
+ * @param dashedBorder true to draw [border] dashed instead of solid.
  */
 @Composable
 private fun ButtonBody(
@@ -134,6 +156,7 @@ private fun ButtonBody(
     cornerRadius: Dp,
     modifier: Modifier,
     enabled: Boolean,
+    dashedBorder: Boolean = false,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
     // The border is drawn inside the bounds, so the padding grows by its width
@@ -144,7 +167,13 @@ private fun ButtonBody(
             .sizeIn(minWidth = MinTouch, minHeight = max(minHeight, MinTouch))
             .clip(shape)
             .background(background)
-            .then(if (border != null) Modifier.border(border, shape) else Modifier)
+            .then(
+                when {
+                    border == null -> Modifier
+                    dashedBorder -> Modifier.drawBehind { drawDashedBorder(border, cornerRadius) }
+                    else -> Modifier.border(border, shape)
+                },
+            )
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp + inset, vertical = 12.dp + inset),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
@@ -155,4 +184,29 @@ private fun ButtonBody(
         // the button grows taller instead of cutting words off.
         BasicText(text = text, style = style.copy(color = content, textAlign = TextAlign.Center))
     }
+}
+
+/**
+ * Draws [border] as a dashed rounded rectangle inside the bounds, where
+ * Modifier.border would draw the solid one, so the button keeps its size.
+ *
+ * @param border the border's width and colour.
+ * @param cornerRadius the button's outer corner radius.
+ */
+private fun DrawScope.drawDashedBorder(border: BorderStroke, cornerRadius: Dp) {
+    val width = border.width.toPx()
+    // A stroke is centred on its path, so the path is inset by half the width
+    // (and its corners shrink to match) to keep the whole stroke inside.
+    val half = width / 2
+    val radius = (cornerRadius.toPx() - half).coerceAtLeast(0f)
+    drawRoundRect(
+        brush = border.brush,
+        topLeft = Offset(half, half),
+        size = Size(size.width - width, size.height - width),
+        cornerRadius = CornerRadius(radius),
+        style = Stroke(
+            width = width,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(DashLength.toPx(), DashGap.toPx())),
+        ),
+    )
 }

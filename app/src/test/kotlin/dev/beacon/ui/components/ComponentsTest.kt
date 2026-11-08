@@ -119,18 +119,24 @@ class ComponentsTest {
         rule.onNodeWithText("X").assert(isHeading())
     }
 
-    /** A disabled outline button is a Button that reports Disabled and ignores taps. */
+    /** A disabled outline button is a Button that reports Disabled, ignores taps and keeps the 64 dp floor. */
     @Test fun disabledOutlineButtonIsDisabled() {
         var clicks = 0
         rule.setContent {
             BeaconTheme {
+                // minHeight 0 dp, so the 64 dp floor itself is what keeps the button tall enough.
                 OutlineButton(
                     text = "Shorter", onClick = { clicks++ }, content = BeaconColors.Text,
-                    icon = BeaconIcons.Minus, minHeight = 76.dp, style = BeaconType.SmallButton, enabled = false,
+                    icon = BeaconIcons.Minus, minHeight = 0.dp, style = BeaconType.SmallButton, enabled = false,
                 )
             }
         }
-        rule.onNodeWithText("Shorter").assert(hasRole(Role.Button)).assertIsNotEnabled().performClick()
+        rule.onNodeWithText("Shorter")
+            .assert(hasRole(Role.Button))
+            .assertIsNotEnabled()
+            .assertHeightIsAtLeast(64.dp)
+            .assertWidthIsAtLeast(64.dp)
+            .performClick()
         assertEquals(0, clicks)
     }
 
