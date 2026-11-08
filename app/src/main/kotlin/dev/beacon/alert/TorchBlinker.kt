@@ -20,8 +20,11 @@ import android.os.SystemClock
  * camera), retrying on every flip would only hammer the camera service. The
  * blinker gives up quietly and the screen blink carries on alone.
  *
- * Why everything runs on the looper: start, the flips and stop all touch the
- * same state, so they are posted to one thread and can't overlap.
+ * Why the looper: start, the flips and the final off all touch the same state,
+ * so they run on one thread and can't overlap. stop() is called from any
+ * thread: it cancels a pending start right away on the caller's thread (the
+ * Handler's remove methods are thread-safe), then does the off on the looper,
+ * inline when the caller is already on it.
  */
 
 /**
@@ -90,20 +93,24 @@ class TorchBlinker(
         handler.postAtTime(flip, at)
     }
 
+    private val startRun = Runnable {
+        handler.removeCallbacks(flip)
+        handler.removeCallbacks(finish)
+        running = true
+        handler.postAtTime(flip, clock.flipTime(0))
+    }
+
     /**
-     * Starts blinking, with the first flip (on) at the clock's start.
+     * Starts blinking. The first flip happens on the looper after this returns,
+     * at the clock's start, or at once in the clock's current phase if the
+     * start has already passed.
      *
      * @return False when this phone has no usable camera light.
      */
     fun start(): Boolean {
         if (!torch.available) return false
-        // Posted, like stop, so it can't overlap a flip or a stop on the looper.
-        handler.post {
-            handler.removeCallbacks(flip)
-            handler.removeCallbacks(finish)
-            running = true
-            handler.postAtTime(flip, clock.flipTime(0))
-        }
+        // Posted so it can't overlap a flip running on the looper; stop() can cancel it.
+        handler.post(startRun)
         return true
     }
 
@@ -112,6 +119,8 @@ class TorchBlinker(
      */
     fun stop() {
         running = false
+        // Cancel a start that hasn't run yet, or it would restart the blinking after the off.
+        handler.removeCallbacks(startRun)
         val off = Runnable {
             handler.removeCallbacks(flip)
             handler.removeCallbacks(finish)

@@ -122,4 +122,13 @@ class TorchBlinkerTest {
             fake.events.map { (t, on) -> (t - now) to on },
         )
     }
+
+    /** Pins that stop() right after start() cancels the pending start: no ON ever, last event OFF. */
+    @Test fun stopCancelsPendingStart() {
+        val fake = FakeTorchSwitch(); val now = SystemClock.uptimeMillis()
+        val b = TorchBlinker(fake, BlinkClock(now, BlinkSpeed.MEDIUM, null), looper)
+        b.start(); b.stop(); idle(2_000)
+        assertTrue(fake.events.none { it.second })
+        assertFalse(fake.events.last().second)
+    }
 }
