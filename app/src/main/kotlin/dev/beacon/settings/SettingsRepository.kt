@@ -9,7 +9,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import dev.beacon.alert.MessageSource
+import java.io.IOException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 /*
@@ -25,8 +27,16 @@ import kotlinx.coroutines.flow.map
  * @property dataStore the preferences store that holds the settings.
  */
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
-    /** The current settings; emits again after every change. */
-    val settings: Flow<BeaconSettings> = dataStore.data.map { SettingsCodec.decode(it) }
+    /**
+     * The current settings; emits again after every change.
+     *
+     * If the file can't be read (an IOException), it emits the defaults
+     * instead of failing, so the screens still open (spec section 13).
+     */
+    val settings: Flow<BeaconSettings> = dataStore.data
+        // Only read errors fall back; any other exception is a bug and is rethrown.
+        .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+        .map { SettingsCodec.decode(it) }
 
     /**
      * Saves the pause state.

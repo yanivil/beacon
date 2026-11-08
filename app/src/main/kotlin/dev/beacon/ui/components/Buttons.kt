@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconType
 
 /*
  * Why one shared button body: every button in Beacon must have a visible text
@@ -44,6 +46,11 @@ import dev.beacon.ui.theme.BeaconColors
  * Shorter/Longer button also swaps its solid border for a dashed one. The
  * shape change shows the state even to someone who can't tell the two greys
  * apart.
+ *
+ * Why the secondary text is a separate item in a flow row: the design draws
+ * "(3 sec)" smaller after "Test alert". As its own item it stays whole,
+ * beside the main text while both fit on one line and on the next line
+ * otherwise, instead of breaking between "(3" and "sec)".
  */
 
 /** The smallest touch target in either direction (project rule). */
@@ -72,6 +79,8 @@ private val DashGap = 6.dp
  * @param border an optional border, such as Stop's 4 dp black one.
  * @param modifier the modifier for the button.
  * @param enabled false to ignore taps and have TalkBack say "Disabled".
+ * @param secondaryText optional text after [text], in Sub (20 sp, 700) and
+ *   the same colour, such as "(3 sec)"; it is part of the spoken label.
  */
 @Composable
 fun FilledButton(
@@ -86,8 +95,12 @@ fun FilledButton(
     border: BorderStroke? = null,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    secondaryText: String? = null,
 ) {
-    ButtonBody(text, onClick, background, content, border, icon, minHeight, style, cornerRadius, modifier, enabled)
+    ButtonBody(
+        text, onClick, background, content, border, icon, minHeight, style, cornerRadius, modifier, enabled,
+        secondaryText = secondaryText,
+    )
 }
 
 /**
@@ -142,6 +155,7 @@ fun OutlineButton(
  * @param modifier the caller's modifier.
  * @param enabled whether taps are accepted.
  * @param dashedBorder true to draw [border] dashed instead of solid.
+ * @param secondaryText the smaller text after [text], or null.
  */
 @Composable
 private fun ButtonBody(
@@ -157,6 +171,7 @@ private fun ButtonBody(
     modifier: Modifier,
     enabled: Boolean,
     dashedBorder: Boolean = false,
+    secondaryText: String? = null,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
     // The border is drawn inside the bounds, so the padding grows by its width
@@ -182,7 +197,19 @@ private fun ButtonBody(
         if (icon != null) BeaconIcon(icon, content, 30.dp)
         // No maxLines and no ellipsis: at large font sizes the label wraps and
         // the button grows taller instead of cutting words off.
-        BasicText(text = text, style = style.copy(color = content, textAlign = TextAlign.Center))
+        val mainText = style.copy(color = content, textAlign = TextAlign.Center)
+        if (secondaryText == null) {
+            BasicText(text = text, style = mainText)
+        } else {
+            // Each line of the flow is centred, and the smaller text is centred on the main text's line.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                itemVerticalAlignment = Alignment.CenterVertically,
+            ) {
+                BasicText(text = text, style = mainText)
+                BasicText(text = secondaryText, style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center))
+            }
+        }
     }
 }
 

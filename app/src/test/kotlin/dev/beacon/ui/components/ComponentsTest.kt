@@ -140,6 +140,23 @@ class ComponentsTest {
         assertEquals(0, clicks)
     }
 
+    /** A filled button's secondary text, as in "Test alert (3 sec)", is part of its label and sits after the main text. */
+    @Test fun filledButtonReadsSecondaryText() {
+        rule.setContent {
+            BeaconTheme {
+                FilledButton(
+                    text = "Test alert", onClick = {}, background = BeaconColors.White, content = BeaconColors.OnAccent,
+                    icon = BeaconIcons.Bolt, minHeight = 76.dp, style = BeaconType.TestButton, secondaryText = "(3 sec)",
+                )
+            }
+        }
+        rule.onNode(hasRole(Role.Button)).assertTextContains("Test alert").assertTextContains("(3 sec)")
+        // The default test window is wide enough for both texts on one line.
+        val main = rule.onNodeWithText("Test alert", useUnmergedTree = true).getBoundsInRoot()
+        val secondary = rule.onNodeWithText("(3 sec)", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue("same line, after the main text", secondary.left >= main.right && secondary.top < main.bottom)
+    }
+
     /** The five swatches are RadioButtons named by colour in one group, and White spans the row. */
     @Test fun swatchesAreRadioButtonsNamedByColour() {
         var picked: FlashColour? = null

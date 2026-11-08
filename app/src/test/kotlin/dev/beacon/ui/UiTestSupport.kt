@@ -59,12 +59,22 @@ fun ComposeContentTestRule.assertNoTextOverflow() {
  * height half is reliable and also covers maxLines truncation; the width is
  * checked line by line instead, against the real box.
  *
+ * Each line's width is the smaller of two measures, because each one is
+ * too big in a different case. For centred text, Android rounds the line's
+ * left down and its right up, so right minus left can be up to 2 px more
+ * than the real width ("Test alert": 170.0 against 168.3 in a 169 px box).
+ * The line width is exact but counts trailing spaces, which Android lets
+ * hang past the box. The smaller one is never less than the width of the
+ * visible glyphs, so a real overflow is still caught.
+ *
  * @return true if the text is too tall for its box, a line is wider than the
  *   box, or a line is ellipsized.
  */
 private fun TextLayoutResult.isCutOff(): Boolean {
     // Half a pixel of slack for float rounding: the box width is the rounded-up paragraph width.
-    val lineTooWide = (0 until lineCount).any { getLineRight(it) - getLineLeft(it) > size.width + 0.5f }
+    val lineTooWide = (0 until lineCount).any { line ->
+        minOf(getLineRight(line) - getLineLeft(line), multiParagraph.getLineWidth(line)) > size.width + 0.5f
+    }
     val ellipsized = (0 until lineCount).any { isLineEllipsized(it) }
     return didOverflowHeight || lineTooWide || ellipsized
 }
