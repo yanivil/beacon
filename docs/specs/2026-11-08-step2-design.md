@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert). |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -72,7 +72,7 @@ The project rules win. Each conflict and its resolution:
 | 5 | Loads Atkinson Hyperlegible Next from Google Fonts over the web. | The font is bundled in the app (OFL licence), so nothing is downloaded. The widget uses the system font, because a home-screen widget can't load a bundled font. |
 | 6 | Sizes in CSS px on a 390 px wide frame. | 1 px = 1 dp for sizes and 1 sp for text. All text is in sp. |
 | 7 | App rows use generic placeholder glyphs. The design's own note says a real build shows each app's launcher icon. | Beacon shows the app's own launcher icon when that app is installed, and the design's glyph otherwise. The icon is decorative: the row's name is its label. |
-| 8 | Options use `aria-pressed` toggle buttons. Tabs use `aria-current`. | Rules require platform roles: options are **RadioButton** in a selectable group, tabs are **Tab**, and the app rows are **Switch** (section 11). |
+| 8 | Options use `aria-pressed` toggle buttons. Tabs use `aria-current`. | Rules require platform roles: options are **RadioButton** in a group that TalkBack reads as a list ("2 of 4"), tabs are **Tab**, and the app rows are **Switch** (section 11). |
 | 9 | The Test alert button and tab bar are always fixed at the bottom. | At the largest font size, a fixed area can fill most of the screen. The tab bar always stays fixed. The Test alert button stays fixed only while the fixed area takes at most a third of the window height. Otherwise it becomes the last item of the scrolling content. |
 | 10 | Duration and colour grids always have 2 columns. | At large font sizes two columns would break words. A grid has 2 columns only when the available width divided by the font scale is at least 300 dp. Otherwise it has 1 column. |
 | 11 | The widget has fixed text sizes in a fixed box. | A widget can't scroll. Text stays in sp, and lines are left out in a fixed order when they don't fit (section 10). Every line stays in the widget's spoken label. |
@@ -641,13 +641,17 @@ Headings are marked as headings for TalkBack.
   fixed area and the grids.
 - **Orientation:** portrait and landscape both work. State survives
   rotation.
+- **System bars:** always dark, whatever the phone's theme. The status bar
+  and navigation bar are transparent with light icons and buttons, and the
+  system draws no contrast scrim, so the page (`#0B0B0D`) and the tab bar
+  (`#141418`) show behind them. White on those is 19.66:1 and 18.37:1.
 
 ### TalkBack
 
 | Control | Role | State read aloud | Label |
 |---|---|---|---|
 | App row | Switch | "On" / "Off" | App name and its flash line, such as "Texts (SMS), Yellow flash" |
-| Duration, speed, mode and swatch options | RadioButton, in a selectable group | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
+| Duration, speed, mode and swatch options | RadioButton, in a group read as a one-column list ("In list, 4 items", then "2 of 4") | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
 | Tabs | Tab, in a selectable group | "Selected" | "Home" / "Alert settings" |
 | Per-app Change/Done | Button | "Expanded" / "Collapsed" | "Change color for Telegram" / "Done choosing color for Telegram" |
 | Shorter/Longer | Button | "Disabled" at the ends | "Shorter" / "Longer" |
@@ -657,6 +661,30 @@ Headings are marked as headings for TalkBack.
 
 Spoken labels always contain the visible text, so voice control matches what
 is on screen.
+
+**List positions.** Every radio group is read as a one-column list in
+reading order, whatever its visual columns: "1 of 4" to "4 of 4" for the
+durations, "1 of 5" to "5 of 5" for the swatches.
+
+- The one-column groups (blink speed, colour mode) are a `selectableGroup`;
+  Compose counts their options itself.
+- The grids (durations and both swatch grids) state the list's size, with
+  one column, and each option states its row. Compose 1.11 counts a
+  `selectableGroup`'s options by their place in their own parent layout,
+  and every grid option sits alone in its grid cell, so all of them were
+  read as "1 of 4". It also writes its own count over an option's stated
+  row whenever the parent is a `selectableGroup`, so the grids don't use
+  one.
+
+**Live regions.** TalkBack reads a live region when it gets a content-change
+event from it. The live region holds its text, and a change inside it
+reaches TalkBack as a subtree change of the live region:
+
+- The countdown's numbers and words change width, which is such a change.
+- The Custom value's text is a new node for each length, so every step is
+  such a change, even when the new value is as wide as the old one. Compose
+  1.11 can drop a text change made in place from its events (it depends on
+  hash order), and on the Android 16 emulator it always did.
 
 ### Rules kept
 
@@ -673,6 +701,9 @@ is on screen.
   and end only.
 - **Icons:** icons that point, such as the chevron, are mirrored for
   right-to-left.
+- **Short added text:** the Test alert button's "(3 sec)" takes its
+  direction from its own text (content direction), so an English string in
+  a right-to-left layout stays on one line.
 - **Translation:** none in Step 2. A Hebrew translation can be added later
   without layout changes.
 
@@ -726,6 +757,9 @@ is on screen.
 
 - Roles, states and labels from section 11 on Home, Alert settings, the test
   overlay and the alert screen.
+- The list positions TalkBack reads, taken from the node information
+  Compose builds for TalkBack, not only from the semantics.
+- The system bars' style in the light and the dark system theme.
 - Tab switching.
 - Option selection.
 - Custom length at both ends.

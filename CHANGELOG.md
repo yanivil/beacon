@@ -52,7 +52,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - The 3-second test alert.
   - Emulator checks at the default and largest font sizes, with TalkBack.
 - `app/`: the Beacon app, Step 2's PR 1 (package `dev.beacon`, Kotlin and
-  Compose, 105 unit tests). It has:
+  Compose, 114 unit tests). It has:
   - The project setup: one module, exact library versions, minSdk 29,
     compileSdk and targetSdk 36, no internet permission, backup off.
   - Settings and their storage: the settings model and defaults, saved with
@@ -79,9 +79,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/checks/2026-11-step2-pr1.md`, with screenshots in
   `docs/checks/step2-pr1/`: PR 1's emulator checks (AVD `beacon-api36`,
   Android 16) at the default and largest font sizes, in landscape,
-  right-to-left and with TalkBack. It lists six defects found, for the
-  owner to decide on, and what stays not tested until the phone is
-  connected.
+  right-to-left and with TalkBack. It lists six defects found, how five of
+  them were fixed and re-checked, and what stays not tested until the phone
+  is connected.
 
 ### Changed
 
@@ -147,3 +147,35 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md`: Step 2 marked in progress, with PR 0 open as
   yanivil/beacon#5 and PR 1 built. It now describes the `app/` module, how
   to build, test and install the app, and what PR 1 delivers.
+- `docs/checks/step2-pr1/`: every screenshot scaled down to at most 1200 px
+  on its longer side (about 10 MB down to under 9 MB with the new ones),
+  same file names.
+- `docs/checks/2026-11-step2-pr1.md`: a "Fixes and re-checks" section with
+  each defect's status, fix, re-check and new `fix-*.png` screenshots, why
+  the Custom value was silent, the re-check method, and how the emulator's
+  adb connection was lost and repaired during the re-checks.
+- `docs/specs/2026-11-08-step2-design.md`, after the fixes: status line;
+  section 3 row 8 (options read as a list); section 11 (system bars always
+  dark, list positions in grids, how the live regions reach TalkBack);
+  section 12 ("(3 sec)" takes its own text direction); section 15 (what
+  the Robolectric tests check).
+- `README.md`: 114 unit tests, and the PR 1 line notes the fixed defects.
+
+### Fixed
+
+- System bars on a phone in its light theme: the status bar icons were dark
+  on Beacon's dark page (about 1:1), and 3-button navigation showed white
+  buttons on a light grey band (about 1.2:1). The bars are now always dark,
+  with light icons and no contrast scrim (D1).
+- The "Change settings" chevron shrank to about 4 dp at the largest font.
+  A button's trailing icon now keeps its 28 dp, and the label wraps
+  instead (D2).
+- "(3 sec)" on the Test alert button broke onto two lines in a
+  right-to-left layout. It now takes its direction from its own text and
+  stays on one line (D3).
+- TalkBack didn't read the Custom length value when Shorter or Longer
+  changed it. The value is now a live region whose text is replaced at each
+  step, which TalkBack always hears (D4).
+- TalkBack read every option of the duration and swatch grids as "1 of 4"
+  or "1 of 5". The grids now state their list size and each option's row,
+  so TalkBack reads "2 of 4" and so on, in one column or two (D5).

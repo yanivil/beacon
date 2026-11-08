@@ -30,7 +30,9 @@ contrast, big touch targets and plain wording.
       - [x] **PR 1:** the screens and the test alert, built on
         `feature/step2-screens`. Emulator checks:
         [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
-        Nothing in it has run on the test phone yet.
+        Five of the six defects they found are fixed and re-checked on the
+        emulator; the sixth needs TalkBack on the phone. Nothing in it has
+        run on the test phone yet.
       - [ ] **PR 2:** the alert engine. **PR 3:** the widget.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
@@ -56,8 +58,10 @@ is not part of Beacon.
   screen flash colour, one for all apps or one per app.
 - **Test alert:** the 3-second overlay that blinks the chosen colour, with a
   countdown and a Stop button.
-- **Checks:** 105 unit tests, and emulator checks at the default and largest
-  font sizes, in landscape, right-to-left and with TalkBack.
+- **Checks:** 114 unit tests, and emulator checks at the default and largest
+  font sizes, in landscape, right-to-left and with TalkBack. Five of the six
+  defects those checks found are fixed: system bar contrast, a squeezed
+  icon, a right-to-left wrap and two TalkBack readings.
 
 Not in PR 1: noticing messages, the real alert screen and the "Finish setup"
 card (PR 2), and the widget (PR 3).
