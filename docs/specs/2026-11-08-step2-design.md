@@ -374,6 +374,9 @@ dp and sp, 1:1 with the design's px.
     icon, and weight 800.
   - Each tab opens at its top.
   - Back on Alert settings goes to Home. Back on Home leaves the app.
+  - It keeps clear of the navigation bar and a side camera cutout, but not
+    of the keyboard, so a text field can never push it up. The Test alert
+    strip and the content use the same insets.
 
 ### Home
 
@@ -645,6 +648,9 @@ Headings are marked as headings for TalkBack.
   and navigation bar are transparent with light icons and buttons, and the
   system draws no contrast scrim, so the page (`#0B0B0D`) and the tab bar
   (`#141418`) show behind them. White on those is 19.66:1 and 18.37:1.
+  While a flash fills the window, the bar icons sit on the flash colour.
+  This is accepted for the 3-second test, and decided for real alerts with
+  PR 2's alert screen, which applies the same choice to the test overlay.
 
 ### TalkBack
 
@@ -711,7 +717,7 @@ reaches TalkBack as a subtree change of the live region:
 
 | Case | What Beacon does |
 |---|---|
-| No camera light, or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
+| No camera light (or no camera service), or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
 | "Display over other apps" off | Only the light flashes. The setup card shows it OFF. |
 | Notification access off | Nothing is detected. The setup card shows it OFF. |
 | Listener dropped by the system | Reconnected when Beacon is opened (section 6). |
@@ -764,6 +770,11 @@ reaches TalkBack as a subtree change of the live region:
 - Option selection.
 - Custom length at both ends.
 - Per-app colour editing, with one grid open at a time.
+- The content-change event TalkBack gets from the Custom value's live
+  region, after both Longer and Shorter.
+- The overflow check that the largest-font tests use: it fails on
+  ellipsized and clipped text, and passes on text that fits.
+- No camera service means no light, without a crash.
 
 ### Emulator (Android 16, API 36)
 
