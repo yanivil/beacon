@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +56,9 @@ import dev.beacon.ui.theme.BeaconType
 
 /** The smallest touch target in either direction (project rule). */
 private val MinTouch = 64.dp
+
+/** Test tag on a button's trailing icon, so tests can check which side it is on. */
+internal const val TRAILING_ICON_TAG = "button_trailing_icon"
 
 /** Dash length of a disabled outline button's border. */
 private val DashLength = 10.dp
@@ -119,6 +123,9 @@ fun FilledButton(
  * @param cornerRadius the corner radius (18 dp by default).
  * @param modifier the modifier for the button.
  * @param enabled false to grey the button out, dash its border, ignore taps and have TalkBack say "Disabled".
+ * @param trailingIcon an optional decorative icon after the text, in the same
+ *   colour, or null; an auto-mirrored icon such as the chevron flips in
+ *   right-to-left layouts.
  */
 @Composable
 fun OutlineButton(
@@ -131,11 +138,12 @@ fun OutlineButton(
     cornerRadius: Dp = 18.dp,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    trailingIcon: ImageVector? = null,
 ) {
     val colour = if (enabled) content else BeaconColors.Disabled
     ButtonBody(
         text, onClick, Color.Transparent, colour, BorderStroke(3.dp, colour),
-        icon, minHeight, style, cornerRadius, modifier, enabled, dashedBorder = !enabled,
+        icon, minHeight, style, cornerRadius, modifier, enabled, dashedBorder = !enabled, trailingIcon = trailingIcon,
     )
 }
 
@@ -156,6 +164,7 @@ fun OutlineButton(
  * @param enabled whether taps are accepted.
  * @param dashedBorder true to draw [border] dashed instead of solid.
  * @param secondaryText the smaller text after [text], or null.
+ * @param trailingIcon the decorative icon after the text (28 dp), or null.
  */
 @Composable
 private fun ButtonBody(
@@ -172,6 +181,7 @@ private fun ButtonBody(
     enabled: Boolean,
     dashedBorder: Boolean = false,
     secondaryText: String? = null,
+    trailingIcon: ImageVector? = null,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
     // The border is drawn inside the bounds, so the padding grows by its width
@@ -210,6 +220,8 @@ private fun ButtonBody(
                 BasicText(text = secondaryText, style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center))
             }
         }
+        // Drawn after the text; an auto-mirrored icon flips itself in right-to-left.
+        if (trailingIcon != null) BeaconIcon(trailingIcon, content, 28.dp, Modifier.testTag(TRAILING_ICON_TAG))
     }
 }
 

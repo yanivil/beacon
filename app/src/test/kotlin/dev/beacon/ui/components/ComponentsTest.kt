@@ -119,6 +119,22 @@ class ComponentsTest {
         rule.onNodeWithText("X").assert(isHeading())
     }
 
+    /** An outline button with a trailing icon still has its text as the label, and the icon comes after the text. */
+    @Test fun outlineButtonTrailingIconKeepsTextLabel() {
+        rule.setContent {
+            BeaconTheme {
+                OutlineButton(
+                    text = "Change settings", onClick = {}, content = BeaconColors.Text, icon = null,
+                    minHeight = 76.dp, style = BeaconType.Button, trailingIcon = BeaconIcons.Chevron,
+                )
+            }
+        }
+        rule.onNodeWithText("Change settings").assert(hasRole(Role.Button))
+        val chevron = rule.onNodeWithTag(TRAILING_ICON_TAG, useUnmergedTree = true).getBoundsInRoot()
+        val text = rule.onNodeWithText("Change settings", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue("chevron ${chevron.left} vs text ${text.right}", chevron.left >= text.right)
+    }
+
     /** A disabled outline button is a Button that reports Disabled, ignores taps and keeps the 64 dp floor. */
     @Test fun disabledOutlineButtonIsDisabled() {
         var clicks = 0

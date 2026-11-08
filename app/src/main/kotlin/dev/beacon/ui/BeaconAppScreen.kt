@@ -31,7 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.beacon.R
 import dev.beacon.alert.MessageSource
+import dev.beacon.settings.BeaconSettings
+import dev.beacon.settings.Pause
 import dev.beacon.ui.components.ScreenTitle
+import dev.beacon.ui.home.HomeActions
+import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.theme.BeaconColors
 
 /*
@@ -79,7 +83,8 @@ private enum class ShellSlot {
  */
 @Composable
 fun BeaconAppScreen(viewModel: MainViewModel) {
-    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val loaded by viewModel.settings.collectAsStateWithLifecycle()
+    val settings = loaded
     var tab by rememberSaveable { mutableStateOf(Tab.HOME) }
     // The app whose colour grid is open on Alert settings (Task 10); kept here so it survives rotation.
     var editingApp by rememberSaveable { mutableStateOf<MessageSource?>(null) }
@@ -96,7 +101,7 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
             // Task 11 wires the button to the test alert.
             testButtonBar = { TestButtonBar(onClick = {}) },
         ) { trailing ->
-            key(tab) { TabContent(tab, trailing) }
+            key(tab) { TabContent(tab, settings, viewModel, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
         }
     }
 }
@@ -105,14 +110,23 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
  * One tab's scrolling content, below the status bar and clear of side
  * system bars and cutouts.
  *
- * Home and Alert settings show only their titles until Tasks 9 and 10.
+ * Alert settings shows only its title until Task 10.
  *
  * @param tab the tab to show.
+ * @param settings the loaded settings.
+ * @param viewModel the target of Home's actions.
+ * @param onOpenSettings called by Home's "Change settings" button.
  * @param trailing the Test alert button's strip when it scrolls with the
  *   content, or null when it is fixed above the tabs.
  */
 @Composable
-private fun TabContent(tab: Tab, trailing: (@Composable () -> Unit)?) {
+private fun TabContent(
+    tab: Tab,
+    settings: BeaconSettings,
+    viewModel: MainViewModel,
+    onOpenSettings: () -> Unit,
+    trailing: (@Composable () -> Unit)?,
+) {
     Column(
         Modifier
             .fillMaxSize()
@@ -128,7 +142,18 @@ private fun TabContent(tab: Tab, trailing: (@Composable () -> Unit)?) {
             verticalArrangement = Arrangement.spacedBy(if (tab == Tab.HOME) 32.dp else 40.dp),
         ) {
             when (tab) {
-                Tab.HOME -> ScreenTitle(stringResource(R.string.home_title))
+                Tab.HOME -> HomeScreen(
+                    settings,
+                    HomeActions(
+                        pauseAll = { viewModel.setPause(Pause.Indefinite) },
+                        resume = { viewModel.setPause(Pause.None) },
+                        // Read the current value from the settings shown, so a toggle always flips what the user sees.
+                        toggleApp = { source ->
+                            viewModel.setAppEnabled(source, !(settings.apps[source]?.enabled ?: source.defaultEnabled))
+                        },
+                        openSettings = onOpenSettings,
+                    ),
+                )
                 Tab.SETTINGS -> ScreenTitle(stringResource(R.string.settings_title))
             }
         }
