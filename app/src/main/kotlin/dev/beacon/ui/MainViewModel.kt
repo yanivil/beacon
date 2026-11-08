@@ -8,8 +8,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.beacon.BeaconApp
 import dev.beacon.alert.AlertController
+import dev.beacon.alert.AlertKind
+import dev.beacon.alert.AlertRequest
 import dev.beacon.alert.AlertState
 import dev.beacon.alert.MessageSource
+import dev.beacon.alert.TEST_LENGTH_MILLIS
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.BlinkSpeed
 import dev.beacon.settings.ColourMode
@@ -17,6 +20,7 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
+import dev.beacon.ui.testalert.testColour
 import java.io.IOException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,6 +43,10 @@ import kotlinx.coroutines.launch
  * background. Showing defaults until then would flash the wrong state (for
  * example "ON" while alerts are paused), so the screen stays blank until the
  * first real value arrives.
+ *
+ * Why a test ignores the pause: the pause holds back alerts for messages. A
+ * test is the user asking to see the flash right now, so it runs either way
+ * (spec section 8).
  */
 
 /**
@@ -129,6 +137,26 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      */
     fun setSpeed(speed: BlinkSpeed) {
         save { repo.setSpeed(speed) }
+    }
+
+    /**
+     * Starts the 3-second Test alert with the current colour and speed, even
+     * while alerts are paused. Does nothing until the settings have loaded,
+     * or while an alert is already running (the controller drops it).
+     *
+     * @param editingApp the app whose colour card is open on Alert settings,
+     *   or null; in per-app mode the test flashes that app's colour.
+     */
+    fun startTest(editingApp: MessageSource?) {
+        // Not loaded yet: there is no colour or speed to show (the button isn't on screen then anyway).
+        val s = settings.value ?: return
+        val (colour, _) = testColour(s, editingApp)
+        alerts.start(AlertRequest(AlertKind.TEST, colour, s.speed, TEST_LENGTH_MILLIS, source = null))
+    }
+
+    /** Stops the Test alert at once and leaves the camera light off. Safe to call when nothing runs. */
+    fun stopTest() {
+        alerts.stop()
     }
 
     /**

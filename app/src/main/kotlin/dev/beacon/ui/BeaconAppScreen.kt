@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.beacon.R
+import dev.beacon.alert.AlertKind
+import dev.beacon.alert.AlertState
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.Pause
@@ -37,6 +39,8 @@ import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.settings.AlertSettingsScreen
 import dev.beacon.ui.settings.SettingsActions
+import dev.beacon.ui.testalert.TestAlertOverlay
+import dev.beacon.ui.testalert.testColour
 import dev.beacon.ui.theme.BeaconColors
 
 /*
@@ -55,6 +59,12 @@ import dev.beacon.ui.theme.BeaconColors
  * Why each tab gets its own scroll state under key(tab): leaving a tab
  * throws its scroll position away, so each tab opens at its top, as the
  * design does.
+ *
+ * Why the Test alert overlay is drawn from the controller's state: the
+ * controller owns the running test, so after rotation the rebuilt screen
+ * finds it still running and shows the overlay again, mid-countdown. While
+ * it shows, the shell underneath is hidden from TalkBack (cleared semantics),
+ * so a TalkBack user can't wander onto buttons they can't see.
  */
 
 /** The test tag of the scrolling content. */
@@ -77,34 +87,79 @@ private enum class ShellSlot {
 
 /**
  * Beacon's whole screen: the current tab's content, the Test alert button and
- * the tab bar. It stays blank, in the page colour, until the settings have
- * loaded. Back on Alert settings goes to Home; Back on Home leaves the app.
+ * the tab bar, with the Test alert overlay above them while a test runs. It
+ * stays blank, in the page colour, until the settings have loaded. Back on
+ * Alert settings goes to Home; Back on Home leaves the app; Back during a
+ * test stops the test.
  *
- * @param viewModel the source of the settings and the target of changes.
+ * @param viewModel the source of the settings and the alert state, and the target of changes.
  */
 @Composable
 fun BeaconAppScreen(viewModel: MainViewModel) {
     val loaded by viewModel.settings.collectAsStateWithLifecycle()
     val settings = loaded
+    val alertState by viewModel.alertState.collectAsStateWithLifecycle()
+    // Only a test shows here; a real alert (a later PR) has its own screen.
+    val runningTest = (alertState as? AlertState.Running)?.takeIf { it.request.kind == AlertKind.TEST }
     var tab by rememberSaveable { mutableStateOf(Tab.HOME) }
     // The app whose colour grid is open on Alert settings; kept here so it survives rotation.
     var editingApp by rememberSaveable { mutableStateOf<MessageSource?>(null) }
 
     // Only enabled on Alert settings, so on Home the system Back leaves the app.
     BackHandler(enabled = tab == Tab.SETTINGS) { tab = Tab.HOME }
+    // Registered after the tab's handler, so it takes priority: during a test Back only stops the test.
+    BackHandler(enabled = runningTest != null) { viewModel.stopTest() }
 
     if (settings == null) {
         // Nothing to show yet: defaults could flash a wrong state, such as ON while paused.
         Box(Modifier.fillMaxSize().background(BeaconColors.Page))
     } else {
-        ShellLayout(
-            tabBar = { TabBar(tab, onSelect = { tab = it }) },
-            // Task 11 wires the button to the test alert.
-            testButtonBar = { TestButtonBar(onClick = {}) },
-        ) { trailing ->
-            key(tab) { TabContent(tab, settings, viewModel, editingApp, { editingApp = it }, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
+        Box(Modifier.fillMaxSize()) {
+            ShellLayout(
+                tabBar = { TabBar(tab, onSelect = { tab = it }) },
+                onTest = { viewModel.startTest(editingApp) },
+                // Hidden from TalkBack while the overlay covers it, so only the overlay can be reached.
+                modifier = if (runningTest != null) Modifier.clearAndSetSemantics {} else Modifier,
+            ) { trailing ->
+                key(tab) { TabContent(tab, settings, viewModel, editingApp, { editingApp = it }, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
+            }
+            if (runningTest != null) {
+                RunningTest(runningTest, settings, editingApp, viewModel.hasLight, onStop = viewModel::stopTest)
+            }
         }
     }
+}
+
+/**
+ * The Test alert overlay with its labels worked out from the running test
+ * and the settings.
+ *
+ * @param running the running test.
+ * @param settings the loaded settings, for how long real alerts last.
+ * @param editingApp the app whose colour grid is open, which names the
+ *   colour in per-app mode, or null.
+ * @param hasLight true when the phone has a camera light.
+ * @param onStop called by Stop.
+ */
+@Composable
+private fun RunningTest(
+    running: AlertState.Running,
+    settings: BeaconSettings,
+    editingApp: MessageSource?,
+    hasLight: Boolean,
+    onStop: () -> Unit,
+) {
+    // The name comes from the colour actually flashing; the app is the one the test stands for.
+    val colour = colourName(running.request.colour)
+    val app = testColour(settings, editingApp).second
+    TestAlertOverlay(
+        running = running,
+        colourLabel = if (app == null) colour else stringResource(R.string.test_colour_per_app, colour, stringResource(app.nameRes)),
+        speedLabel = speedSummary(running.request.speed),
+        lengthLabel = durationSummary(settings),
+        hasLight = hasLight,
+        onStop = onStop,
+    )
 }
 
 /**
@@ -188,25 +243,29 @@ private fun TabContent(
  * content (with the strip as its last item), then tabs.
  *
  * @param tabBar the tab bar.
- * @param testButtonBar the Test alert button's strip.
+ * @param onTest called when the Test alert button is tapped.
+ * @param modifier the modifier for the whole shell.
  * @param content the scrolling content; it receives the strip to put at its
  *   end, or null when the strip is fixed.
  */
 @Composable
 private fun ShellLayout(
     tabBar: @Composable () -> Unit,
-    testButtonBar: @Composable () -> Unit,
+    onTest: () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable (trailing: (@Composable () -> Unit)?) -> Unit,
 ) {
-    SubcomposeLayout(Modifier.fillMaxSize().background(BeaconColors.Page)) { constraints ->
+    val testButtonBar: @Composable () -> Unit = { TestButtonBar(onClick = onTest) }
+    SubcomposeLayout(modifier.fillMaxSize().background(BeaconColors.Page)) { constraints ->
         val width = constraints.maxWidth
         val height = constraints.maxHeight
         val barConstraints = Constraints(minWidth = width, maxWidth = width)
         val tabs = subcompose(ShellSlot.TAB_BAR, tabBar).map { it.measure(barConstraints) }
         val tabsHeight = tabs.maxOfOrNull { it.height } ?: 0
         // The probe is only measured, never placed, and has no semantics, so
-        // TalkBack and tests only ever see the one real button.
-        val probeHeight = subcompose(ShellSlot.BUTTON_PROBE) { Box(Modifier.clearAndSetSemantics {}) { testButtonBar() } }
+        // TalkBack and tests only ever see the one real button. Its own copy
+        // ignores taps, so nothing that reaches it can start a test.
+        val probeHeight = subcompose(ShellSlot.BUTTON_PROBE) { Box(Modifier.clearAndSetSemantics {}) { TestButtonBar(onClick = {}) } }
             .maxOfOrNull { it.measure(barConstraints).height } ?: 0
         val fixed = testButtonFixed(tabsHeight + probeHeight, height)
         val button = if (fixed) subcompose(ShellSlot.FIXED_BUTTON, testButtonBar).map { it.measure(barConstraints) } else emptyList()
