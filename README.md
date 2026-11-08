@@ -18,16 +18,49 @@ contrast, big touch targets and plain wording.
       version, or as not tested. Done on a Redmi 15C 5G with Android 16,
       and approved on 8 November 2026. Results:
       [`docs/feasibility.md`](docs/feasibility.md).
-- [ ] **Step 2:** Home, Alert settings, Test alert overlay and home-screen
-      widget, built to match the design, plus the alert engine behind them.
-      The spec is approved:
+- [ ] **Step 2 (in progress):** Home, Alert settings, Test alert overlay and
+      home-screen widget, built to match the design, plus the alert engine
+      behind them. The spec is approved:
       [`docs/specs/2026-11-08-step2-design.md`](docs/specs/2026-11-08-step2-design.md).
       It is built in three PRs: screens, then the alert engine, then the
-      widget. The plan for the first, waiting for review:
-      [`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md).
+      widget.
+      - [ ] **PR 0:** the spec and the plan for PR 1
+        ([`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md)),
+        open as yanivil/beacon#5.
+      - [x] **PR 1:** the screens and the test alert, built on
+        `feature/step2-screens`. Emulator checks:
+        [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
+        Nothing in it has run on the test phone yet.
+      - [ ] **PR 2:** the alert engine. **PR 3:** the widget.
 
-There is no app code yet. [`spikes/feasibility/`](spikes/feasibility) holds
-the throwaway test app used in Step 1. It is not part of Beacon.
+The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
+Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
+holds the throwaway test app used in Step 1. It stays a separate project and
+is not part of Beacon.
+
+## What PR 1 delivers
+
+- **Project setup:** the `app` module with exact library versions, minSdk
+  29, compileSdk and targetSdk 36, no internet permission and Android backup
+  off.
+- **Settings:** the settings model and its defaults, saved on the phone with
+  DataStore.
+- **Theme:** Beacon's colours, type sizes and the bundled Atkinson
+  Hyperlegible Next font, with a unit test that checks every text colour
+  pair at 7:1 or more.
+- **Blink clock and camera light:** one clock for the screen and the light,
+  only at 30, 60 or 90 blinks a minute.
+- **Home:** the Visual alerts card (ON or PAUSED), the app switches and the
+  "How alerts look" summary.
+- **Alert settings:** how long to flash (with Custom), blink speed and the
+  screen flash colour, one for all apps or one per app.
+- **Test alert:** the 3-second overlay that blinks the chosen colour, with a
+  countdown and a Stop button.
+- **Checks:** 105 unit tests, and emulator checks at the default and largest
+  font sizes, in landscape, right-to-left and with TalkBack.
+
+Not in PR 1: noticing messages, the real alert screen and the "Finish setup"
+card (PR 2), and the widget (PR 3).
 
 ## What Step 1 found
 
@@ -91,6 +124,25 @@ You need JDK 21 and the Android SDK with platform 36 and build-tools 36.
 [Android Studio](https://developer.android.com/studio) includes both, but
 isn't required: the command-line tools are enough. Set `ANDROID_HOME` to the
 SDK folder. Gradle comes with each project's wrapper.
+
+From the repo root, build the app:
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+Run the unit tests:
+
+```bash
+./gradlew :app:testDebugUnitTest
+```
+
+Install it on one device or emulator, named by its serial (see
+`adb devices`):
+
+```bash
+ANDROID_SERIAL=<serial> ./gradlew :app:installDebug
+```
 
 Build the Step 1 test app:
 

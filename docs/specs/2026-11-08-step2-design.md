@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026 |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert). |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -78,6 +78,10 @@ The project rules win. Each conflict and its resolution:
 | 11 | The widget has fixed text sizes in a fixed box. | A widget can't scroll. Text stays in sp, and lines are left out in a fixed order when they don't fit (section 10). Every line stays in the widget's spoken label. |
 | 12 | The paused card on Home has no resume time. | When the pause came from the widget, the card also says "Back ON by itself at HH:MM." |
 | 13 | Step 1's report says the design's "VISUAL ALERTS" and "TEST ALERT" headings are 20 px uppercase. | The version read for this spec already uses 28 px bold, mixed case, for both. Nothing to change. |
+| 14 | A disabled Shorter or Longer button is drawn only in grey. | The rules say state is never shown by colour alone, and white against `#AEAEB6` is only about 2.2:1. A disabled button also draws its border dashed. |
+| 15 | The ON/OFF pill always sits beside the app's name. | At the largest font that broke words into two-letter lines. The pill wraps under the text when a word would otherwise break. |
+| 16 | The per-app colour card's Change/Done button always sits beside the name. | At large fonts the names broke mid-word. The button sits under the name when the available width divided by the font scale is under 250 dp. |
+| 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
 
 ## 4. Architecture
 
@@ -112,6 +116,9 @@ on it.
 | Widget | Jetpack Glance (`glance-appwidget`) |
 | Navigation | None: two tabs switched by a saved state value |
 | Build | Gradle 9.8.2 wrapper, AGP 9.5.1 with its built-in Kotlin, the Compose compiler plugin matching that Kotlin, and a version catalog. Library versions are pinned to exact releases looked up on Google Maven when the plan is written. |
+| Library versions (PR 1) | Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0. Compose 1.12, core 1.19 and lifecycle 2.11 need compileSdk 37 (their AAR metadata says `minCompileSdk=37`), and the project rules fix compileSdk at 36. |
+| Ripple | material-ripple 1.11.4 has no `ripple()` function, so `BeaconTheme` builds its white press ripple with the public `createRippleModifierNode`. |
+| Unit tests | On JDK 21, Robolectric needs the JVM flag `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED`, which the app's test tasks set. |
 | SDK | minSdk 29, compileSdk 36, targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` |
 
 ### Data flow
@@ -315,6 +322,10 @@ An alert ends at the first of these:
 Ending always turns the light off, releases the wake lock and closes the
 alert screen.
 
+The Home-button and screen-off end conditions are wired with the real alert
+screen in PR 2. PR 2 also stops a running test when Beacon's main screen
+stops.
+
 ### The two halves of the blink
 
 - **BlinkClock:** works out the phase from the clock. The colour shows in
@@ -325,10 +336,16 @@ alert screen.
     the screen.
   - It schedules each flip at `start + step × half period`, so delays don't
     add up.
+  - It never replays missed flips. After a stall, a late start or a restart
+    it jumps to the clock's current phase, so it never goes past 3 flashes a
+    second.
+  - A finite alert always ends with the light off.
   - It prefers the back camera's light.
   - If the light is unavailable or in use, it stops quietly for that alert.
 - **BlinkScreen** (Compose):
   - It reads the clock once per frame.
+  - It gives its content the frame time (`() -> Long`), so the test
+    overlay's countdown and the background share one clock.
   - It flips at the first frame after each half-period boundary, so it is
     never faster than the preset.
   - The colour fills the whole window, including behind the status and
@@ -372,6 +389,7 @@ From top to bottom:
      - A black "Pause all alerts" button: white text, pause icon, at least 80 dp.
    - **PAUSED:**
      - `#1B1B20` with a 4 dp white border.
+     - The heading "Visual alerts" at 28 sp, as on the ON card.
      - A pause icon with "PAUSED".
      - The text "You will NOT see any flashes until you turn alerts back on."
      - When the pause is timed, the extra line "Back ON by itself at HH:MM."
@@ -388,7 +406,8 @@ From top to bottom:
      - Under the name, "<Colour> flash" with a swatch, or "No flash" when
        the app is OFF.
      - On the end side, a 100 × 60 dp pill with the text ON or OFF and a
-       42 dp knob.
+       42 dp knob. At the largest font, when a word of the text beside it
+       would otherwise break, the pill wraps under the text.
      - ON pill: yellow with dark text. OFF pill: black, with a white border
        and white text, laid out in reverse.
 5. **"How alerts look".** A card with three label and value rows:
@@ -411,7 +430,8 @@ From top to bottom:
    - **When Custom is chosen, a "Custom length" panel opens:**
      - The value at 40 sp, read aloud when it changes.
      - "Shorter" and "Longer" buttons, at least 76 dp, with − and + icons.
-     - At either end, that button is disabled and drawn in `#AEAEB6`.
+     - At either end, that button is disabled and drawn in `#AEAEB6`, with
+       a dashed border, so the state isn't shown by colour alone.
      - The line "From 1 to 60 minutes."
 3. **"Blink speed"**, with the line "All three speeds are safe limits that
    protect your camera light and battery."
@@ -427,6 +447,8 @@ From top to bottom:
      96 dp, with White spanning the full row.
    - **Per-app mode:** one card per app showing its name and current colour,
      and a "Change" button (at least 120 × 64 dp).
+     - The button sits beside the name. When the available width divided by
+       the font scale is under 250 dp, it sits under the name, full width.
      - The button opens that app's swatch grid, with swatches at least 88 dp.
      - When open, the button reads "Done".
      - Only one app's grid is open at a time.
@@ -466,6 +488,12 @@ depends on colour alone.
   "Stop" at 32 sp.
 - **Test colour in per-app mode:** the app whose colour card is open. If no
   card is open, the first app that is ON. If no app is ON, Texts (SMS).
+- **Over the app.** Taps on the overlay never reach the screen underneath.
+  TalkBack reaches only the overlay, which it knows as the pane "Test
+  alert".
+- **Back** during a test ends the test and stays on the current tab.
+- **One clock.** The countdown reads the same frame time as the blinking
+  background (see `BlinkScreen` in section 7).
 
 ### The real alert screen
 
@@ -659,7 +687,9 @@ is on screen.
 | Phone too hot (Severe or worse) | The light stops and the screen keeps blinking. |
 | Messages arrive during an alert | Recorded, no second alert. |
 | A real message during a test | The test ends and the real alert starts. |
-| Settings unreadable | Defaults are used. |
+| Settings unreadable | Defaults are used, and the app stays on them until it is restarted. |
+| Settings can't be saved | The change isn't kept, and the screen keeps showing the saved value. No message in PR 1. |
+| An app's icon can't be drawn | Beacon shows its own glyph for that app. |
 | A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up within the alarm window, or on the next screen-on. |
 | The phone restarts | Settings and pause are kept. Android rebinds the listener. With HyperOS Autostart off, it may stay unbound until Beacon is opened. This is Step 1's open risk, and not tested. |
 | Another app's notification has a one-time code | Android 15+ may hide the content. Beacon doesn't need content, so no effect is expected. Not tested. |
@@ -736,6 +766,9 @@ what earlier PRs found.
 | 1 | Project setup, theme, fonts, settings, Home, Alert settings, test overlay (with `BlinkClock`, `TorchBlinker` and the test path of `AlertController`) |
 | 2 | Listener, classifier, the full alert controller, `AlertActivity`, the setup card |
 | 3 | Widget, timed pause and its Home line, widget refresh |
+
+PR 1: built on `feature/step2-screens`. Its emulator checks are in
+[`docs/checks/2026-11-step2-pr1.md`](../checks/2026-11-step2-pr1.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

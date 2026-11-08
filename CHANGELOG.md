@@ -51,6 +51,37 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - The Home and Alert settings screens.
   - The 3-second test alert.
   - Emulator checks at the default and largest font sizes, with TalkBack.
+- `app/`: the Beacon app, Step 2's PR 1 (package `dev.beacon`, Kotlin and
+  Compose, 105 unit tests). It has:
+  - The project setup: one module, exact library versions, minSdk 29,
+    compileSdk and targetSdk 36, no internet permission, backup off.
+  - Settings and their storage: the settings model and defaults, saved with
+    DataStore; unknown or missing values fall back to the defaults.
+  - The theme: Beacon's colours and type, the bundled Atkinson Hyperlegible
+    Next font, and a unit test that checks every text colour pair at 7:1 or
+    more.
+  - The blink clock and the camera-light blinker, which only take the 30,
+    60 or 90 presets and never replay missed flashes.
+  - The alert controller's test path: it runs one alert at a time, owns its
+    timing and ends it on time, so a rebuilt screen can't restart or
+    lengthen it.
+  - The shared components: buttons, headings, app switch rows, ON/OFF
+    pills, option buttons and swatch grids, with platform roles for
+    TalkBack.
+  - The app shell: the two tabs and the Test alert button, which moves into
+    the scrolling content when the fixed area would take more than a third
+    of the window.
+  - Home: the Visual alerts card (ON or PAUSED), the app switches and the
+    "How alerts look" summary.
+  - Alert settings: how long to flash (with Custom), blink speed and the
+    screen flash colour, one for all apps or one per app.
+  - The 3-second test alert overlay, with its countdown and Stop button.
+- `docs/checks/2026-11-step2-pr1.md`, with screenshots in
+  `docs/checks/step2-pr1/`: PR 1's emulator checks (AVD `beacon-api36`,
+  Android 16) at the default and largest font sizes, in landscape,
+  right-to-left and with TalkBack. It lists six defects found, for the
+  owner to decide on, and what stays not tested until the phone is
+  connected.
 
 ### Changed
 
@@ -88,3 +119,31 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md`: Step 1 marked approved (8 November 2026). Step 2 now links
   its approved spec and the PR 1 plan, and lists what the spec adds: the
   "Finish setup" card, the alert screen, and no internet use.
+- The PR 1 plan's library versions: Compose BOM 2026.06.01 (Compose
+  1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0. The newer Compose 1.12,
+  core 1.19 and lifecycle 2.11 need compileSdk 37, and the project rules fix
+  compileSdk at 36.
+- `docs/specs/2026-11-08-step2-design.md`, after building PR 1:
+  - Status: PR 1 built.
+  - Section 3: four more rule-versus-design rows: dashed borders on
+    disabled buttons, the ON/OFF pill wrapping under the text, the per-app
+    Change/Done button stacking under the name, and the "Visual alerts"
+    heading on the PAUSED card.
+  - Section 4: the library versions and why, the ripple built with
+    `createRippleModifierNode`, and the JVM flag Robolectric needs on
+    JDK 21.
+  - Section 7: the camera light never replays missed flips and a finite
+    alert ends with the light off; the Home-button and screen-off endings
+    come with PR 2's alert screen.
+  - Section 8: the PAUSED heading, the pill and button wrapping, dashed
+    disabled buttons, and the test overlay's behaviour: taps and TalkBack
+    stay on the overlay, Back ends the test, and the countdown shares the
+    background's clock.
+  - Section 13: what happens when settings can't be saved, that the app
+    stays on the defaults when settings can't be read, and the glyph used
+    when an app's icon can't be drawn.
+  - Section 16: PR 1 built on `feature/step2-screens`, with a link to its
+    checks.
+- `README.md`: Step 2 marked in progress, with PR 0 open as
+  yanivil/beacon#5 and PR 1 built. It now describes the `app/` module, how
+  to build, test and install the app, and what PR 1 delivers.
