@@ -4,7 +4,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.test.core.app.ApplicationProvider
+import org.robolectric.Shadows.shadowOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
@@ -114,6 +124,7 @@ class HomeScreenTest {
         show(BeaconSettings.DEFAULT.copy(pause = Pause.Indefinite))
         rule.onNodeWithText("PAUSED").assertExists()
         rule.onNodeWithText("All alerts are paused right now.").assertExists()
+        rule.onNodeWithText("Visual alerts").assert(isHeading())
         rule.onNodeWithText("Turn alerts back ON").performClick()
         assertEquals(listOf("resume"), calls)
     }
@@ -170,6 +181,33 @@ class HomeScreenTest {
     @Test fun glyphWhenAppNotInstalled() {
         show()
         rule.onNodeWithTag("glyph_TELEGRAM", useUnmergedTree = true).assertExists()
+    }
+
+    /** Installs [packageName] with [icon] as its launcher icon in Robolectric's package manager. */
+    private fun install(packageName: String, icon: Drawable) {
+        val pm = ApplicationProvider.getApplicationContext<Context>().packageManager
+        val info = PackageInfo().apply {
+            this.packageName = packageName
+            applicationInfo = ApplicationInfo().apply { this.packageName = packageName }
+        }
+        shadowOf(pm).installPackage(info)
+        shadowOf(pm).setApplicationIcon(packageName, icon)
+    }
+
+    /** An installed app with a real icon shows that icon, not the glyph. */
+    @Test fun installedAppShowsItsOwnIcon() {
+        install("com.whatsapp", BitmapDrawable(Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)))
+        show()
+        rule.onNodeWithTag("glyph_WHATSAPP", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("glyph_TELEGRAM", useUnmergedTree = true).assertExists()
+    }
+
+    /** An icon with no usable size falls back to the glyph and does not crash Home. */
+    @Test fun zeroSizeIconFallsBackToGlyph() {
+        // A ColorDrawable has intrinsic size -1 x -1, which toBitmap() cannot turn into a bitmap.
+        install("com.whatsapp", ColorDrawable(Color.RED))
+        show()
+        rule.onNodeWithTag("glyph_WHATSAPP", useUnmergedTree = true).assertExists()
     }
 
     /** Nothing is cut off at the largest font size, in the ON state. */

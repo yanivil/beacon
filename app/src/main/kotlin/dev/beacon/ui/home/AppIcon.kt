@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -39,9 +40,25 @@ import dev.beacon.ui.theme.BeaconColors
 @Composable
 fun AppIcon(source: MessageSource) {
     val context = LocalContext.current
-    val launcher = remember(source) { loadLauncherIcon(context, source) }
-    if (launcher != null) {
-        Image(bitmap = launcher.toBitmap().asImageBitmap(), contentDescription = null, modifier = Modifier.size(40.dp))
+    val px = with(LocalDensity.current) { 40.dp.roundToPx() }
+    // Decoded once per app and size, not on every recomposition. Null means: show the glyph.
+    val bitmap = remember(source, px) {
+        loadLauncherIcon(context, source)?.let { drawable ->
+            // A drawable with no intrinsic size (a plain colour, some adaptive icons) is no usable icon.
+            if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+                null
+            } else {
+                try {
+                    drawable.toBitmap(px, px).asImageBitmap()
+                } catch (_: IllegalArgumentException) {
+                    // An odd drawable must never crash Home: fall back to the glyph.
+                    null
+                }
+            }
+        }
+    }
+    if (bitmap != null) {
+        Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.size(40.dp))
     } else {
         BeaconIcon(glyphFor(source), BeaconColors.White, 30.dp, Modifier.testTag("glyph_${source.name}"))
     }

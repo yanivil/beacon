@@ -103,7 +103,13 @@ private fun PausedCard(onResume: () -> Unit) {
             .padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        StateLine(BeaconIcons.Pause, BeaconColors.White, stringResource(R.string.alerts_paused))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // Set explicitly: the heading must be white on the dark card whatever the surrounding colour.
+            CompositionLocalProvider(LocalContentColour provides BeaconColors.White) {
+                SectionHeading(stringResource(R.string.alerts_heading))
+            }
+            StateLine(BeaconIcons.Pause, BeaconColors.White, stringResource(R.string.alerts_paused))
+        }
         BasicText(
             stringResource(R.string.alerts_paused_body),
             style = BeaconType.BodyStrong.copy(color = BeaconColors.White),
