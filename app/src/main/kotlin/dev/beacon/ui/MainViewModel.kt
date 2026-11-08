@@ -17,6 +17,7 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
+import java.io.IOException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -27,6 +28,12 @@ import kotlinx.coroutines.launch
  * and font-size changes, so the settings stay loaded and a setter that was
  * started still finishes. The screens get plain values and plain functions,
  * and never touch DataStore, coroutines or an Android Context.
+ *
+ * Why failed saves are absorbed: DataStore throws an IOException when the
+ * file can't be written (or read, which every write does first). An uncaught
+ * exception in viewModelScope would crash the app, so a save that fails is
+ * dropped and the screen keeps showing what is really saved. Only IOException
+ * is caught; anything else is a bug and still surfaces.
  *
  * Why the settings start as null: DataStore reads the file in the
  * background. Showing defaults until then would flash the wrong state (for
@@ -56,7 +63,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param pause the new pause.
      */
     fun setPause(pause: Pause) {
-        viewModelScope.launch { repo.setPause(pause) }
+        save { repo.setPause(pause) }
     }
 
     /**
@@ -66,7 +73,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param enabled the new state.
      */
     fun setAppEnabled(source: MessageSource, enabled: Boolean) {
-        viewModelScope.launch { repo.setAppEnabled(source, enabled) }
+        save { repo.setAppEnabled(source, enabled) }
     }
 
     /**
@@ -76,7 +83,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param colour the new colour.
      */
     fun setAppColour(source: MessageSource, colour: FlashColour) {
-        viewModelScope.launch { repo.setAppColour(source, colour) }
+        save { repo.setAppColour(source, colour) }
     }
 
     /**
@@ -85,7 +92,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param mode the new mode.
      */
     fun setColourMode(mode: ColourMode) {
-        viewModelScope.launch { repo.setColourMode(mode) }
+        save { repo.setColourMode(mode) }
     }
 
     /**
@@ -94,7 +101,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param colour the new colour.
      */
     fun setGlobalColour(colour: FlashColour) {
-        viewModelScope.launch { repo.setGlobalColour(colour) }
+        save { repo.setGlobalColour(colour) }
     }
 
     /**
@@ -103,7 +110,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param choice the new choice; the custom length is kept as it is.
      */
     fun setDuration(choice: DurationChoice) {
-        viewModelScope.launch { repo.setDuration(choice) }
+        save { repo.setDuration(choice) }
     }
 
     /**
@@ -112,7 +119,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param longer true for the next longer step, false for the next shorter.
      */
     fun stepCustomLength(longer: Boolean) {
-        viewModelScope.launch { repo.stepCustomLength(longer) }
+        save { repo.stepCustomLength(longer) }
     }
 
     /**
@@ -121,7 +128,23 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
      * @param speed the new preset.
      */
     fun setSpeed(speed: BlinkSpeed) {
-        viewModelScope.launch { repo.setSpeed(speed) }
+        save { repo.setSpeed(speed) }
+    }
+
+    /**
+     * Runs one save in the background and absorbs a storage failure.
+     *
+     * @param write the repository call that saves the change.
+     */
+    private fun save(write: suspend () -> Unit) {
+        viewModelScope.launch {
+            try {
+                write()
+            } catch (e: IOException) {
+                // The screen draws from settings, so a lost write just leaves the
+                // saved value showing. No message and no log in PR 1 (privacy rule).
+            }
+        }
     }
 
     companion object {

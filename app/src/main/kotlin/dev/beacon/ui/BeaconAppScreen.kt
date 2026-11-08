@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -100,7 +102,8 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
 }
 
 /**
- * One tab's scrolling content, below the status bar.
+ * One tab's scrolling content, below the status bar and clear of side
+ * system bars and cutouts.
  *
  * Home and Alert settings show only their titles until Tasks 9 and 10.
  *
@@ -113,8 +116,10 @@ private fun TabContent(tab: Tab, trailing: (@Composable () -> Unit)?) {
     Column(
         Modifier
             .fillMaxSize()
-            // Outside the scroll, so text never scrolls up behind the status bar.
-            .windowInsetsPadding(WindowInsets.statusBars)
+            // Outside the scroll, so text never scrolls up behind the status bar, and
+            // clear of a side navigation bar or camera cutout in landscape. The
+            // Test alert strip inside then finds these insets already consumed.
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
             .testTag(SCROLL_CONTENT_TAG)
             .verticalScroll(rememberScrollState()),
     ) {

@@ -1,17 +1,12 @@
 package dev.beacon.settings
 
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import dev.beacon.alert.MessageSource
 import java.io.File
-import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -86,20 +81,4 @@ class SettingsRepositoryTest {
         assertEquals(DurationChoice.ONE_MINUTE, s.duration)
         assertEquals(5, s.customLength.minutes)
     }
-}
-
-/** A store whose file can never be read or written, as when storage fails. */
-private class UnreadableDataStore : DataStore<Preferences> {
-    /** Fails on the first read, as DataStore does when the file can't be read. */
-    override val data: Flow<Preferences> = flow { throw IOException("unreadable") }
-
-    /**
-     * Fails every write.
-     *
-     * @param transform the edit, never run.
-     * @return never returns.
-     * @throws IOException always.
-     */
-    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
-        throw IOException("unwritable")
 }

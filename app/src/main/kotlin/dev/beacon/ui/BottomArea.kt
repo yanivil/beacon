@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
@@ -124,8 +124,9 @@ fun TestButtonBar(onClick: () -> Unit) {
             .fillMaxWidth()
             .background(BeaconColors.Page)
             .topBorder(DividerWidth, BeaconColors.Divider)
-            // Keeps the button clear of a navigation bar at the side (landscape); the tab bar covers the bottom.
-            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Horizontal))
+            // Keeps the button clear of a side navigation bar or cutout (landscape); the tab bar
+            // covers the bottom. Inside the content these insets are already consumed, so no double padding.
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         TestAlertButton(onClick)
@@ -134,7 +135,8 @@ fun TestButtonBar(onClick: () -> Unit) {
 
 /**
  * The flat bottom bar with exactly two equal-width tabs, Home and Alert
- * settings. Its colour extends behind the system navigation bar.
+ * settings. Its colour extends behind the system navigation bar, and the
+ * tabs keep clear of side bars and cutouts.
  *
  * @param tab the tab now shown.
  * @param onSelect called with the tab the user tapped.
@@ -146,8 +148,9 @@ fun TabBar(tab: Tab, onSelect: (Tab) -> Unit) {
             .fillMaxWidth()
             .background(BeaconColors.TabBar)
             .topBorder(DividerWidth, BeaconColors.Divider)
-            // After the background, so the bar's colour shows behind the navigation bar.
-            .windowInsetsPadding(WindowInsets.navigationBars)
+            // After the background, so the bar's colour shows behind the navigation bar,
+            // while the tabs stay clear of it and of a cutout at the side.
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
             // As tall as the taller tab, so both tabs match when one label wraps.
             .height(IntrinsicSize.Min)
             .selectableGroup(),
