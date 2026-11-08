@@ -36,11 +36,15 @@ This plan covers spec section 16, PR 1. Executors read the spec too.
 - **Exact versions:**
   - Gradle wrapper 9.8.2, AGP 9.5.1, Compose compiler plugin
     `org.jetbrains.kotlin.plugin.compose` 2.2.10
-  - Compose BOM 2026.09.00 (foundation, ui, material-ripple, ui-test-junit4
-    and ui-test-manifest 1.12.1)
+  - Compose BOM 2026.06.01 (foundation, ui, material-ripple, ui-test-junit4
+    and ui-test-manifest 1.11.4)
   - activity-compose 1.13.0, lifecycle-viewmodel-compose and
-    lifecycle-runtime-compose 2.11.0
-  - datastore-preferences 1.3.0, core-ktx 1.19.1
+    lifecycle-runtime-compose 2.10.0
+  - datastore-preferences 1.3.0, core-ktx 1.18.0
+  - Why not newer: Compose 1.12, core 1.19 and lifecycle 2.11 need
+    compileSdk 37 (their AAR metadata says `minCompileSdk=37`), and the
+    project rules fix compileSdk at 36. These are the newest releases that
+    build at 36.
   - junit 4.13.2, robolectric 4.17, androidx.test core 1.7.0,
     androidx.test.ext junit 1.3.0, kotlinx-coroutines-test 1.11.0
 - **No Material 3, and no Material dynamic colour.** The only Material
