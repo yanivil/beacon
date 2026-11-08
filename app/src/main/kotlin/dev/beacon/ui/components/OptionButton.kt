@@ -34,8 +34,11 @@ import dev.beacon.ui.theme.BeaconType
 /**
  * One choice in a group, such as a duration, a blink speed or a colour mode.
  *
- * The caller puts `Modifier.selectableGroup()` on the layout that holds the
- * group's options. TalkBack reads the label, then each sub-line.
+ * The caller marks the layout that holds the group's options: a Column whose
+ * options are its direct children gets `Modifier.selectableGroup()`; a grid
+ * gets [radioList], and each option [radioListItem] through [modifier], so
+ * TalkBack reads the right "N of M". TalkBack reads the label, then each
+ * sub-line.
  *
  * @param label the option's name, in 28 sp.
  * @param selected true when this is the chosen option.

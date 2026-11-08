@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -59,6 +60,9 @@ private val MinTouch = 64.dp
 
 /** Test tag on a button's trailing icon, so tests can check which side it is on. */
 internal const val TRAILING_ICON_TAG = "button_trailing_icon"
+
+/** Test tag on a button's leading icon, so tests can check that it keeps its size. */
+internal const val LEADING_ICON_TAG = "button_leading_icon"
 
 /** Dash length of a disabled outline button's border. */
 private val DashLength = 10.dp
@@ -149,7 +153,8 @@ fun OutlineButton(
 
 /**
  * The body both button kinds share: shape, colours, the 64 dp floor, the
- * Button role and a centred icon and text with a 12 dp gap.
+ * Button role and a centred icon and text with a 12 dp gap. Icons keep their
+ * size at any font scale; the label wraps around them instead.
  *
  * @param text the visible label.
  * @param onClick called when tapped.
@@ -204,20 +209,34 @@ private fun ButtonBody(
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) BeaconIcon(icon, content, 30.dp)
+        // A leading icon is measured before the label, so it always gets its full size.
+        if (icon != null) BeaconIcon(icon, content, 30.dp, Modifier.testTag(LEADING_ICON_TAG))
+        // A Row measures its children in order and the label takes all the width it
+        // can, so a trailing icon would get only what is left (about 4 dp at the
+        // largest font). Weighting the label makes the Row measure it last, after
+        // the icon; fill = false keeps it only as wide as its text, so the group
+        // stays centred. The label wraps instead of squeezing the icon.
+        val labelModifier = if (trailingIcon != null) Modifier.weight(1f, fill = false) else Modifier
         // No maxLines and no ellipsis: at large font sizes the label wraps and
         // the button grows taller instead of cutting words off.
         val mainText = style.copy(color = content, textAlign = TextAlign.Center)
         if (secondaryText == null) {
-            BasicText(text = text, style = mainText)
+            BasicText(text = text, modifier = labelModifier, style = mainText)
         } else {
             // Each line of the flow is centred, and the smaller text is centred on the main text's line.
             FlowRow(
+                modifier = labelModifier,
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
                 BasicText(text = text, style = mainText)
-                BasicText(text = secondaryText, style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center))
+                // Content direction: the text's own first letter sets its direction, so an
+                // English "(3 sec)" in a right-to-left layout is laid out as the left-to-right
+                // run it was measured as, instead of wrapping as "3)" over "(sec".
+                BasicText(
+                    text = secondaryText,
+                    style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center, textDirection = TextDirection.Content),
+                )
             }
         }
         // Drawn after the text; an auto-mirrored icon flips itself in right-to-left.

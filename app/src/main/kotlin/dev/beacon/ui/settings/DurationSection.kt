@@ -3,13 +3,14 @@ package dev.beacon.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -25,6 +26,8 @@ import dev.beacon.ui.components.BeaconIcons
 import dev.beacon.ui.components.OptionButton
 import dev.beacon.ui.components.OutlineButton
 import dev.beacon.ui.components.SectionHeading
+import dev.beacon.ui.components.radioList
+import dev.beacon.ui.components.radioListItem
 import dev.beacon.ui.theme.BeaconColors
 import dev.beacon.ui.theme.BeaconType
 
@@ -33,6 +36,17 @@ import dev.beacon.ui.theme.BeaconType
  * project rules, so the custom length moves one preset step at a time. The
  * value is a polite live region, so TalkBack reads each new length aloud.
  * The panel exists only while Custom is chosen, so other choices stay short.
+ *
+ * Why the value's text is a new node for each length: TalkBack reads a live
+ * region when it gets a content-change event from it. Compose 1.11 reports a
+ * changed text through a pass that keeps only the verdict of the last
+ * property it compares, and a BasicText also carries text-substitution
+ * actions that are rebuilt on every change but count as unchanged. Whether a
+ * text change survives that pass depends on hash order, and on the Android 16
+ * emulator it never did, so the value was never read aloud. Compose also
+ * reports a child's layout change (a new or resized child) as a subtree change
+ * of the live region that holds it, which is how the test overlay's countdown
+ * is read. Keying the text on the length makes every step that kind of change.
  */
 
 /**
@@ -48,7 +62,8 @@ fun DurationSection(settings: BeaconSettings, actions: SettingsActions) {
         SectionHeading(stringResource(R.string.duration_heading))
         BasicText(stringResource(R.string.duration_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
         val choices = DurationChoice.entries
-        AdaptiveGrid(count = choices.size, modifier = Modifier.selectableGroup()) { index ->
+        // A grid, so the group and each option state their list positions (see RadioList.kt).
+        AdaptiveGrid(count = choices.size, modifier = Modifier.radioList(choices.size)) { index ->
             val choice = choices[index]
             OptionButton(
                 label = stringResource(durationLabel(choice)),
@@ -56,6 +71,7 @@ fun DurationSection(settings: BeaconSettings, actions: SettingsActions) {
                 onSelect = { actions.setDuration(choice) },
                 minHeight = 120.dp,
                 stacked = true,
+                modifier = Modifier.radioListItem(index),
                 // Only Custom has a sub-line: its current length.
                 sub = if (choice == DurationChoice.CUSTOM) {
                     listOf(stringResource(R.string.minutes_short, settings.customLength.minutes))
@@ -101,11 +117,7 @@ private fun CustomPanel(settings: BeaconSettings, actions: SettingsActions) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         SectionHeading(stringResource(R.string.custom_heading))
-        BasicText(
-            text = stringResource(R.string.minutes_short, length.minutes),
-            modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
-            style = BeaconType.CustomValue.copy(color = BeaconColors.Text, textAlign = TextAlign.Center),
-        )
+        CustomValue(length.minutes)
         AdaptiveGrid(count = 2) { index ->
             val longer = index == 1
             val enabled = if (longer) !length.isLongest else !length.isShortest
@@ -121,5 +133,29 @@ private fun CustomPanel(settings: BeaconSettings, actions: SettingsActions) {
             )
         }
         BasicText(stringResource(R.string.custom_range), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+    }
+}
+
+/**
+ * The custom length in large type: a polite live region that TalkBack reads
+ * aloud after every Shorter or Longer, such as "15 min".
+ *
+ * @param minutes the length to show.
+ */
+@Composable
+private fun CustomValue(minutes: Int) {
+    // The live region holds the text, as the test overlay's countdown card does, so
+    // a change inside it is reported as a change of the live region itself.
+    Box(Modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
+        // A new text node for each value: its first layout is what tells TalkBack
+        // the value changed (see the file comment), even when the new value is
+        // exactly as wide as the old one.
+        key(minutes) {
+            BasicText(
+                text = stringResource(R.string.minutes_short, minutes),
+                modifier = Modifier.fillMaxWidth(),
+                style = BeaconType.CustomValue.copy(color = BeaconColors.Text, textAlign = TextAlign.Center),
+            )
+        }
     }
 }

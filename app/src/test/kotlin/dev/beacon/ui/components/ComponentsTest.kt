@@ -1,6 +1,8 @@
 package dev.beacon.ui.components
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -37,10 +39,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.FlashColour
 import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
+import dev.beacon.ui.assertOwnListPositions
+import dev.beacon.ui.assertTalkBackReadsList
 import dev.beacon.ui.hasRole
 import dev.beacon.ui.theme.BeaconColors
 import dev.beacon.ui.theme.BeaconTheme
@@ -156,6 +161,48 @@ class ComponentsTest {
         assertTrue("chevron ${chevron.left} vs text ${text.right}", chevron.left >= text.right)
     }
 
+    /**
+     * At 200% font on a 360 dp phone, a full-width outline button whose label
+     * fills the row keeps its 28 dp trailing icon; the label wraps instead (D2).
+     */
+    @Config(qualifiers = "w360dp-h800dp")
+    @Test fun trailingIconKeepsItsSizeAtLargestFont() {
+        rule.setContent {
+            BeaconTheme {
+                WithFontScale(2.0f) {
+                    OutlineButton(
+                        text = "Change settings", onClick = {}, content = BeaconColors.Text, icon = null,
+                        minHeight = 76.dp, style = BeaconType.Button, modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = BeaconIcons.Chevron,
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(TRAILING_ICON_TAG, useUnmergedTree = true).assertWidthIsAtLeast(28.dp).assertHeightIsAtLeast(28.dp)
+        // The icon still comes after the text, and the text is whole.
+        val chevron = rule.onNodeWithTag(TRAILING_ICON_TAG, useUnmergedTree = true).getBoundsInRoot()
+        val text = rule.onNodeWithText("Change settings", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue("chevron ${chevron.left} vs text ${text.right}", chevron.left >= text.right)
+        rule.assertNoTextOverflow()
+    }
+
+    /** At 200% font on a 360 dp phone, a long label never squeezes a button's 30 dp leading icon either. */
+    @Config(qualifiers = "w360dp-h800dp")
+    @Test fun leadingIconKeepsItsSizeAtLargestFont() {
+        rule.setContent {
+            BeaconTheme {
+                WithFontScale(2.0f) {
+                    OutlineButton(
+                        text = "Change settings", onClick = {}, content = BeaconColors.Text, icon = BeaconIcons.Minus,
+                        minHeight = 76.dp, style = BeaconType.Button, modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(LEADING_ICON_TAG, useUnmergedTree = true).assertWidthIsAtLeast(30.dp).assertHeightIsAtLeast(30.dp)
+        rule.assertNoTextOverflow()
+    }
+
     /** A disabled outline button is a Button that reports Disabled, ignores taps and keeps the 64 dp floor. */
     @Test fun disabledOutlineButtonIsDisabled() {
         var clicks = 0
@@ -201,13 +248,37 @@ class ComponentsTest {
         rule.onAllNodes(hasRole(Role.RadioButton)).assertCountEquals(5)
         rule.onNode(hasRole(Role.RadioButton) and hasText("Yellow")).assertIsSelected()
         rule.onAllNodes(hasRole(Role.RadioButton) and isNotSelected()).assertCountEquals(4)
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)).assertExists()
+        // One group around the five options (its list positions are pinned in swatchesReadAsAListOfFive).
+        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.CollectionInfo)).assertExists()
         // The default test window is wide enough for two columns, so White's span shows.
         val white = rule.onNode(hasRole(Role.RadioButton) and hasText("White")).getBoundsInRoot()
         val red = rule.onNode(hasRole(Role.RadioButton) and hasText("Red")).getBoundsInRoot()
         assertTrue(white.right - white.left > red.right - red.left)
         rule.onNode(hasRole(Role.RadioButton) and hasText("Red")).performClick()
         assertEquals(FlashColour.RED, picked)
+    }
+
+    /**
+     * TalkBack reads the five swatches as a list of five, "1 of 5" to "5 of 5"
+     * in colour order, in the two-column grid of a wide phone and in the
+     * one-column grid at 200% font (D5).
+     */
+    @Config(qualifiers = "w411dp-h914dp")
+    @Test fun swatchesReadAsAListOfFive() {
+        var scale by mutableStateOf(1f)
+        rule.setContent { BeaconTheme { WithFontScale(scale) { SwatchGrid(FlashColour.YELLOW, {}, 96.dp) } } }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val swatches = FlashColour.entries.map { hasRole(Role.RadioButton) and hasText(context.getString(it.nameRes)) }
+        // Two columns: Red and Yellow share the first row.
+        val red = rule.onNode(swatches[0]).getBoundsInRoot()
+        val yellow = rule.onNode(swatches[1]).getBoundsInRoot()
+        assertEquals("two columns", red.top, yellow.top)
+        rule.assertOwnListPositions(swatches)
+        rule.assertTalkBackReadsList(swatches)
+        scale = 2.0f
+        rule.waitForIdle()
+        rule.assertOwnListPositions(swatches)
+        rule.assertTalkBackReadsList(swatches)
     }
 
     /** At the largest font the row and its pill wrap and grow instead of clipping. */

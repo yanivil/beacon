@@ -8,13 +8,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -33,6 +37,8 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
+import dev.beacon.ui.assertOwnListPositions
+import dev.beacon.ui.assertTalkBackReadsList
 import dev.beacon.ui.hasRole
 import dev.beacon.ui.theme.BeaconTheme
 import android.content.Context
@@ -44,6 +50,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /*
@@ -113,6 +120,41 @@ class AlertSettingsScreenTest {
         assertEquals(DurationChoice.UNTIL_STOPPED, last.duration)
     }
 
+    /** The four duration options, in reading order. */
+    private val durationOptions = listOf("1 min", "5 min", "Custom", "Until I stop it").map { hasRole(Role.RadioButton) and hasText(it) }
+
+    /** In the two-column grid of a wide phone, TalkBack reads the duration options as a list of four, "1 of 4" to "4 of 4" (D5). */
+    @Config(qualifiers = "w411dp-h914dp")
+    @Test fun durationOptionsReadAsAListOfFour() {
+        show()
+        val one = rule.onNode(durationOptions[0]).getBoundsInRoot()
+        val five = rule.onNode(durationOptions[1]).getBoundsInRoot()
+        assertEquals("two columns", one.top, five.top)
+        rule.assertOwnListPositions(durationOptions)
+        rule.assertTalkBackReadsList(durationOptions)
+    }
+
+    /** In the one-column grid at 200% font, TalkBack still reads the duration options as a list of four (D5). */
+    @Config(qualifiers = "w411dp-h2400dp")
+    @Test fun durationOptionsReadAsAListOfFourInOneColumn() {
+        show(fontScale = 2.0f)
+        val one = rule.onNode(durationOptions[0]).getBoundsInRoot()
+        val five = rule.onNode(durationOptions[1]).getBoundsInRoot()
+        assertTrue("one column", five.top >= one.bottom)
+        rule.assertOwnListPositions(durationOptions)
+        rule.assertTalkBackReadsList(durationOptions)
+    }
+
+    /** The one-column groups keep reading their own positions: speed "1 of 3" to "3 of 3", colour mode "1 of 2" and "2 of 2". */
+    @Config(qualifiers = "w411dp-h2400dp")
+    @Test fun singleColumnGroupsReadTheirPositions() {
+        show()
+        rule.assertTalkBackReadsList(listOf("Slow", "Medium", "Fast").map { hasRole(Role.RadioButton) and hasText(it) })
+        rule.assertTalkBackReadsList(
+            listOf("Same color for all apps", "Different color for each app").map { hasRole(Role.RadioButton) and hasText(it) },
+        )
+    }
+
     /** The Custom length panel exists only while Custom is chosen. */
     @Test fun customPanelOnlyWhenCustom() {
         show()
@@ -133,6 +175,29 @@ class AlertSettingsScreenTest {
         last = BeaconSettings.DEFAULT.copy(duration = DurationChoice.CUSTOM, customLength = CustomLength.of(60))
         rule.onNodeWithText("Longer").assertIsNotEnabled()
         rule.onNodeWithText("Shorter").assertIsEnabled()
+    }
+
+    /**
+     * The Custom value stays one polite live region across Shorter and Longer:
+     * the same node, read as the new value, with a new text node inside after
+     * each step. The new text node's first layout is what Compose reports to
+     * TalkBack as a change of the live region (D4).
+     */
+    @Test fun customValueStaysOneLiveRegionWithANewTextEachStep() {
+        show(BeaconSettings.DEFAULT.copy(duration = DurationChoice.CUSTOM, customLength = CustomLength.of(10)))
+        val live = SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion)
+        val before = rule.onNode(live).fetchSemanticsNode()
+        assertEquals(LiveRegionMode.Polite, before.config[SemanticsProperties.LiveRegion])
+        assertTrue("the live region holds its text", before.config.isMergingSemanticsOfDescendants)
+        assertEquals(listOf("10 min"), before.config[SemanticsProperties.Text].map { it.text })
+        val textBefore = rule.onNode(live, useUnmergedTree = true).fetchSemanticsNode().children.single().id
+        rule.onNodeWithText("Longer").performScrollTo().performClick()
+        val after = rule.onNode(live).fetchSemanticsNode()
+        val textAfter = rule.onNode(live, useUnmergedTree = true).fetchSemanticsNode().children.single().id
+        assertEquals("same live region node", before.id, after.id)
+        assertEquals(LiveRegionMode.Polite, after.config[SemanticsProperties.LiveRegion])
+        assertEquals(listOf("${CustomLength.of(10).longer().minutes} min"), after.config[SemanticsProperties.Text].map { it.text })
+        assertTrue("a new text node for the new value", textAfter != textBefore)
     }
 
     /** Medium is chosen by default, Fast carries its note, and a tap picks a speed. */

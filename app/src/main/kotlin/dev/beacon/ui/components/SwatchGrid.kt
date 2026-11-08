@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -34,7 +33,8 @@ import dev.beacon.ui.theme.BeaconType
  * colour, because red and blue cannot carry dark text at 7:1. Each name sits
  * on a black label instead (21:1). The chosen swatch shows a check in its
  * label and a dark-and-white ring, so the choice never depends on colour
- * alone, and TalkBack reads each swatch as a RadioButton named by its colour.
+ * alone, and TalkBack reads each swatch as a RadioButton named by its colour,
+ * "1 of 5" to "5 of 5", as a list whatever the grid's columns.
  */
 
 /** Corner radius of a swatch. */
@@ -57,10 +57,11 @@ fun SwatchGrid(selected: FlashColour, onPick: (FlashColour) -> Unit, minHeight: 
     AdaptiveGrid(
         count = colours.size,
         spansFullRow = { colours[it] == FlashColour.WHITE },
-        modifier = modifier.selectableGroup().padding(8.dp),
+        // A grid, so the group and each swatch state their list positions (see RadioList.kt).
+        modifier = modifier.radioList(colours.size).padding(8.dp),
     ) { index ->
         val colour = colours[index]
-        Swatch(colour, colour == selected, { onPick(colour) }, minHeight)
+        Swatch(colour, colour == selected, { onPick(colour) }, minHeight, Modifier.radioListItem(index))
     }
 }
 
@@ -71,12 +72,13 @@ fun SwatchGrid(selected: FlashColour, onPick: (FlashColour) -> Unit, minHeight: 
  * @param selected true to draw the ring and the check.
  * @param onClick called when the swatch is tapped.
  * @param minHeight the swatch's minimum height; never less than 64 dp is used.
+ * @param modifier the modifier for the swatch, such as its list position.
  */
 @Composable
-private fun Swatch(colour: FlashColour, selected: Boolean, onClick: () -> Unit, minHeight: Dp) {
+private fun Swatch(colour: FlashColour, selected: Boolean, onClick: () -> Unit, minHeight: Dp, modifier: Modifier) {
     val shape = RoundedCornerShape(SwatchRadius)
     Box(
-        modifier = Modifier
+        modifier = modifier
             // The ring is drawn outside the swatch's bounds, into the grid's padding and gaps.
             .then(if (selected) Modifier.drawBehind { drawSelectedRing() } else Modifier)
             .sizeIn(minWidth = 64.dp, minHeight = max(minHeight, 64.dp))
