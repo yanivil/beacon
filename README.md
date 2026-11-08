@@ -1,8 +1,8 @@
 # Beacon
 
-Beacon makes incoming calls and messages visible. When a phone call, a text or
-a chat message arrives, the whole screen blinks a colour and the camera light
-flashes, so people who can't hear the ringtone still notice it.
+Beacon makes incoming messages visible. When a text or a chat message
+arrives, the whole screen blinks a colour and the camera light flashes, so
+people who can't hear the notification sound still notice it.
 
 It is designed for deaf and hard-of-hearing seniors: large bold text, WCAG AAA
 contrast, big touch targets and plain wording.
@@ -10,25 +10,47 @@ contrast, big touch targets and plain wording.
 ## Status
 
 - [x] **Step 0:** project rules (`CLAUDE.md`), README, CHANGELOG
-- [ ] **Step 1:** feasibility tests on a real phone: notification detection,
+- [x] **Step 1:** feasibility tests on a real phone: notification detection,
       camera light blinking, full-screen blink over other apps and the lock
       screen, alerts with the screen off and battery optimisation on, and a
       60-minute camera-light run at Fast (overheating warnings, battery
       drop). Each result is reported as tested on a named phone and Android
-      version, or as not tested.
+      version, or as not tested. Done on a Redmi 15C 5G with Android 16;
+      waiting for approval. Results: [`docs/feasibility.md`](docs/feasibility.md).
 - [ ] **Step 2:** Home, Alert settings, Test alert overlay and home-screen
       widget, built to match the design
 
-There is no app code yet.
+There is no app code yet. [`spikes/feasibility/`](spikes/feasibility) holds
+the throwaway test app used in Step 1. It is not part of Beacon.
+
+## What Step 1 found
+
+On the test phone, Beacon works if the person grants three things:
+
+- **Notification access**, to notice SMS and WhatsApp messages (heard about
+  0.3 s after they arrive).
+- **Display over other apps**, so the blink screen can open over other apps
+  and the lock screen. Without it, only the camera light flashes.
+- **Battery saver: "No restrictions"** for Beacon (HyperOS). Without it,
+  HyperOS freezes Beacon while the phone sleeps, and alerts wait until the
+  phone is charged.
+
+The camera light needs no permission, and Beacon needs no SMS, call log or
+phone permissions. Telegram was not tested, and calls are out of scope.
+Details, sources and the owner's decisions are in
+[`docs/feasibility.md`](docs/feasibility.md).
 
 ## Planned features
 
 From the design:
 
-- **Flash for these apps:** Phone Calls, Texts (SMS), WhatsApp messages,
-  WhatsApp video calls and Telegram, each switched ON or OFF.
+- **Flash for these apps:** Texts (SMS), WhatsApp messages and Telegram
+  messages, each switched ON or OFF. Beacon flashes only when a message is
+  received, never for backups or other app activity. Telegram wasn't tested
+  in Step 1. The design also shows Phone Calls and WhatsApp video calls;
+  those are out of scope.
 - **How long to flash:** 1 min, 5 min, Custom (1 to 60 minutes in fixed
-  steps) or Until I stop it.
+  steps) or Until I stop it. The default is 1 min.
 - **Blink speed:** Slow (30), Medium (60) or Fast (90) blinks a minute.
 - **Screen flash colour:** Red, Yellow, Blue, Green or White, either one
   colour for all apps or a different colour for each app.
@@ -48,9 +70,24 @@ install Beacon.
 
 ## Building
 
-You need [Android Studio](https://developer.android.com/studio) (latest
-stable). It includes its own JDK and Android SDK. Build and run steps will be
-added with the first code in Step 1.
+You need JDK 21 and the Android SDK with platform 36 and build-tools 36.
+[Android Studio](https://developer.android.com/studio) includes both, but
+isn't required: the command-line tools are enough. Set `ANDROID_HOME` to the
+SDK folder. Gradle comes with each project's wrapper.
+
+Build the Step 1 test app:
+
+```bash
+cd spikes/feasibility && ./gradlew assembleDebug
+```
+
+Install it on a phone with USB debugging on:
+
+```bash
+adb install -r spikes/feasibility/build/outputs/apk/debug/beacon-feasibility-spike-debug.apk
+```
+
+How to run each test is in [`docs/feasibility.md`](docs/feasibility.md).
 
 ## Safety and accessibility rules
 
