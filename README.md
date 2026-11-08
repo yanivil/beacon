@@ -15,10 +15,16 @@ contrast, big touch targets and plain wording.
       screen, alerts with the screen off and battery optimisation on, and a
       60-minute camera-light run at Fast (overheating warnings, battery
       drop). Each result is reported as tested on a named phone and Android
-      version, or as not tested. Done on a Redmi 15C 5G with Android 16;
-      waiting for approval. Results: [`docs/feasibility.md`](docs/feasibility.md).
+      version, or as not tested. Done on a Redmi 15C 5G with Android 16,
+      and approved on 8 November 2026. Results:
+      [`docs/feasibility.md`](docs/feasibility.md).
 - [ ] **Step 2:** Home, Alert settings, Test alert overlay and home-screen
-      widget, built to match the design
+      widget, built to match the design, plus the alert engine behind them.
+      The spec is approved:
+      [`docs/specs/2026-11-08-step2-design.md`](docs/specs/2026-11-08-step2-design.md).
+      It is built in three PRs: screens, then the alert engine, then the
+      widget. The plan for the first, waiting for review:
+      [`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md).
 
 There is no app code yet. [`spikes/feasibility/`](spikes/feasibility) holds
 the throwaway test app used in Step 1. It is not part of Beacon.
@@ -56,6 +62,17 @@ From the design:
   colour for all apps or a different colour for each app.
 - **Test alert:** a 3-second preview of the alert.
 - **Home-screen widget:** shows ON or PAUSED; one tap pauses alerts for 1 hour.
+
+Added in the Step 2 spec:
+
+- **Finish setup:** a card on Home, shown only while notification access,
+  "Display over other apps" or the battery setting "No restrictions" is
+  missing. Each shows ON or OFF and opens the right settings page.
+- **Alert screen:** "New message" and the app's name over the blinking
+  colour, with a big Stop button. It never shows who sent the message or
+  what it says.
+- **No internet:** Beacon has no internet permission, and settings never
+  leave the phone.
 
 ## Tech stack
 

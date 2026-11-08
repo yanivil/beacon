@@ -26,6 +26,31 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `dev.beacon.spike`, Views, no libraries) and the adb scripts that drive
   each test. It is not part of Beacon.
 - `.gitignore` for Gradle, Android build output and local files.
+- `docs/specs/2026-11-08-step2-design.md`: the Step 2 design spec. It
+  covers:
+  - Where the project rules and the design disagree, and how each conflict
+    is resolved.
+  - The architecture: one module, package `dev.beacon`, Compose, DataStore
+    and Glance.
+  - Settings and their defaults, and pause and resume.
+  - The message rules, which skip ongoing, summary, repeated and own
+    messages.
+  - The alert engine, the screens, the "Finish setup" card and the widget.
+  - Every text colour pair checked at 7:1 or more, plus type, touch targets,
+    TalkBack roles and right-to-left support.
+  - Error handling, privacy (no internet), testing and the PR order.
+- `docs/plans/2026-11-08-step2-pr1-screens.md`: the implementation plan for
+  Step 2's first PR. It has 12 test-first tasks:
+  - The project setup, with exact library versions.
+  - Settings and their storage.
+  - Theme, contrast and the bundled font.
+  - The blink clock and the camera light.
+  - The alert controller for test alerts.
+  - Shared components.
+  - The app shell and its two tabs.
+  - The Home and Alert settings screens.
+  - The 3-second test alert.
+  - Emulator checks at the default and largest font sizes, with TalkBack.
 
 ### Changed
 
@@ -60,3 +85,6 @@ and the project uses [Semantic Versioning](https://semver.org/).
   "How long to flash" defaults to 1 minute; headings follow the 28sp bold
   rule; Telegram stays, for messages only, and is built without a Step 1
   test. Recorded in `README.md`, `CLAUDE.md` and `docs/feasibility.md`.
+- `README.md`: Step 1 marked approved (8 November 2026). Step 2 now links
+  its approved spec and the PR 1 plan, and lists what the spec adds: the
+  "Finish setup" card, the alert screen, and no internet use.
