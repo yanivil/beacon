@@ -15,6 +15,17 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md` describing Beacon, its planned features, the stack
   (Kotlin, Compose, Glance; minSdk 29) and the project status.
 - `CHANGELOG.md` (this file).
+- `docs/feasibility.md`: Step 1 results on a Redmi 15C 5G (HyperOS,
+  Android 16). SMS and WhatsApp detection, the camera light at 30/60/90
+  including a 60-minute run at Fast, the full-screen blink over other apps
+  and the lock screen, and alerts with the screen off on battery. Also the
+  permissions each part needs, Android and Google Play limits with sources,
+  HyperOS's app freezer and the "No restrictions" fix, requirements for
+  Step 2, and what was not tested.
+- `spikes/feasibility/`: the throwaway Step 1 test app (package
+  `dev.beacon.spike`, Views, no libraries) and the adb scripts that drive
+  each test. It is not part of Beacon.
+- `.gitignore` for Gradle, Android build output and local files.
 
 ### Changed
 
@@ -39,3 +50,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
   is never printed or saved elsewhere, and keychain entries are never
   changed. This replaces the gh-login-only rule. `README.md` contributing
   note updated to match.
+- `README.md`: Step 1 marked done and waiting for approval, with a short
+  "What Step 1 found" section. Building no longer requires Android Studio
+  (JDK 21 and the Android SDK are enough) and shows how to build and install
+  the test app.
+- Scope and defaults, by the owner's decision: phone calls and WhatsApp
+  video calls are dropped (the design still shows them); Beacon flashes only
+  when a message is received, never for backups or other app activity;
+  "How long to flash" defaults to 1 minute; headings follow the 28sp bold
+  rule; Telegram stays, for messages only, and is built without a Step 1
+  test. Recorded in `README.md`, `CLAUDE.md` and `docs/feasibility.md`.

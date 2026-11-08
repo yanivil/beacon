@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Beacon test</string>
+
+    <string name="title_status">Permissions</string>
+    <string name="title_grant">Grant on this phone</string>
+    <string name="title_run">Run</string>
+
+    <string name="state_on">ON</string>
+    <string name="state_off">OFF</string>
+
+    <string name="status_listener">Notification access: %1$s</string>
+    <string name="status_notifications">Post notifications: %1$s</string>
+    <string name="status_overlay">Show over other apps: %1$s</string>
+    <string name="status_full_screen">Full-screen alerts: %1$s</string>
+    <string name="status_battery">Battery optimisation: %1$s</string>
+    <string name="status_armed">Test alerts armed: %1$s</string>
+
+    <string name="button_allow_notifications">Allow notifications</string>
+    <string name="button_notification_access">Open notification access</string>
+    <string name="button_overlay">Open show over other apps</string>
+    <string name="button_full_screen">Open full-screen alerts</string>
+    <string name="button_xiaomi">Open Xiaomi app permissions</string>
+    <string name="button_run60">Start 60-minute Fast run</string>
+    <string name="button_stop_all">Stop everything</string>
+    <string name="button_stop">Stop</string>
+
+    <string name="channel_status">Test running</string>
+    <string name="channel_alert">Test alert</string>
+    <string name="notification_running">Beacon test is running</string>
+    <string name="notification_alert">Beacon test alert</string>
+    <string name="notification_watching">Beacon test is watching for alerts</string>
+</resources>

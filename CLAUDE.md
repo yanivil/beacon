@@ -1,7 +1,7 @@
 # Beacon: rules for every session
 
-Beacon is a native Android app that turns incoming calls and messages into
-visual alerts (a full-screen colour blink plus the camera light) for deaf and
+Beacon is a native Android app that turns incoming messages into visual
+alerts (a full-screen colour blink plus the camera light) for deaf and
 hard-of-hearing seniors. Follow every rule below in every session.
 
 ## Project facts
@@ -17,6 +17,13 @@ hard-of-hearing seniors. Follow every rule below in every session.
   design is titled "Visual Alerts": ignore that, the app is called **Beacon**.
 - **When the design and these rules disagree, the rules win.** Name the
   conflict and how you resolved it in the PR draft.
+- **Scope (owner's decisions, 8 November 2026):** Beacon flashes only when a
+  message is received: SMS, WhatsApp and Telegram messages. Never for
+  calls, backups or other app activity. Telegram wasn't tested in Step 1:
+  build it anyway, and report it as "Not tested". Phone calls and WhatsApp video calls
+  are out of scope, although the design shows them. "How long to flash"
+  defaults to 1 minute. Step 1 results and their reasons are in
+  `docs/feasibility.md`.
 
 ## Plan gate
 
