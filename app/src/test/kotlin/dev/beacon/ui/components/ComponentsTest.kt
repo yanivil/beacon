@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -33,6 +34,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -103,6 +105,25 @@ class ComponentsTest {
             .assertTextContains("Highest safe speed")
             .performClick()
         assertTrue(picked)
+    }
+
+    /** The label style parameter is applied: a 24 sp style gives a smaller label than the 28 sp default. */
+    @Test fun optionLabelStyleIsApplied() {
+        rule.setContent {
+            BeaconTheme {
+                Column(Modifier.selectableGroup()) {
+                    OptionButton("Default", selected = false, onSelect = {}, minHeight = 76.dp)
+                    OptionButton("Small", selected = false, onSelect = {}, minHeight = 76.dp, labelStyle = BeaconType.Button)
+                }
+            }
+        }
+        val sizes = listOf("Default", "Small").map { text ->
+            val results = mutableListOf<TextLayoutResult>()
+            rule.onNodeWithText(text, useUnmergedTree = true).fetchSemanticsNode()
+                .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+            results.first().layoutInput.style.fontSize.value
+        }
+        assertEquals(listOf(28f, 24f), sizes)
     }
 
     /** Screen titles and section headings are marked as headings for TalkBack. */

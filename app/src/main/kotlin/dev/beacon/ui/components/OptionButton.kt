@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -44,6 +45,7 @@ import dev.beacon.ui.theme.BeaconType
  *   below); false for a row with the circle on the start side.
  * @param modifier the modifier for the option.
  * @param sub the lines under the label, such as "90 blinks a minute", in 20 sp.
+ * @param labelStyle the label's text style; 28 sp by default, 24 sp for the colour-mode options.
  */
 @Composable
 fun OptionButton(
@@ -54,6 +56,7 @@ fun OptionButton(
     stacked: Boolean = false,
     modifier: Modifier = Modifier,
     sub: List<String> = emptyList(),
+    labelStyle: TextStyle = BeaconType.OptionLabel,
 ) {
     val shape = RoundedCornerShape(20.dp)
     val frame = modifier
@@ -71,7 +74,7 @@ fun OptionButton(
         ) {
             BeaconIcon(mark, Color.Unspecified, 32.dp)
             // The top padding keeps a 10 dp gap when the option is no taller than its content.
-            OptionTexts(label, sub, selected, Modifier.padding(top = 10.dp))
+            OptionTexts(label, sub, selected, labelStyle, Modifier.padding(top = 10.dp))
         }
     } else {
         Row(
@@ -81,7 +84,7 @@ fun OptionButton(
         ) {
             // The design draws the circle larger beside options that have sub-lines.
             BeaconIcon(mark, Color.Unspecified, if (sub.isEmpty()) 32.dp else 36.dp)
-            OptionTexts(label, sub, selected, Modifier.weight(1f))
+            OptionTexts(label, sub, selected, labelStyle, Modifier.weight(1f))
         }
     }
 }
@@ -92,14 +95,15 @@ fun OptionButton(
  * @param label the option's name.
  * @param sub the lines under the label.
  * @param selected true for dark text on yellow, false for light text on a card.
+ * @param labelStyle the label's text style.
  * @param modifier the modifier for the text column.
  */
 @Composable
-private fun OptionTexts(label: String, sub: List<String>, selected: Boolean, modifier: Modifier) {
+private fun OptionTexts(label: String, sub: List<String>, selected: Boolean, labelStyle: TextStyle, modifier: Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         BasicText(
             text = label,
-            style = BeaconType.OptionLabel.copy(color = if (selected) BeaconColors.OnAccent else BeaconColors.Text),
+            style = labelStyle.copy(color = if (selected) BeaconColors.OnAccent else BeaconColors.Text),
         )
         val subColour = if (selected) BeaconColors.OnAccent else BeaconColors.TextSecondary
         sub.forEach { line -> BasicText(text = line, style = BeaconType.Sub.copy(color = subColour)) }

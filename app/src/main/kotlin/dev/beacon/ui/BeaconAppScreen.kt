@@ -33,9 +33,10 @@ import dev.beacon.R
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.Pause
-import dev.beacon.ui.components.ScreenTitle
 import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
+import dev.beacon.ui.settings.AlertSettingsScreen
+import dev.beacon.ui.settings.SettingsActions
 import dev.beacon.ui.theme.BeaconColors
 
 /*
@@ -86,7 +87,7 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
     val loaded by viewModel.settings.collectAsStateWithLifecycle()
     val settings = loaded
     var tab by rememberSaveable { mutableStateOf(Tab.HOME) }
-    // The app whose colour grid is open on Alert settings (Task 10); kept here so it survives rotation.
+    // The app whose colour grid is open on Alert settings; kept here so it survives rotation.
     var editingApp by rememberSaveable { mutableStateOf<MessageSource?>(null) }
 
     // Only enabled on Alert settings, so on Home the system Back leaves the app.
@@ -101,7 +102,7 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
             // Task 11 wires the button to the test alert.
             testButtonBar = { TestButtonBar(onClick = {}) },
         ) { trailing ->
-            key(tab) { TabContent(tab, settings, viewModel, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
+            key(tab) { TabContent(tab, settings, viewModel, editingApp, { editingApp = it }, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
         }
     }
 }
@@ -110,11 +111,13 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
  * One tab's scrolling content, below the status bar and clear of side
  * system bars and cutouts.
  *
- * Alert settings shows only its title until Task 10.
+ * Alert settings shows the three setting sections.
  *
  * @param tab the tab to show.
  * @param settings the loaded settings.
- * @param viewModel the target of Home's actions.
+ * @param viewModel the target of Home's and Alert settings' actions.
+ * @param editingApp the app whose colour grid is open on Alert settings, or null.
+ * @param setEditingApp opens or closes an app's colour grid.
  * @param onOpenSettings called by Home's "Change settings" button.
  * @param trailing the Test alert button's strip when it scrolls with the
  *   content, or null when it is fixed above the tabs.
@@ -124,6 +127,8 @@ private fun TabContent(
     tab: Tab,
     settings: BeaconSettings,
     viewModel: MainViewModel,
+    editingApp: MessageSource?,
+    setEditingApp: (MessageSource?) -> Unit,
     onOpenSettings: () -> Unit,
     trailing: (@Composable () -> Unit)?,
 ) {
@@ -154,7 +159,19 @@ private fun TabContent(
                         openSettings = onOpenSettings,
                     ),
                 )
-                Tab.SETTINGS -> ScreenTitle(stringResource(R.string.settings_title))
+                Tab.SETTINGS -> AlertSettingsScreen(
+                    settings,
+                    editingApp,
+                    SettingsActions(
+                        setDuration = viewModel::setDuration,
+                        stepCustom = viewModel::stepCustomLength,
+                        setSpeed = viewModel::setSpeed,
+                        setColourMode = viewModel::setColourMode,
+                        setGlobalColour = viewModel::setGlobalColour,
+                        setAppColour = viewModel::setAppColour,
+                        setEditingApp = setEditingApp,
+                    ),
+                )
             }
         }
         trailing?.invoke()
