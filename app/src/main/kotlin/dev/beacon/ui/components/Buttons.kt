@@ -16,13 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -42,13 +36,6 @@ import dev.beacon.ui.theme.BeaconType
  * Filled and outline buttons differ only in colours and border, so both draw
  * through ButtonBody and cannot drift apart on those rules.
  *
- * Why a disabled outline button is dashed: the project rules say state is
- * never shown by colour alone. White against the disabled grey is only about
- * 2.2:1, below the 3:1 WCAG asks for a non-text change, so a disabled
- * Shorter/Longer button also swaps its solid border for a dashed one. The
- * shape change shows the state even to someone who can't tell the two greys
- * apart.
- *
  * Why the secondary text is a separate item in a flow row: the design draws
  * "(3 sec)" smaller after "Test alert". As its own item it stays whole,
  * beside the main text while both fit on one line and on the next line
@@ -63,12 +50,6 @@ internal const val TRAILING_ICON_TAG = "button_trailing_icon"
 
 /** Test tag on a button's leading icon, so tests can check that it keeps its size. */
 internal const val LEADING_ICON_TAG = "button_leading_icon"
-
-/** Dash length of a disabled outline button's border. */
-private val DashLength = 10.dp
-
-/** Gap between the dashes of a disabled outline button's border. */
-private val DashGap = 6.dp
 
 /**
  * A solid button, such as "Pause all alerts", "Test alert" or "Stop".
@@ -167,7 +148,7 @@ fun OutlineButton(
  * @param cornerRadius the corner radius.
  * @param modifier the caller's modifier.
  * @param enabled whether taps are accepted.
- * @param dashedBorder true to draw [border] dashed instead of solid.
+ * @param dashedBorder true to draw [border] dashed instead of solid (see [drawDashedBorder]).
  * @param secondaryText the smaller text after [text], or null.
  * @param trailingIcon the decorative icon after the text (28 dp), or null.
  */
@@ -242,29 +223,4 @@ private fun ButtonBody(
         // Drawn after the text; an auto-mirrored icon flips itself in right-to-left.
         if (trailingIcon != null) BeaconIcon(trailingIcon, content, 28.dp, Modifier.testTag(TRAILING_ICON_TAG))
     }
-}
-
-/**
- * Draws [border] as a dashed rounded rectangle inside the bounds, where
- * Modifier.border would draw the solid one, so the button keeps its size.
- *
- * @param border the border's width and colour.
- * @param cornerRadius the button's outer corner radius.
- */
-private fun DrawScope.drawDashedBorder(border: BorderStroke, cornerRadius: Dp) {
-    val width = border.width.toPx()
-    // A stroke is centred on its path, so the path is inset by half the width
-    // (and its corners shrink to match) to keep the whole stroke inside.
-    val half = width / 2
-    val radius = (cornerRadius.toPx() - half).coerceAtLeast(0f)
-    drawRoundRect(
-        brush = border.brush,
-        topLeft = Offset(half, half),
-        size = Size(size.width - width, size.height - width),
-        cornerRadius = CornerRadius(radius),
-        style = Stroke(
-            width = width,
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(DashLength.toPx(), DashGap.toPx())),
-        ),
-    )
 }

@@ -9,14 +9,16 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -126,7 +128,8 @@ fun TestButtonBar(onClick: () -> Unit) {
             .topBorder(DividerWidth, BeaconColors.Divider)
             // Keeps the button clear of a side navigation bar or cutout (landscape); the tab bar
             // covers the bottom. Inside the content these insets are already consumed, so no double padding.
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            // System bars and cutout only, not the keyboard, like the tab bar and the content.
+            .windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal))
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         TestAlertButton(onClick)
@@ -149,8 +152,12 @@ fun TabBar(tab: Tab, onSelect: (Tab) -> Unit) {
             .background(BeaconColors.TabBar)
             .topBorder(DividerWidth, BeaconColors.Divider)
             // After the background, so the bar's colour shows behind the navigation bar,
-            // while the tabs stay clear of it and of a cutout at the side.
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
+            // while the tabs stay clear of it and of a cutout at the side. System bars and
+            // cutout only: safeDrawing's bottom would include the keyboard, so a future text
+            // field would push the tab bar up above it.
+            .windowInsetsPadding(
+                WindowInsets.systemBars.union(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+            )
             // As tall as the taller tab, so both tabs match when one label wraps.
             .height(IntrinsicSize.Min)
             .selectableGroup(),

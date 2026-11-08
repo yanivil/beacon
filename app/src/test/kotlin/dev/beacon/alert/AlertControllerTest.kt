@@ -31,7 +31,11 @@ class AlertControllerTest {
      */
     private fun idle(millis: Long) = shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(millis))
 
-    /** Builds the 3-second Test alert request. */
+    /**
+     * Builds the 3-second Test alert request.
+     *
+     * @return A Test alert request: Yellow, Medium speed, 3 seconds, no source app.
+     */
     private fun testRequest() =
         AlertRequest(AlertKind.TEST, FlashColour.YELLOW, BlinkSpeed.MEDIUM, TEST_LENGTH_MILLIS, null)
 

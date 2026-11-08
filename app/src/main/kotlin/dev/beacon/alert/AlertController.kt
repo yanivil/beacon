@@ -46,6 +46,7 @@ class AlertController(
     /** Whether this phone has a usable camera light. */
     val hasLight: Boolean get() = torch.available
 
+    /** The automatic end: posted on the main looper with [END_TOKEN] for the alert's end time, and calls [stop]. */
     private val endRunnable = Runnable { stop() }
 
     /**

@@ -2,6 +2,7 @@ package dev.beacon.settings
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
 import androidx.datastore.preferences.core.stringPreferencesKey
 import dev.beacon.alert.MessageSource
@@ -28,6 +29,22 @@ class SettingsCodecTest {
         assertEquals(FlashColour.YELLOW, s.globalColour)
         assertEquals(10, s.customLength.minutes)
         assertEquals(Pause.None, s.pause)
+    }
+
+    /** A stored INDEFINITE kind decodes to a pause until alerts are turned back on. */
+    @Test fun indefiniteDecodes() {
+        // The stored names are spelled out, not taken from PauseKinds, so a renamed constant fails here.
+        val p = preferencesOf(stringPreferencesKey("pause_kind") to "INDEFINITE")
+        assertEquals(Pause.Indefinite, SettingsCodec.decode(p).pause)
+    }
+
+    /** A stored UNTIL kind with its deadline decodes to a timed pause ending then. */
+    @Test fun untilWithTimeDecodes() {
+        val p = preferencesOf(
+            stringPreferencesKey("pause_kind") to "UNTIL",
+            longPreferencesKey("pause_until") to 1_234L,
+        )
+        assertEquals(Pause.Until(1_234L), SettingsCodec.decode(p).pause)
     }
 
     /** A timed pause with no stored deadline is treated as no pause. */

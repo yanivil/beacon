@@ -47,10 +47,10 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { p ->
             when (pause) {
                 // No deadline to keep, so remove the stale one.
-                Pause.None -> { p[SettingsCodec.PAUSE_KIND] = "NONE"; p.remove(SettingsCodec.PAUSE_UNTIL) }
-                Pause.Indefinite -> { p[SettingsCodec.PAUSE_KIND] = "INDEFINITE"; p.remove(SettingsCodec.PAUSE_UNTIL) }
+                Pause.None -> { p[SettingsCodec.PAUSE_KIND] = PauseKinds.NONE; p.remove(SettingsCodec.PAUSE_UNTIL) }
+                Pause.Indefinite -> { p[SettingsCodec.PAUSE_KIND] = PauseKinds.INDEFINITE; p.remove(SettingsCodec.PAUSE_UNTIL) }
                 // Both keys in one edit so the kind never appears without its time.
-                is Pause.Until -> { p[SettingsCodec.PAUSE_KIND] = "UNTIL"; p[SettingsCodec.PAUSE_UNTIL] = pause.epochMillis }
+                is Pause.Until -> { p[SettingsCodec.PAUSE_KIND] = PauseKinds.UNTIL; p[SettingsCodec.PAUSE_UNTIL] = pause.epochMillis }
             }
         }
     }

@@ -17,7 +17,7 @@ import dev.beacon.alert.MessageSource
 
 /** Reads [BeaconSettings] out of stored preferences and names every stored key. */
 object SettingsCodec {
-    /** Stored kind of pause: NONE, UNTIL or INDEFINITE. */
+    /** Stored kind of pause: one of the [PauseKinds] names. */
     val PAUSE_KIND = stringPreferencesKey("pause_kind")
 
     /** Deadline in epoch milliseconds; only meaningful when the kind is UNTIL. */
@@ -87,9 +87,9 @@ object SettingsCodec {
      * @return the pause; [Pause.None] if the kind is unknown or UNTIL has no deadline.
      */
     private fun decodePause(prefs: Preferences): Pause = when (prefs[PAUSE_KIND]) {
-        "INDEFINITE" -> Pause.Indefinite
+        PauseKinds.INDEFINITE -> Pause.Indefinite
         // A timed pause without a deadline can't be honoured; treat as not paused.
-        "UNTIL" -> prefs[PAUSE_UNTIL]?.let { Pause.Until(it) } ?: Pause.None
+        PauseKinds.UNTIL -> prefs[PAUSE_UNTIL]?.let { Pause.Until(it) } ?: Pause.None
         else -> Pause.None
     }
 

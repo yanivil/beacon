@@ -25,6 +25,8 @@ class BeaconApp : Application() {
 
     /** The one alert controller; created on first use, after [onCreate] has started the light thread. */
     val alertController: AlertController by lazy {
+        // The switch's camera lookup runs once, here, on the main thread (when the
+        // view model first asks for the controller). PR 2 moves it to the torch thread.
         AlertController(CameraTorchSwitch(this), torchThread.looper, Looper.getMainLooper())
     }
 

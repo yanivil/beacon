@@ -277,6 +277,10 @@ class ComponentsTest {
         rule.assertTalkBackReadsList(swatches)
         scale = 2.0f
         rule.waitForIdle()
+        // One column: Yellow now sits below Red.
+        val redLarge = rule.onNode(swatches[0]).getBoundsInRoot()
+        val yellowLarge = rule.onNode(swatches[1]).getBoundsInRoot()
+        assertTrue("one column", yellowLarge.top >= redLarge.bottom)
         rule.assertOwnListPositions(swatches)
         rule.assertTalkBackReadsList(swatches)
     }

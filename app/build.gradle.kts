@@ -32,8 +32,9 @@ android {
             // Robolectric needs merged resources and the manifest.
             isIncludeAndroidResources = true
             all {
-                // Robolectric on JDK 21 reflects into java.base internals;
-                // without this export the sandbox fails to start.
+                // Robolectric 4.17 on JDK 21 reflects into java.base internals
+                // (raw FileDescriptor access); without this export the sandbox
+                // fails to start. Drop it once a Robolectric version no longer needs it.
                 it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
             }
         }

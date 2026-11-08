@@ -38,6 +38,11 @@ import org.robolectric.RuntimeEnvironment
  * inside merged controls and inside decorative parts whose semantics are
  * cleared (the unmerged tree keeps those).
  *
+ * It checks each text against its own box only. Clipping by an ancestor is
+ * not detected: a clipToBounds, or a fixed-size parent that cuts off a child
+ * measured larger than itself, hides text while the text's own box still
+ * fits it. UiTestSupportTest shows which cases it does catch.
+ *
  * @throws AssertionError if no text is found at all (the check would prove
  *   nothing), or if any text is cut off, naming that text.
  */

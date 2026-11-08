@@ -17,7 +17,7 @@ import dev.beacon.R
  * @throws IllegalArgumentException at class load if a preset exceeds 180 blinks
  *   a minute (3 flashes a second).
  */
-enum class BlinkSpeed(val blinksPerMinute: Int, @StringRes val nameRes: Int) {
+enum class BlinkSpeed(val blinksPerMinute: Int, @param:StringRes val nameRes: Int) {
     SLOW(30, R.string.speed_slow),
     MEDIUM(60, R.string.speed_medium),
     FAST(90, R.string.speed_fast);

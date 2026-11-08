@@ -21,10 +21,14 @@ import android.os.SystemClock
  * blinker gives up quietly and the screen blink carries on alone.
  *
  * Why the looper: start, the flips and the final off all touch the same state,
- * so they run on one thread and can't overlap. stop() is called from any
- * thread: it cancels a pending start right away on the caller's thread (the
- * Handler's remove methods are thread-safe), then does the off on the looper,
- * inline when the caller is already on it.
+ * so they run on one thread (the looper's, "beacon-torch" in the app) and
+ * can't overlap. The light is only ever switched on that thread. start() only
+ * posts the start to the looper. stop() can be called from any thread: it
+ * removes a start that is still waiting in the looper's queue (the Handler's
+ * remove methods are thread-safe) and posts the off to the looper, which runs
+ * it after anything already queued. Only a caller already on the looper runs
+ * the off inline. So from another thread, the light goes off shortly after
+ * stop() returns, not before.
  */
 
 /**
@@ -93,6 +97,11 @@ class TorchBlinker(
         handler.postAtTime(flip, at)
     }
 
+    /**
+     * Begins a run on the looper: clears any flip or end left from an earlier
+     * run, marks the run live and posts the first flip at the clock's start.
+     * [start] posts it; [stop] removes it while it is still queued.
+     */
     private val startRun = Runnable {
         handler.removeCallbacks(flip)
         handler.removeCallbacks(finish)
@@ -101,11 +110,12 @@ class TorchBlinker(
     }
 
     /**
-     * Starts blinking. The first flip happens on the looper after this returns,
-     * at the clock's start, or at once in the clock's current phase if the
-     * start has already passed.
+     * Starts blinking. This only posts the start to the looper and returns.
+     * The start then runs on the looper and schedules the first flip there, at
+     * the clock's start, or at once in the clock's current phase if the start
+     * has already passed.
      *
-     * @return False when this phone has no usable camera light.
+     * @return False when this phone has no usable camera light (nothing is posted).
      */
     fun start(): Boolean {
         if (!torch.available) return false
@@ -116,6 +126,10 @@ class TorchBlinker(
 
     /**
      * Stops blinking and leaves the light off. Safe to call more than once.
+     *
+     * A start still waiting in the looper's queue is removed. The off runs on
+     * the looper: inline when the caller is on it, otherwise posted, so from
+     * another thread the light goes off shortly after this returns.
      */
     fun stop() {
         running = false

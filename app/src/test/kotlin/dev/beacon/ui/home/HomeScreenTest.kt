@@ -196,7 +196,8 @@ class HomeScreenTest {
 
     /** An installed app with a real icon shows that icon, not the glyph. */
     @Test fun installedAppShowsItsOwnIcon() {
-        install("com.whatsapp", BitmapDrawable(Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)))
+        val resources = ApplicationProvider.getApplicationContext<Context>().resources
+        install("com.whatsapp", BitmapDrawable(resources, Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)))
         show()
         rule.onNodeWithTag("glyph_WHATSAPP", useUnmergedTree = true).assertDoesNotExist()
         rule.onNodeWithTag("glyph_TELEGRAM", useUnmergedTree = true).assertExists()

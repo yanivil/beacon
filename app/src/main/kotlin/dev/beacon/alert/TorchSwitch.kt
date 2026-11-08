@@ -31,7 +31,9 @@ interface TorchSwitch {
  * @param context Any context; only the application context is kept.
  */
 class CameraTorchSwitch(context: Context) : TorchSwitch {
-    private val cameraManager = context.applicationContext.getSystemService(CameraManager::class.java)
+    // Looked up once, on the thread that builds the switch (see BeaconApp).
+    // Null on a phone without a camera service: then there is no light, and no crash.
+    private val cameraManager: CameraManager? = context.applicationContext.getSystemService(CameraManager::class.java)
     private val cameraId: String? = findFlashCamera()
 
     override val available: Boolean = cameraId != null
@@ -44,8 +46,10 @@ class CameraTorchSwitch(context: Context) : TorchSwitch {
      */
     override fun set(on: Boolean): Boolean {
         val id = cameraId ?: return false
+        // A camera id is only found when the manager exists, so this never returns here in practice.
+        val manager = cameraManager ?: return false
         return try {
-            cameraManager.setTorchMode(id, on)
+            manager.setTorchMode(id, on)
             true
         } catch (e: CameraAccessException) {
             false
@@ -58,13 +62,15 @@ class CameraTorchSwitch(context: Context) : TorchSwitch {
     /**
      * Finds the camera with the light, preferring the back camera.
      *
-     * @return The camera id, or null if no camera has a light.
+     * @return The camera id, or null if there is no camera service or no camera has a light.
      */
     private fun findFlashCamera(): String? {
+        // No camera service at all: no light.
+        val manager = cameraManager ?: return null
         // The camera list can throw when the camera service is down; treat that as "no light".
         val withFlash = try {
-            cameraManager.cameraIdList.filter { id ->
-                cameraManager.getCameraCharacteristics(id)
+            manager.cameraIdList.filter { id ->
+                manager.getCameraCharacteristics(id)
                     .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
             }
         } catch (e: CameraAccessException) {
@@ -72,7 +78,7 @@ class CameraTorchSwitch(context: Context) : TorchSwitch {
         }
         return withFlash.firstOrNull { id ->
             try {
-                cameraManager.getCameraCharacteristics(id)
+                manager.getCameraCharacteristics(id)
                     .get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
             } catch (e: CameraAccessException) {
                 false

@@ -20,7 +20,7 @@ import dev.beacon.settings.FlashColour
  *   found at run time.
  */
 enum class MessageSource(
-    @StringRes val nameRes: Int,
+    @param:StringRes val nameRes: Int,
     val defaultEnabled: Boolean,
     val defaultColour: FlashColour,
     val fixedPackages: List<String>,
