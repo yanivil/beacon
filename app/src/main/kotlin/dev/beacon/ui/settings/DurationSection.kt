@@ -115,7 +115,7 @@ private fun CustomPanel(settings: BeaconSettings, actions: SettingsActions) {
                 content = BeaconColors.White,
                 icon = if (longer) BeaconIcons.Plus else BeaconIcons.Minus,
                 minHeight = 76.dp,
-                style = BeaconType.Button,
+                style = BeaconType.SmallButton,
                 cornerRadius = 20.dp,
                 enabled = enabled,
             )

@@ -35,7 +35,12 @@ import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.hasRole
 import dev.beacon.ui.theme.BeaconTheme
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -179,5 +184,26 @@ class AlertSettingsScreenTest {
     @Test fun noOverflowAtLargestFont() {
         show(BeaconSettings.DEFAULT.copy(duration = DurationChoice.CUSTOM, colourMode = ColourMode.PER_APP), MessageSource.SMS, fontScale = 2.0f)
         rule.assertNoTextOverflow()
+    }
+
+    /** At the largest font each app's button sits below its name, and no name line ends mid-word. */
+    @Test fun perAppHeaderStacksAtLargestFont() {
+        show(BeaconSettings.DEFAULT.copy(colourMode = ColourMode.PER_APP), fontScale = 2.0f)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        MessageSource.entries.forEach { source ->
+            val name = rule.onNodeWithText(context.getString(source.nameRes)).fetchSemanticsNode()
+            val button = rule.onNodeWithContentDescription(
+                context.getString(dev.beacon.R.string.colour_change_for, context.getString(source.nameRes)),
+            ).fetchSemanticsNode()
+            assertTrue("button below name for $source", button.boundsInRoot.top >= name.boundsInRoot.bottom)
+            val results = mutableListOf<TextLayoutResult>()
+            name.config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+            val layout = results.first()
+            val text = layout.layoutInput.text.text
+            for (line in 0 until layout.lineCount - 1) {
+                val end = layout.getLineEnd(line)
+                assertTrue("\"$text\" breaks mid-word at line $line", text[end - 1].isWhitespace() || text[end].isWhitespace())
+            }
+        }
     }
 }

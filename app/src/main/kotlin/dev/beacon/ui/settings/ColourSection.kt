@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -43,6 +45,9 @@ import dev.beacon.ui.theme.BeaconType
  * names the app, because several identical "Change" buttons are otherwise
  * indistinguishable to TalkBack.
  */
+
+/** Width per unit of font scale below which a card's button moves under the app name. */
+private const val SideBySideMinWidth = 250f
 
 /**
  * The "Screen flash color" section: the two mode options, then either one
@@ -108,8 +113,11 @@ private fun AppColourCard(source: MessageSource, settings: BeaconSettings, open:
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        val spoken = stringResource(if (open) R.string.colour_done_for else R.string.colour_change_for, name)
+        val state = stringResource(if (open) R.string.state_expanded else R.string.state_collapsed)
+        // The name and its colour line, shared by the side-by-side and the stacked layouts.
+        val title: @Composable (Modifier) -> Unit = { modifier ->
+            Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 BasicText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     val swatchShape = RoundedCornerShape(6.dp)
@@ -124,8 +132,9 @@ private fun AppColourCard(source: MessageSource, settings: BeaconSettings, open:
                     BasicText(colourName(colour), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
                 }
             }
-            val spoken = stringResource(if (open) R.string.colour_done_for else R.string.colour_change_for, name)
-            val state = stringResource(if (open) R.string.state_expanded else R.string.state_collapsed)
+        }
+        // Same Change/Done button in both layouts; the caller says how wide it is.
+        val button: @Composable (Modifier) -> Unit = { modifier ->
             OutlineButton(
                 text = stringResource(if (open) R.string.colour_done else R.string.colour_change),
                 onClick = { actions.setEditingApp(if (open) null else source) },
@@ -135,13 +144,29 @@ private fun AppColourCard(source: MessageSource, settings: BeaconSettings, open:
                 style = BeaconType.SmallButton,
                 cornerRadius = 16.dp,
                 // Merging makes one node with the spoken label, the state and the button's click.
-                modifier = Modifier
+                modifier = modifier
                     .sizeIn(minWidth = 120.dp)
                     .semantics(mergeDescendants = true) {
                         contentDescription = spoken
                         stateDescription = state
                     },
             )
+        }
+        BoxWithConstraints {
+            // Beside the name only while a word of it still fits: the room needed per unit of
+            // font scale is about 250 dp (the button's 120 dp, the gap, and "WhatsApp" at 24 sp).
+            // Otherwise the button goes under the name, full width, instead of breaking words.
+            if (maxWidth.value / LocalDensity.current.fontScale >= SideBySideMinWidth) {
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    title(Modifier.weight(1f))
+                    button(Modifier)
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    title(Modifier)
+                    button(Modifier.fillMaxWidth())
+                }
+            }
         }
         if (open) SwatchGrid(colour, { actions.setAppColour(source, it) }, 88.dp)
     }
