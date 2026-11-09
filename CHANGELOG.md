@@ -170,7 +170,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   It also records 11 rulings, including removing the permissions Glance's
   WorkManager would add (the app keeps only `SYSTEM_ALERT_WINDOW` and
   `WAKE_LOCK`, plus the AndroidX signature permission).
-- `app/`: Step 2's PR 3, the widget and the timed pause (268 unit tests,
+- `app/`: Step 2's PR 3, the widget and the timed pause (289 unit tests,
   Jetpack Glance 1.2.0). It adds:
   - The timed pause rules: a widget tap pauses for 1 hour while ON and
     turns alerts ON while paused; a timed pause past its time counts as
@@ -178,13 +178,17 @@ and the project uses [Semantic Versioning](https://semver.org/).
     read-and-write, so two quick taps never make a 2-hour pause.
   - The home-screen widget, "Beacon" in the widget picker, 4 × 2 cells by
     default: ON on yellow or PAUSED on black, in the system font, one tap
-    target with one spoken label. Lines that don't fit are left out in a
-    fixed order (the tap hint, then the title, then the icon); the state
-    word and the resume time stay.
+    target with one spoken label. Each line is measured with
+    `StaticLayout` as the launcher will draw it, and lines that don't fit
+    are left out in a fixed order: the tap hint, the title, the icon, then
+    the resume time, which the spoken label still carries. The state word
+    is never left out. A font-size, density or language change fits the
+    widget again.
   - One `PauseCoordinator` for every pause change, from Home, the widget,
     the resume alarm, Beacon coming to the front and the screen turning
-    on. It saves the pause, sets or cancels an inexact resume alarm and
-    redraws the widget.
+    on. It saves the pause, sets or cancels an inexact resume alarm with a
+    10-minute window, and redraws the widget when the pause changed. A
+    change that has started finishes even if its screen closes.
   - Home's "Back ON by itself at HH:MM." line on the PAUSED card, in the
     phone's 12- or 24-hour format. Home turns ON at the resume time by
     itself, re-reading the clock every minute and when Beacon comes back
@@ -205,11 +209,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
   auto-resume with the emulator's clock moved forward (by the screen
   turning on and by the resume alarm), the widget at font 1.0 and 2.0 at
   two sizes, TalkBack, and rotation with a light-only alert. They found
-  three defects, not fixed yet: after only a font-size change the widget
-  can stay clipped until Glance draws it afresh (D1); the launcher lets it
-  shrink to 3 × 2 (D2); and at 3 × 2 "PAUSED" breaks and the resume time
-  is cut off (D3). The file also lists what stays not tested until the
-  phone is connected.
+  three defects, all fixed in PR 3 and re-checked on the emulator, with
+  ten more screenshots (42 to 51): after only a font-size change the
+  widget stayed clipped until Glance drew it afresh (D1); the launcher let
+  it shrink to 3 × 2 (D2); and at 3 × 2 "PAUSED" broke and the resume time
+  was cut off (D3). The re-checks also cover the alarm's 10-minute window,
+  no drawing session when nothing changed, and none for a rotation. The
+  file also lists what stays not tested until the phone is connected.
 
 ### Changed
 
@@ -260,7 +266,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
     9 November 2026), and PR 3's plan linked.
   - PR 3 built on `feature/step2-widget`, not merged yet, with links to
     its plan and its emulator checks and the three defects they found,
-    and a "What PR 3 delivers" section.
+    all fixed, and a "What PR 3 delivers" section ending with what is not
+    in PR 3.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 1:
@@ -348,3 +355,50 @@ and the project uses [Semantic Versioning](https://semver.org/).
     the alarm's window in the "timed pause ends while nothing runs" row.
   - Section 16: PR 3 built on `feature/step2-widget`, with links to its
     plan and checks and the three defects they found.
+- `docs/specs/2026-11-08-step2-design.md`, in PR 3's final fixes:
+  - Status: PR 3's defects D1 to D3 fixed and re-checked on the emulator.
+  - Section 5: a started pause change always finishes; the widget is
+    redrawn only when the saved pause changed, and the alarm is always set
+    again.
+  - Section 6: the screen-on catch-up redraws the widget only when it
+    changed the pause.
+  - Section 10: the minimum size is in dp, so 3 × 2 on launchers with wide
+    columns and possibly a single row on launchers with tall rows; the
+    default size on Android 10 and 11; the measured fit, which replaces the
+    constants table; the new order lines are left out in, with the resume
+    time last and the state word never; the emulator's results after the
+    fix; fitting again after a font-size change; the alarm's 10-minute
+    window.
+  - Section 11: the widget has no role in Glance, and its label starts
+    with the state and says what a tap does.
+  - Section 13: the alarm's window and the two catch-ups seen clearing an
+    ended pause; a clock set back by hand or by automatic time; a new row
+    for a font-size change while Beacon isn't running.
+  - Section 15: the widget's measure, its re-fit and the coordinator's
+    tests.
+  - Section 16: D1 to D3 fixed.
+- `docs/plans/2026-11-09-step2-pr3-widget.md`: rulings 3 (the alarm), 6
+  (the size) and 7 (the fit and its order) each say how they were amended
+  while building.
+
+### Fixed
+
+- PR 3's final fixes, in `app/`:
+  - A pause change started from Home finishes even if Beacon is closed at
+    once, so the alarm and the widget never fall behind the saved pause
+    (ruling F1).
+  - The resume alarm's window is 10 minutes instead of Android's 75% of
+    the delay, which was 45 minutes for a 1-hour pause (ruling F2).
+  - A screen-on or a return to Beacon with nothing to clean up no longer
+    starts a Glance drawing session; the alarm is still set again
+    (ruling F3).
+  - The widget's lines are measured as the launcher draws them, so
+    "PAUSED" no longer breaks at 3 × 2 (D3, ruling F5), and the resume
+    time is left out after the icon when it can't fit beside the state
+    word (ruling F4).
+  - After only a font-size change the widget is fitted again, also inside
+    a running Glance session (D1, ruling F6).
+  - The widget's minimum stays 250 × 110 dp, and 3 × 2 is now drawn
+    without clipping (D2, ruling F4).
+  - KDoc for the listener's screen-on receiver and three test helpers, and
+    corrected comments (ruling F8).

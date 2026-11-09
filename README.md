@@ -47,11 +47,11 @@ contrast, big touch targets and plain wording.
         [`docs/plans/2026-11-09-step2-pr3-widget.md`](docs/plans/2026-11-09-step2-pr3-widget.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr3.md`](docs/checks/2026-11-step2-pr3.md).
-        They found three defects, not fixed yet: after only a font-size
-        change the widget can stay clipped until Glance draws it afresh,
-        the launcher lets it shrink to 3 × 2, and at 3 × 2 "PAUSED" breaks
-        and the resume time is cut off. Nothing in it has run on the test
-        phone yet.
+        They found three defects, all fixed and re-checked on the
+        emulator: after only a font-size change the widget stayed clipped
+        until Glance drew it afresh, the launcher let it shrink to 3 × 2,
+        and at 3 × 2 "PAUSED" broke and the resume time was cut off.
+        Nothing in it has run on the test phone yet.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -122,18 +122,21 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
 - **The home-screen widget:** "Beacon" in the widget picker, 4 × 2 cells
   by default. It shows ON on yellow or PAUSED on black, in the system font,
   and the whole widget is one tap target with one spoken label. One tap
-  pauses alerts for 1 hour; a tap while paused turns them ON. When the
-  widget is small or the font is large, the tap hint goes first, then the
-  title, then the icon; the state word and the resume time stay.
+  pauses alerts for 1 hour; a tap while paused turns them ON. Each line is
+  measured as the launcher will draw it. When the widget is small or the
+  font is large, the tap hint goes first, then the title, then the icon,
+  then the resume time, which TalkBack still reads; the state word always
+  stays. After a font-size change the widget is fitted again.
 - **The timed pause:** Home's PAUSED card says "Back ON by itself at HH:MM."
   in the phone's 12- or 24-hour format, and Home turns ON at that time by
   itself.
 - **Keeping it current:** every pause change goes through one coordinator,
-  which saves it, sets or cancels a resume alarm and redraws the widget.
-  The alarm is inexact, so Beacon needs no exact-alarm permission. A pause
-  that has ended is also cleaned up when Beacon comes to the front and
-  when the screen turns on. Alerts never wait for any of this: they check
-  the clock.
+  which saves it, sets or cancels a resume alarm and, when the pause
+  changed, redraws the widget. A change that has started finishes even if
+  Beacon is closed at once. The alarm is inexact with a 10-minute window,
+  so Beacon needs no exact-alarm permission. A pause that has ended is
+  also cleaned up when Beacon comes to the front and when the screen turns
+  on. Alerts never wait for any of this: they check the clock.
 - **No new permissions:** the ones Glance's background library would add
   are removed, so Beacon still asks only for "Display over other apps" and
   the wake lock, and still has no internet permission.
@@ -141,12 +144,16 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   Beacon is in front, a real alert replaces a test without a moment of
   Idle in between, and the blink works out its regions only when the size
   or the bars change.
-- **Checks:** 268 unit tests, and emulator checks of the widget picker,
+- **Checks:** 289 unit tests, and emulator checks of the widget picker,
   the tap and pause path, auto-resume with the emulator's clock moved
-  forward, the widget at font 1.0 and 2.0 at two sizes, TalkBack and the
-  rotation carry-over. They found three defects, not fixed yet: the widget
-  can stay clipped after only a font-size change, it can be shrunk to
-  3 × 2, and at 3 × 2 its PAUSED state doesn't fit.
+  forward, the widget at font 1.0 and 2.0 at three sizes, TalkBack and the
+  rotation carry-over. They found three defects, all fixed and re-checked:
+  the widget stayed clipped after only a font-size change, it could be
+  shrunk to 3 × 2, and at 3 × 2 its PAUSED state didn't fit.
+
+Not in PR 3: telling the alert when the camera refuses the light, and new
+battery steps for phones other than Xiaomi (both left from PR 2's reviews),
+and every check on the test phone.
 
 ## What Step 1 found
 

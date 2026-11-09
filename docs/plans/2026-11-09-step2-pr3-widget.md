@@ -99,6 +99,11 @@ Executors read the spec too.
    (`AlarmManager.setAndAllowWhileIdle(RTC_WAKEUP, …)`), so the stored pause
    is cleaned up near its time.
    - Cost if wrong: one wake-up per timed pause.
+   - **Amended while building (ruling F2):** the alarm is
+     `setWindow(RTC_WAKEUP, at, 10 min, …)`. Android's own window for
+     `setAndAllowWhileIdle` was 75% of the delay, 45 minutes for a 1-hour
+     pause; 10 minutes is the smallest window without the exact-alarm
+     permission. See spec section 10.
 4. **The alarm isn't re-set after a restart,** because there's no
    `RECEIVE_BOOT_COMPLETED`. Alerts don't depend on it, because they check
    the clock. The stored pause is cleaned, and the widget redrawn, the next
@@ -115,6 +120,10 @@ Executors read the spec too.
    minimum). It can only grow. At 4 × 2, the 52 sp "PAUSED", its icon and
    the resume line already need all the room.
    - Cost if wrong: less freedom to resize.
+   - **Amended while building (PR 3's D2, ruling F4):** the minimum is in
+     dp, so a launcher with wide columns allows 3 × 2, and one with tall
+     rows would allow a single row. The minimum stays 250 × 110 dp, and the
+     widget fits itself to the smaller sizes instead. See spec section 10.
 7. **The fit estimate uses fixed constants** (Task 2): 0.55 em per
    character, 1.2 line height, 16 dp padding, 4 dp gaps, and an icon as
    wide as its text plus 8 dp.
@@ -128,6 +137,11 @@ Executors read the spec too.
      records whether it happens at the default size.
    - Cost if wrong: a line dropped that would have fitted, or kept when it
      clips.
+   - **Amended while building (PR 3's D3, rulings F4 and F5):** the fit
+     measures each line with `StaticLayout` instead of the 0.55 em
+     estimate, which broke "PAUSED" at 3 × 2. The order becomes the tap
+     hint, the title, the icon, then the resume time, which stays in the
+     spoken label; the state word is never left out. See spec section 10.
 8. **The widget picker shows the label "Beacon" and a one-line
    description.** There is no custom preview image.
    - Cost if wrong: a plain picker entry.
