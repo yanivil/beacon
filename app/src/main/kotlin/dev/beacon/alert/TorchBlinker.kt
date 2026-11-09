@@ -20,6 +20,13 @@ import android.os.SystemClock
  * camera), retrying on every flip would only hammer the camera service. The
  * blinker gives up quietly and the screen blink carries on alone.
  *
+ * Why a refusal is reported: the alert controller must know the light is off,
+ * so the screens stop saying it flashes and the heat poll (which only guards
+ * a flashing light) ends. The report comes after the one attempt to leave the
+ * light off, so whoever hears it can rely on that attempt having been made.
+ * Only a refused flip reports: the end of an alert and stop() ignore what the
+ * light answers, because the run is over anyway.
+ *
  * Why the looper: start, the flips and the final off all touch the same state,
  * so they run on one thread (the looper's, "beacon-torch" in the app) and
  * can't overlap. The light is only ever switched on that thread. start() only
@@ -37,11 +44,15 @@ import android.os.SystemClock
  * @param torch The light to drive.
  * @param clock The alert's timing; it also fixes the blink speed.
  * @param looper The thread that runs the flips and the stop.
+ * @param onRefused Called once on [looper] when the light refuses a flip, after
+ *   the blinker's one attempt to leave the light off. Never called by the end of
+ *   an alert or by [stop].
  */
 class TorchBlinker(
     private val torch: TorchSwitch,
     private val clock: BlinkClock,
     private val looper: Looper,
+    private val onRefused: () -> Unit = {},
 ) {
     private val handler = Handler(looper)
     private var step = 0L
@@ -65,7 +76,10 @@ class TorchBlinker(
                 running = false
                 handler.removeCallbacks(this)
                 handler.removeCallbacks(finish)
+                // What this off answers doesn't matter: the run is over either way.
                 torch.set(false)
+                // Reported last, so the off above has already been tried when the controller hears it.
+                onRefused()
                 return
             }
             step = current + 1

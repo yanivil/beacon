@@ -2,12 +2,13 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. Launcher icon built on `feature/app-icon` (section 8). |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 built on `feature/step2-carryovers`: PR 2's last two carry-overs, the camera light's refusal reported to the alert controller (section 7) and the battery steps for each Android version (section 9). |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
 | Plan for PR 2 | [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](../plans/2026-11-09-step2-pr2-alert-engine.md) |
 | Plan for PR 3 | [`docs/plans/2026-11-09-step2-pr3-widget.md`](../plans/2026-11-09-step2-pr3-widget.md) |
+| Plan for PR 4 | [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](../plans/2026-11-09-step2-pr4-carryovers.md) |
 | Builds on | [`docs/feasibility.md`](../feasibility.md) (Step 1, approved when PR #4 merged) |
 | Design reference | https://claude.ai/code/artifact/57db235d-b0b1-4b3d-af5c-bdee1677e1f2 (version read: `1794128372-2bae`) |
 
@@ -365,6 +366,17 @@ requirement 4).
    the controller checks the thermal status itself every 30 seconds while
    the light flashes, so at worst the light runs 30 seconds after the phone
    turns Severe.
+7. **A refused light.** When the light refuses a command mid-alert (for
+   example another app takes the camera), `TorchBlinker` ends its run,
+   makes one attempt to leave the light off, then reports the refusal. The
+   controller handles it like the heat stop: `lightFlashing` turns false,
+   the 30-second heat poll stops, and the screen blink and the wake lock
+   carry on. The running state's `lightRefused` turns true, so the test
+   overlay's camera line says "Off while another app uses the camera"
+   instead of the heat line (section 8). The heat listener stays
+   registered until the alert ends, as after the heat stop. A report that
+   arrives after its alert ended or was replaced changes nothing, the same
+   guard as the heat callback's (PR 4).
 
 An alert ends at the first of these:
 
@@ -422,6 +434,9 @@ All these endings are built in PR 2.
   - A finite alert always ends with the light off.
   - It prefers the back camera's light.
   - If the light is unavailable or in use, it stops quietly for that alert.
+    A refusal mid-alert is reported once, after the blinker's last attempt
+    to leave the light off; the end of an alert and Stop never report one
+    (PR 4).
 - **BlinkScreen** (Compose):
   - It reads the clock once per frame.
   - It gives its content the frame time (`() -> Long`), so the test
@@ -567,7 +582,7 @@ depends on colour alone.
   |---|---|
   | Color | The colour name. In per-app mode, "Name (App)". |
   | Speed | For example "Medium, 60 a minute" |
-  | Camera light | "Flashing too"; "Off while the phone is hot" when the phone has a light but the heat check stopped it (section 7); or "Not on this phone" when there's no light |
+  | Camera light | "Flashing too"; "Off while the phone is hot" when the phone has a light but the heat check stopped it (section 7); "Off while another app uses the camera" when the light refused during the test (section 7, PR 4); or "Not on this phone" when there's no light |
   | Real alerts last | The duration summary |
 
 - **Stop button.** White, with a 4 dp black border, at least 96 dp tall, and
@@ -657,7 +672,62 @@ card, as an icon.
 |---|---|---|---|
 | Notification access | So Beacon knows when a message arrives. | `NotificationManagerCompat.getEnabledListenerPackages` | Android 11+: Beacon's own notification-access page. Android 10: the notification-access list. |
 | Display over other apps | So the screen can flash over other apps and the lock screen. | `Settings.canDrawOverlays` | Beacon asks for its own "Display over other apps" page. Android 11 and later ignore the app's address for this page and open the list of apps, where the person taps Beacon (seen on the Android 16 emulator). |
-| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps in the row, above the button. On Xiaomi phones: "Tap Battery saver, then No restrictions." On other phones: "Tap Battery, then Unrestricted." Other phones are not tested; stock Android 16 on the emulator names the row "App battery usage". |
+| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps in the row, above the button. On Xiaomi phones: "Tap Battery saver, then No restrictions." On other phones the steps follow the Android version (see "The battery steps" below). |
+
+### The battery steps
+
+Beacon can only open its App info page for the battery setting (ruling 3
+of PR 4's plan), and stock Android names the way from there to
+"Unrestricted" differently in different versions. So phones other than
+Xiaomi get the steps for their version. `batteryStepsRes(manufacturer,
+sdkInt)` in `SetupCard.kt`, a pure function, chooses them from
+`Build.MANUFACTURER` and `Build.VERSION.SDK_INT`, which Home reads once.
+Each names the labels in the order the person taps them.
+
+| Android (API) | Steps shown | Where the words come from | Label |
+|---|---|---|---|
+| 14 and later (34 and up) | "Tap App battery usage. Tap the words Allow background usage, not its switch. If the next page’s switch is off, turn it on. Then tap Unrestricted." | Read on the emulator's screens with `uiautomator dump`, then followed word for word from "Optimized" and from "Restricted" (PR 4's checks). Android 14 and 15 from Android's Settings source. | Tested on emulator beacon-api36, Android 16 (Android 14 and 15: Not tested) |
+| 13 (33) | "Tap App battery usage, then Unrestricted." | Android's Settings source | Not tested |
+| 12 and 12L (31 and 32) | "Tap Battery, then Unrestricted." (the steps PR 2 showed on every other phone) | Android's Settings source | Not tested |
+| 10 and 11 (29 and 30) | "Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done." | Android's Settings source | Not tested |
+| Xiaomi, any version | "Tap Battery saver, then No restrictions." (unchanged) | Step 1 on HyperOS | Not tested |
+
+- **Android's Settings source:** the App info and battery-page layouts and
+  their strings in AOSP's `platform/packages/apps/Settings`, at each
+  version's tagged releases.
+- **Versions that changed in an update:** Android 13 renamed the App info
+  row from "Battery" to "App battery usage" in an early update, and
+  Android 14 moved "Unrestricted" behind "Allow background usage" in a
+  2024 update. Beacon can't tell these builds apart by `SDK_INT`, so it
+  shows each version's last wording. On an Android 13 or 14 phone that
+  hasn't had the update, one label won't match the screen.
+- **Android 10 and 11:** App info shows only its first six rows and puts
+  the rest under "Advanced"; whether Battery is among them depends on the phone. The
+  Battery page has no "Unrestricted" choice. Its "Battery optimization"
+  row opens the list of apps that are "Not optimized", so the person
+  switches the list to "All apps" before Beacon shows.
+- **"Allow background usage" is two targets** on Android 14 and later: its
+  words open the page with "Unrestricted", while the switch at its end
+  turns background use off and makes Beacon "Restricted" (PR 4's checks,
+  O2). So the steps name the words and say "not its switch". When
+  background use is already off, the words still open the next page, but
+  its own "Allow background usage" switch is off and "Optimized" and
+  "Unrestricted" are greyed out until it is turned on; the steps say to
+  turn it on. Following them word for word, from "Optimized" and from
+  "Restricted", the Battery row ended ON both times (PR 4's fix round 0).
+- **Android 12 and 13 have no such switch.** Their battery page lists
+  "Unrestricted", "Optimized" and "Restricted" as three radio buttons
+  (Android's Settings source), so tapping "Unrestricted" works from any of
+  them, and their steps stay as they are. Not tested.
+- **Android 10 and 11 have no switch either.** Their "Background
+  restriction" row, just above "Battery optimization", asks before it
+  restricts anything. Not tested.
+- **Other makers** may name all of these differently; only Xiaomi has its
+  own steps.
+- At font 2.0 the longest steps (Android 14 and later's, 13 lines on the
+  emulator, taller than the screen, so the page scrolls) wrap with nothing
+  cut off, on the emulator and in Robolectric; so do Android 10's in
+  Robolectric.
 
 ### Not used
 
@@ -986,7 +1056,7 @@ reaches TalkBack as a subtree change of the live region:
 
 | Case | What Beacon does |
 |---|---|
-| No camera light (or no camera service), or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
+| No camera light (or no camera service), or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. A light that refuses during an alert is marked off and its heat poll stops; the test overlay then says "Off while another app uses the camera" (section 7, PR 4). Not tested on a device: the emulator has no camera light to take away from Beacon. |
 | "Display over other apps" off | Only the light flashes. The setup card shows it OFF. |
 | Beacon open in front with "Display over other apps" off | Only the light flashes, as everywhere else without that permission; no blink screen opens over Beacon. It ends on its timer or when Beacon is opened again. |
 | Notification access off | Nothing is detected. The setup card shows it OFF. |
@@ -1033,6 +1103,9 @@ reaches TalkBack as a subtree change of the live region:
 - `BlinkClock`: the phase at boundaries, and "Until I stop it".
 - Settings mapping: defaults, round trip, unknown and missing values.
 - Contrast: every pair in section 11 is at least 7:1.
+- The battery steps (`batteryStepsRes`): which string each Android version
+  from 29 to 37 gets, for Xiaomi in any letter case and for four other
+  makers' names, with each boundary checked on both sides.
 
 ### Robolectric Compose tests
 
@@ -1050,6 +1123,15 @@ reaches TalkBack as a subtree change of the live region:
 - The overflow check that the largest-font tests use: it fails on
   ellipsized and clipped text, and passes on text that fits.
 - No camera service means no light, without a crash.
+- A refused light: `TorchBlinker` reports it once, after its final off, and
+  never for an alert's end or a Stop; the controller then stops the heat
+  poll and keeps the screen and the wake lock, and a late report from an
+  ended or replaced alert changes nothing. The test overlay's camera line
+  for a refusal, also at font 2.0.
+- The setup card's battery steps at Robolectric's default Android version
+  (16), and Android 10's steps drawn by the card at font 2.0. No test starts
+  another Android version, so the tests need only the default version's
+  Android jar.
 - The widget's text measure, with Robolectric's native graphics at the
   emulator's density: the lines kept at 266 × 224 and 360 × 224 dp, fonts
   1.0 and 2.0, ON and timed PAUSED, with nothing taller than the widget and
@@ -1078,6 +1160,9 @@ reaches TalkBack as a subtree change of the live region:
 - The widget in both states at both font sizes.
 - The launcher icon on the home screen, in App info, in the widget picker
   and as a themed icon.
+- The setup card's battery path on Android 16, read with `uiautomator dump`
+  and then followed by the card's own steps word for word, from "Optimized"
+  and from "Restricted" (PR 4).
 - Installing the emulator and system image needs the owner's OK for any new
   licence.
 
@@ -1106,6 +1191,7 @@ what earlier PRs found.
 | 1 | Project setup, theme, fonts, settings, Home, Alert settings, test overlay (with `BlinkClock`, `TorchBlinker` and the test path of `AlertController`) |
 | 2 | Listener, classifier, the full alert controller, `AlertActivity`, the setup card |
 | 3 | Widget, timed pause and its Home line, widget refresh |
+| 4 | PR 2's last two carry-overs: a refused camera light reported to the alert controller, and the battery steps for each Android version |
 
 PR 0 merged as yanivil/beacon#5, PR 1 as #6 and PR 2 as #7, all on
 9 November 2026.
@@ -1122,9 +1208,12 @@ one-time "Viewing full screen" panel covered the first alert and the first
 test (D1), and an alert that started while the screen was off ended at
 once (D2).
 
+PR 3 merged as yanivil/beacon#8 and the app icon as #9, both on
+9 November 2026.
+
 PR 3: built on `feature/step2-widget`, from the plan
-[`docs/plans/2026-11-09-step2-pr3-widget.md`](../plans/2026-11-09-step2-pr3-widget.md),
-not merged yet. Its emulator checks are in
+[`docs/plans/2026-11-09-step2-pr3-widget.md`](../plans/2026-11-09-step2-pr3-widget.md).
+Its emulator checks are in
 [`docs/checks/2026-11-step2-pr3.md`](../checks/2026-11-step2-pr3.md). They
 found three defects, all fixed in PR 3 and re-checked on the emulator: after
 only a font-size change the widget stayed clipped until Glance drew it
@@ -1136,8 +1225,18 @@ a timed pause; follow-up R1 fixed it with `TimeChangeReceiver` and
 re-checked it on the emulator.
 
 App icon: built on `feature/app-icon`, a PR of its own beside the three
-above, open as yanivil/beacon#9. Its emulator checks are in
+above. Its emulator checks are in
 [`docs/checks/2026-11-app-icon.md`](../checks/2026-11-app-icon.md).
+
+PR 4: built on `feature/step2-carryovers`, from the plan
+[`docs/plans/2026-11-09-step2-pr4-carryovers.md`](../plans/2026-11-09-step2-pr4-carryovers.md),
+not merged yet. Its emulator checks are in
+[`docs/checks/2026-11-step2-pr4.md`](../checks/2026-11-step2-pr4.md): the
+battery path on stock Android 16, and the new steps followed word for word
+from "Optimized" and from "Restricted" (fix round 0, after the first
+wording's "Allow background usage" step could lead to the switch that
+restricts Beacon), with the row at font 2.0. The refusal has unit tests
+only (the plan's ruling 4).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

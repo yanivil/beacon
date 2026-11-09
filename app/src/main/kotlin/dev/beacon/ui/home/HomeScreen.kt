@@ -1,5 +1,6 @@
 package dev.beacon.ui.home
 
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -11,7 +12,6 @@ import dev.beacon.R
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.resumeAtMillis
-import dev.beacon.setup.SetupIntents
 import dev.beacon.setup.SetupItem
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.components.ScreenTitle
@@ -69,9 +69,9 @@ fun HomeScreen(
     Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
         ScreenTitle(stringResource(R.string.home_title))
         if (setup != null && !setup.complete) {
-            // Xiaomi phones word the battery steps differently; the maker never changes while running.
-            val xiaomi = remember { SetupIntents.isXiaomi() }
-            SetupCard(setup, xiaomi, actions.openSetup)
+            // The maker and the Android version never change while Beacon runs, so the steps are chosen once.
+            val batterySteps = remember { batteryStepsRes(Build.MANUFACTURER, Build.VERSION.SDK_INT) }
+            SetupCard(setup, batterySteps, actions.openSetup)
         }
         AlertsCard(paused, resumeTime, onPause = actions.pauseAll, onResume = actions.resume)
         AppsSection(settings, paused, actions.toggleApp)

@@ -23,7 +23,7 @@ contrast, big touch targets and plain wording.
       behind them. The spec is approved:
       [`docs/specs/2026-11-08-step2-design.md`](docs/specs/2026-11-08-step2-design.md).
       It is built in three PRs: screens, then the alert engine, then the
-      widget.
+      widget, followed by PR 4 for what PR 2's reviews left over.
       - [x] **PR 0:** the spec and the plan for PR 1
         ([`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md)),
         merged as yanivil/beacon#5 on 9 November 2026.
@@ -42,8 +42,8 @@ contrast, big touch targets and plain wording.
         an alert that started while the screen was off ended at once, and
         Android's one-time "Viewing full screen" panel covered the first
         alert. Nothing in it has run on the test phone yet.
-      - [ ] **PR 3:** the widget and the timed pause, built on
-        `feature/step2-widget` and not merged yet. Plan:
+      - [x] **PR 3:** the widget and the timed pause, merged as
+        yanivil/beacon#8 on 9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr3-widget.md`](docs/plans/2026-11-09-step2-pr3-widget.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr3.md`](docs/checks/2026-11-step2-pr3.md).
@@ -52,10 +52,16 @@ contrast, big touch targets and plain wording.
         until Glance drew it afresh, the launcher let it shrink to 3 × 2,
         and at 3 × 2 "PAUSED" broke and the resume time was cut off.
         Nothing in it has run on the test phone yet.
-      - [ ] **App icon:** Beacon's own launcher icon, a black bolt on the
-        design's yellow, built on `feature/app-icon`, open as
-        yanivil/beacon#9. Emulator checks:
+      - [x] **App icon:** Beacon's own launcher icon, a black bolt on the
+        design's yellow, merged as yanivil/beacon#9 on 9 November 2026.
+        Emulator checks:
         [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
+      - [ ] **PR 4:** PR 2's last two carry-overs, built on
+        `feature/step2-carryovers` and not merged yet. Plan:
+        [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](docs/plans/2026-11-09-step2-pr4-carryovers.md).
+        Emulator checks:
+        [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
+        Nothing in it has run on the test phone yet.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -158,9 +164,40 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   the widget stayed clipped after only a font-size change, it could be
   shrunk to 3 × 2, and at 3 × 2 its PAUSED state didn't fit.
 
-Not in PR 3: telling the alert when the camera refuses the light, and new
-battery steps for phones other than Xiaomi (both left from PR 2's reviews),
-and every check on the test phone.
+Not in PR 3: every check on the test phone.
+
+## What PR 4 delivers
+
+- **A refused camera light reaches the alert:** when the light refuses
+  mid-alert (for example another app takes the camera), the blinker leaves
+  it off and tells the alert controller. The controller marks the light
+  off and stops checking the heat for it, and the screen keeps blinking.
+  A late report from an alert that has already ended or been replaced
+  changes nothing. During a test, the overlay's camera line then says
+  "Off while another app uses the camera"; before, it kept saying
+  "Flashing too".
+- **Battery steps for other phones:** the "Battery: No restrictions" row
+  names the labels the phone's own Android version shows on the way from
+  App info to "Unrestricted". On Android 14 and later: "Tap App battery
+  usage. Tap the words Allow background usage, not its switch. If the next
+  page’s switch is off, turn it on. Then tap Unrestricted." The row's
+  switch would make Beacon "Restricted", so the steps steer away from it,
+  and they also work when background use is already off. Android 14 and 15
+  share that wording and Android 10 to 13 have their own, all taken from
+  Android's Settings source and not tested. An Android 13 or 14 phone that
+  never got its later update may show one label that differs. Xiaomi's
+  steps don't change.
+- **Checks:** 324 unit tests (11 new), lint with no errors, and emulator
+  checks of the battery path on Android 16: the new steps followed word
+  for word from "Optimized" and from "Restricted", each ending with the
+  Battery row ON, and the row at font 2.0:
+  [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
+  The choice of steps is a plain function tested in plain JUnit, so the
+  tests need no extra Android versions. The refusal can't be made on the
+  emulator, so it has unit tests only.
+
+Not in PR 4: every check on the test phone, and the older Android
+versions' battery steps on a screen.
 
 ## The launcher icon
 

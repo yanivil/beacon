@@ -173,6 +173,8 @@ class AlertControllerTest {
         c.start(real(60_000)); idle(200); p.fireTooHot(); idle(10)
         val r = c.state.value as AlertState.Running
         assertFalse(r.lightFlashing); assertFalse(fake.events.last().second)
+        // Heat, not a refusal: the overlay keeps saying the phone is hot.
+        assertFalse(r.lightRefused)
         idle(1_000); assertTrue(fake.events.none { it.first > r.clock.startUptimeMillis + 300 && it.second })
     }
 
@@ -234,6 +236,73 @@ class AlertControllerTest {
         p.tooHot = true; idle(30_000)
         val r = c.state.value as AlertState.Running
         assertFalse(r.lightFlashing); assertFalse(fake.events.last().second)
+    }
+
+    /**
+     * Runs the main looper's next due tasks one at a time: here the blinker's start, then its first flip.
+     * A refused flip posts its report to the main looper, and this leaves that report waiting, so a test
+     * can end or replace the alert before it arrives, as a late delivery would.
+     *
+     * @param count How many tasks to run.
+     */
+    private fun runTasks(count: Int) = repeat(count) { shadowOf(Looper.getMainLooper()).runOneTask() }
+
+    /**
+     * Pins that a refused light ends the heat poll and leaves everything else running: the poll is posted
+     * because the heat listener is refused, then the light refuses at its second flip.
+     */
+    @Test fun aRefusedLightStopsTheHeatPoll() {
+        val fake = FakeTorchSwitch(refuseFrom = 2); val p = FakeAlertPlatform(watchAccepted = false); val c = controller(fake, p)
+        c.start(real(null)); idle(1_000)
+        val checks = p.heatChecks
+        idle(HEAT_POLL_MILLIS * 4)
+        assertEquals(checks, p.heatChecks)
+        val r = c.state.value as AlertState.Running
+        assertFalse(r.lightFlashing)
+        // The test overlay's camera line reads this to say why the light is off.
+        assertTrue(r.lightRefused)
+        assertFalse(p.released)
+        assertFalse(fake.events.last().second)
+    }
+
+    /** Pins that a refusal reported after the alert ended changes nothing, not even a newer alert. */
+    @Test fun aRefusalAfterTheAlertEndedChangesNothing() {
+        val fake = FakeTorchSwitch(refuseFrom = 1); val p = FakeAlertPlatform(watchAccepted = false); val c = controller(fake, p)
+        c.start(real(60_000))
+        // The start, then the first flip: refused, the light left off, and the report posted but not yet run.
+        runTasks(2)
+        assertFalse(fake.events.last().second)
+        // The report hasn't run yet: the controller still thinks the light is flashing.
+        assertTrue((c.state.value as AlertState.Running).lightFlashing)
+        c.stop()
+        assertEquals(AlertState.Idle, c.state.value)
+        // A new alert whose light works starts before the old report arrives.
+        fake.refuseFrom = Int.MAX_VALUE
+        c.start(real(60_000)); idle(10)
+        assertTrue((c.state.value as AlertState.Running).lightFlashing)
+        // Its heat poll still runs.
+        val checks = p.heatChecks
+        idle(HEAT_POLL_MILLIS)
+        assertEquals(checks + 1, p.heatChecks)
+    }
+
+    /** Pins that a refusal from a test that a real alert replaced leaves the real alert's light and poll alone. */
+    @Test fun aRefusalOfAReplacedTestChangesTheNewAlertNothing() {
+        val fake = FakeTorchSwitch(refuseFrom = 1); val p = FakeAlertPlatform(watchAccepted = false); val c = controller(fake, p)
+        c.start(testRequest())
+        // The test's start, then its first flip: refused, and the report left waiting.
+        runTasks(2)
+        // The report hasn't run yet: the test still counts as flashing.
+        assertTrue((c.state.value as AlertState.Running).lightFlashing)
+        fake.refuseFrom = Int.MAX_VALUE
+        assertTrue(c.start(real(60_000)))
+        idle(10)
+        val r = c.state.value as AlertState.Running
+        assertEquals(AlertKind.REAL, r.request.kind)
+        assertTrue(r.lightFlashing)
+        val checks = p.heatChecks
+        idle(HEAT_POLL_MILLIS)
+        assertEquals(checks + 1, p.heatChecks)
     }
 
     /** Pins that stop cancels the heat poll. */

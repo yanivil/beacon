@@ -40,13 +40,22 @@ import kotlinx.coroutines.flow.asStateFlow
  * Why the heat callback is guarded: it is delivered through the main looper,
  * so it can arrive just after the alert ended or was replaced. It only acts if
  * the alert it was registered for is still the running one.
+ *
+ * Why a refused light is handled like the heat stop: either way the light is
+ * off for the rest of the alert while the screen keeps blinking. So both mark
+ * the light off and end the heat poll, which only guards a flashing light, in
+ * one place (markLightOff). The refusal comes from the torch looper and is
+ * posted to main, so it can arrive late too, and has the same guard. The heat
+ * listener stays registered either way: its callback is guarded, and ending
+ * the alert unregisters it.
  */
 
 /**
  * Runs one alert at a time and ends it on time.
  *
  * Use it from the main thread only: [start], [stop], [stopIf], the heat
- * callback and the automatic end all run on the main looper.
+ * callback, the light's refusal report and the automatic end all run on the
+ * main looper.
  *
  * @param torch The camera light.
  * @param torchLooper The thread that switches the light.
@@ -111,7 +120,7 @@ class AlertController(
         if (request.lengthMillis == null) {
             mainHandler.postAtTime(renewRunnable, RENEW_TOKEN, now + WAKE_LOCK_PERIOD_MILLIS)
         }
-        val newBlinker = TorchBlinker(torch, clock, torchLooper)
+        val newBlinker = blinkerFor(clock)
         blinker = newBlinker
         // False when there is no light, or the phone is already too hot: the screen blinks alone.
         val lightFlashing = !platform.isTooHot() && newBlinker.start()
@@ -124,6 +133,20 @@ class AlertController(
         // A test never opens the alert window; without the permission Android would block it.
         if (request.kind == AlertKind.REAL && platform.canShowOverOtherApps()) platform.showAlertScreen()
         return true
+    }
+
+    /**
+     * Makes the blinker for one alert, whose refusal report is handed to the main looper.
+     *
+     * @param clock The alert's timing.
+     * @return A blinker that has not started yet.
+     */
+    private fun blinkerFor(clock: BlinkClock): TorchBlinker {
+        // The callback must name the blinker it came from, which only exists once it is built.
+        lateinit var made: TorchBlinker
+        // The report runs on the torch looper; the controller's state belongs to the main looper.
+        made = TorchBlinker(torch, clock, torchLooper, onRefused = { mainHandler.post { onLightRefused(made) } })
+        return made
     }
 
     /**
@@ -150,13 +173,38 @@ class AlertController(
      * @param forBlinker The blinker that was current when the heat watch began.
      */
     private fun onTooHot(forBlinker: TorchBlinker) {
+        // Only the running alert's light is stopped; a late callback changes nothing.
+        if (markLightOff(forBlinker, refused = false)) forBlinker.stop()
+    }
+
+    /**
+     * Notes that the light refused, when the report is for the running alert; the screen keeps blinking.
+     *
+     * @param forBlinker The blinker whose light refused.
+     */
+    private fun onLightRefused(forBlinker: TorchBlinker) {
+        // No stop(): the blinker already ended its run and tried to leave the light off,
+        // so stopping it again would only send the camera one more command.
+        markLightOff(forBlinker, refused = true)
+    }
+
+    /**
+     * Marks the light off for the rest of the running alert and ends its heat poll, shared by the
+     * heat stop and a refused light. The heat listener stays registered; [endCurrent] removes it.
+     *
+     * @param forBlinker The blinker the heat watch or the refusal belongs to.
+     * @param refused True for a refused light, so the test overlay says why the light is off; false for heat.
+     * @return True when it acted; false when that blinker is no longer the running alert's, so a late
+     *   callback from an alert that ended or was replaced changes nothing.
+     */
+    private fun markLightOff(forBlinker: TorchBlinker, refused: Boolean): Boolean {
         // A late callback for an alert that ended or was replaced must change nothing.
-        if (blinker !== forBlinker) return
-        val running = mutableState.value as? AlertState.Running ?: return
-        forBlinker.stop()
+        if (blinker !== forBlinker) return false
+        val running = mutableState.value as? AlertState.Running ?: return false
         blinker = null
         mainHandler.removeCallbacksAndMessages(HEAT_TOKEN)
-        mutableState.value = running.copy(lightFlashing = false)
+        mutableState.value = running.copy(lightFlashing = false, lightRefused = refused)
+        return true
     }
 
     /**
@@ -214,7 +262,7 @@ class AlertController(
         /** Tags the posted auto-end so [stop] can cancel it. */
         val END_TOKEN = Any()
 
-        /** Tags the posted heat poll so [stop] and the too-hot handling can cancel it. */
+        /** Tags the posted heat poll so [stop], the too-hot handling and a refused light can cancel it. */
         val HEAT_TOKEN = Any()
 
         /** Tags the posted wake-lock renewal so [stop] can cancel it. */

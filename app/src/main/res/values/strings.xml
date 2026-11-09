@@ -81,6 +81,7 @@
     <string name="test_camera">Camera light</string>
     <string name="test_camera_on">Flashing too</string>
     <string name="test_camera_hot">Off while the phone is hot</string>
+    <string name="test_camera_busy">Off while another app uses the camera</string>
     <string name="test_camera_none">Not on this phone</string>
     <string name="test_real_length">Real alerts last</string>
     <string name="stop">Stop</string>
@@ -96,7 +97,17 @@
     <string name="setup_battery">Battery: No restrictions</string>
     <string name="setup_battery_reason">So alerts still arrive while the phone sleeps.</string>
     <string name="setup_battery_steps_xiaomi">Tap Battery saver, then No restrictions.</string>
-    <string name="setup_battery_steps_other">Tap Battery, then Unrestricted.</string>
+    <!-- Other phones: the labels on Beacon's App info page, in the order they are tapped, by Android version. -->
+    <!-- Android 10 and 11 (API 29 and 30). -->
+    <string name="setup_battery_steps_api29">Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done.</string>
+    <!-- Android 12 and 12L (API 31 and 32). -->
+    <string name="setup_battery_steps_api31">Tap Battery, then Unrestricted.</string>
+    <!-- Android 13 (API 33). -->
+    <string name="setup_battery_steps_api33">Tap App battery usage, then Unrestricted.</string>
+    <!-- Android 14 and later (API 34 and up); read and followed on the Android 16 emulator. The row's
+         switch would restrict Beacon, so the step names its words; when background use is already off,
+         the next page's switch is off and Unrestricted can't be chosen until it is turned on. -->
+    <string name="setup_battery_steps_api34">Tap App battery usage. Tap the words Allow background usage, not its switch. If the next page’s switch is off, turn it on. Then tap Unrestricted.</string>
     <string name="setup_open">Open settings</string>
     <string name="setup_open_for">Open settings for %1$s</string>
     <string name="state_on">On</string>
