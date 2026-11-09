@@ -67,7 +67,9 @@ internal fun blinkColour(clock: BlinkClock, colour: FlashColour, nowUptimeMillis
  * @param top the system bars' height at the top, in pixels (the status bar).
  * @param right the system bars' width at the right edge, in pixels (a side navigation bar).
  * @param bottom the system bars' height at the bottom, in pixels (the navigation bar).
- * @param phaseColour the current phase's colour, from [blinkColour].
+ * @param phaseColour the current phase's colour, from [blinkColour]. It may be [Color.Unspecified] as a
+ *   placeholder: the caller then paints that rectangle with the phase colour in its draw step, so the
+ *   regions can be worked out once and reused across phases.
  * @return each rectangle with its colour, in painting order; a later one covers an earlier one.
  */
 internal fun blinkRegions(

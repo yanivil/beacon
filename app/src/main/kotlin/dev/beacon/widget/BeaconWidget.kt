@@ -116,8 +116,10 @@ class TogglePauseAction : ActionCallback {
 /** Redraws every placed Beacon widget; the coordinator calls it after each pause change. */
 object WidgetRefresher {
     /**
-     * What a refresh does. Tests that only start an activity swap it for a no-op: Glance keeps
-     * process-wide state, and a Robolectric test that ends mid-update can leave a later update waiting forever.
+     * What a refresh does. Tests that start Beacon's main screen or connect the listener, which both
+     * catch the pause up, swap it for a no-op (NoWidgetRefreshRule), and tests of the refresh itself
+     * swap it for a counter: Glance keeps process-wide state, and a Robolectric test that ends
+     * mid-update can leave a later update waiting forever.
      */
     @VisibleForTesting
     internal var update: suspend (Context) -> Unit = { BeaconWidget().updateAll(it) }

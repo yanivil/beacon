@@ -112,6 +112,12 @@ class BeaconListener : NotificationListenerService() {
         // A second connect without a disconnect must not leave two receivers behind.
         unregisterScreenOnReceiver()
         val receiver = object : BroadcastReceiver() {
+            /**
+             * Catches the pause up on the app's scope, off the receiver's call.
+             *
+             * @param context the listener's context, unused: the app is read from the service.
+             * @param intent the screen-on broadcast; it carries nothing used.
+             */
             override fun onReceive(context: Context, intent: Intent) {
                 val app = application as BeaconApp
                 app.appScope.launch {

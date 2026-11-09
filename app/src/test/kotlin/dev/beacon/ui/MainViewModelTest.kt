@@ -131,7 +131,11 @@ class MainViewModelTest {
         }
     }
 
-    /** A coordinator over storage that always fails, for tests that don't look at pausing. */
+    /**
+     * A coordinator over storage that always fails, for tests that don't look at pausing.
+     *
+     * @return the coordinator; every change it makes throws IOException.
+     */
     private fun unreadablePauses() = PauseCoordinator(SettingsRepository(UnreadableDataStore()), FakeResumeAlarm(), refreshWidgets = {})
 
     private companion object {

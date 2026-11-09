@@ -27,7 +27,13 @@ import org.robolectric.annotation.GraphicsMode
  * no word broken: every kept line fits inside, the state word on one row.
  */
 
-/** The widget's inner size at [widthDp] x [heightDp]: the padding on both sides taken off. */
+/**
+ * The widget's inner size: the padding on both sides taken off.
+ *
+ * @param widthDp the widget's width in dp.
+ * @param heightDp the widget's height in dp.
+ * @return the inner width and height in dp.
+ */
 private fun inner(widthDp: Float, heightDp: Float) = (widthDp - 2 * WIDGET_PADDING_DP) to (heightDp - 2 * WIDGET_PADDING_DP)
 
 /**

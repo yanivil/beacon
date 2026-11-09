@@ -362,7 +362,12 @@ class HomeScreenTest {
         assertTrue("title $title, card $card, alerts $alerts", title < card && card < alerts)
     }
 
-    /** The text of the resume line for a resume time. */
+    /**
+     * The text of Home's resume line for a resume time.
+     *
+     * @param resumeAt when the pause ends, in epoch milliseconds.
+     * @return the line, in the test's 12- or 24-hour format.
+     */
     private fun resumeLine(resumeAt: Long) =
         "Back ON by itself at ${formatResumeTime(ApplicationProvider.getApplicationContext(), resumeAt)}."
 

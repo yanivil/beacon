@@ -89,6 +89,12 @@ class BeaconListenerTest {
     /** Once the listener is disconnected, the screen-on receiver is gone; destroying it removes it too. */
     @Test fun noScreenOnReceiverAfterDisconnect() {
         val app = context as BeaconApp
+
+        /**
+         * Counts the receivers registered for the screen turning on.
+         *
+         * @return how many there are.
+         */
         fun screenOnReceivers() = shadowOf(app).registeredReceivers.count { it.intentFilter.hasAction(Intent.ACTION_SCREEN_ON) }
         val controller = Robolectric.buildService(BeaconListener::class.java).create()
         val listener = controller.get()

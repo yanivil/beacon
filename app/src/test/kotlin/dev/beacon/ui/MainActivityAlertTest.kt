@@ -31,7 +31,9 @@ import org.robolectric.Shadows.shadowOf
 /*
  * Why Robolectric's activity controller and the app's own controller: these
  * rules live in MainActivity's lifecycle callbacks (start ends a real alert,
- * stop ends a test unless the activity is only being recreated), so the tests
+ * except once, for the start right after a recreation for a configuration
+ * change such as a rotation; stop ends a test unless the activity is only
+ * being recreated), so the tests
  * move the real activity between lifecycle states and read the one controller
  * the activity uses. ActivityScenario would do the same, but its idle wait
  * jumps the clock to the alert's own end (or, for an alert with no end, loops

@@ -4,11 +4,13 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /*
- * Why this rule: opening Beacon (or connecting the listener) now catches the
- * pause up, which refreshes the widgets through Glance. Glance keeps
- * process-wide state, and a Robolectric test that ends while an update is
- * still running can leave the next real update waiting forever. Tests that
- * only need the screen skip the refresh; ResumeAlarmTest keeps the real one.
+ * Why this rule: opening Beacon or connecting the listener catches the pause
+ * up, which can refresh the widgets through Glance. Glance keeps process-wide
+ * state, and a Robolectric test that ends while an update is still running
+ * can leave the next real update waiting forever. So every test class that
+ * launches MainActivity or connects BeaconListener applies this rule, and
+ * BeaconAppTest applies it before swapping in its own counter, so the real
+ * refresh is put back afterwards. ResumeAlarmTest keeps the real refresh.
  */
 
 /** Replaces the widget refresh with a no-op for one test, then restores it. */
