@@ -340,8 +340,11 @@ class HomeScreenTest {
         rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
     }
 
-    /** The longest steps (Android 10 and 11's) wrap at the largest font size with nothing cut off. */
-    @Test fun longestBatteryStepsFitAtLargestFont() {
+    /**
+     * Android 10 and 11's steps, which Robolectric's phone doesn't get, wrap at the largest font size with
+     * nothing cut off. Android 14 and later's, the longest, are drawn at that size by setupCardNoOverflowAtLargestFont.
+     */
+    @Test fun android10BatteryStepsFitAtLargestFont() {
         rule.setContent {
             BeaconTheme {
                 WithFontScale(2.0f) {
@@ -464,7 +467,7 @@ class HomeScreenTest {
         const val STEPS_API34 = "Tap App battery usage. Tap the words Allow background usage, not its switch. " +
             "If the next page’s switch is off, turn it on. Then tap Unrestricted."
 
-        /** Android 10 and 11's steps, the longest. */
+        /** Android 10 and 11's steps. */
         const val STEPS_API29 = "Tap Advanced, then Battery, then Battery optimization. Choose All apps, " +
             "tap Beacon, then Don’t optimize, then Done."
     }
