@@ -123,6 +123,44 @@ class TorchBlinkerTest {
         )
     }
 
+    /**
+     * Pins that a refusal at a later flip calls onRefused exactly once, and only after the final off.
+     * The callback notes how many commands the light had received when it ran.
+     */
+    @Test fun aRefusalCallsOnRefusedOnce() {
+        // Call 1 ON, call 2 OFF, call 3 (the third flip) refused, call 4 the final off.
+        val fake = FakeTorchSwitch(refuseFrom = 3); val now = SystemClock.uptimeMillis()
+        val seenAt = mutableListOf<Int>()
+        val b = TorchBlinker(fake, BlinkClock(now, BlinkSpeed.MEDIUM, null), looper, onRefused = { seenAt += fake.events.size })
+        b.start(); idle(5_000)
+        assertEquals(4, fake.events.size)
+        assertFalse(fake.events.last().second)
+        // Once, and after all four commands: the final off had already been sent.
+        assertEquals(listOf(4), seenAt)
+    }
+
+    /** Pins that a finite alert that ends on time never reports a refusal. */
+    @Test fun aNormalEndNeverCallsOnRefused() {
+        val fake = FakeTorchSwitch(); val now = SystemClock.uptimeMillis()
+        var refusals = 0
+        val b = TorchBlinker(fake, BlinkClock(now, BlinkSpeed.MEDIUM, 1_200), looper, onRefused = { refusals++ })
+        b.start(); idle(3_000)
+        assertFalse(fake.events.last().second)
+        assertEquals(0, refusals)
+    }
+
+    /** Pins that stop() never reports a refusal, even when the light refuses the off it sends. */
+    @Test fun aStopNeverCallsOnRefused() {
+        // Call 1 ON, call 2 OFF, then stop's off is call 3, which the light refuses.
+        val fake = FakeTorchSwitch(refuseFrom = 3); val now = SystemClock.uptimeMillis()
+        var refusals = 0
+        val b = TorchBlinker(fake, BlinkClock(now, BlinkSpeed.MEDIUM, null), looper, onRefused = { refusals++ })
+        b.start(); idle(700)
+        b.stop(); idle(2_000)
+        assertEquals(3, fake.events.size)
+        assertEquals(0, refusals)
+    }
+
     /** Pins that stop() right after start() cancels the pending start: no ON ever, last event OFF. */
     @Test fun stopCancelsPendingStart() {
         val fake = FakeTorchSwitch(); val now = SystemClock.uptimeMillis()
