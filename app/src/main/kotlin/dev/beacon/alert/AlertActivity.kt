@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -34,6 +35,10 @@ import dev.beacon.ui.theme.BeaconTheme
  *
  * Every way out ends the alert itself (Stop, Back, Home, the power button),
  * because a half-ended alert would leave the light blinking with no screen.
+ * Nothing else may end it: a message, not the user, opens this window, and
+ * the phone is often asleep when it does. So the start is marked as not a
+ * user action, and Home counts only while the screen is on (see
+ * onUserLeaveHint and D2 in docs/checks/2026-11-step2-pr2.md).
  */
 
 /**
@@ -100,10 +105,18 @@ class AlertActivity : ComponentActivity() {
     }
 
     /**
-     * Ends the alert when the user presses Home.
+     * Ends the alert when the user presses Home, but only while the screen is on.
+     *
+     * Android also calls this from a pause it makes itself: a window started while the
+     * display is asleep is paused at once for the sleep (`wm_pause_activity … userLeaving=true,
+     * sleep`), which on the emulator ended every alert that arrived with the screen off (D2).
+     * A person can only press Home on a screen that is on, so a call while the screen is off
+     * is never the Home button.
      */
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
+        // Screen off: this is the system's sleep pause, not Home. The power button has its own receiver.
+        if (!getSystemService(PowerManager::class.java).isInteractive) return
         endAndClose()
     }
 
@@ -155,9 +168,14 @@ class AlertActivity : ComponentActivity() {
          * Builds the intent that opens the alert window from outside an activity.
          *
          * @param context any context.
-         * @return an intent with FLAG_ACTIVITY_NEW_TASK, as required from a non-activity context.
+         * @return an intent with FLAG_ACTIVITY_NEW_TASK, as required from a non-activity context,
+         *   and FLAG_ACTIVITY_NO_USER_ACTION, because a message, not the user, opens it.
          */
         fun intent(context: Context): Intent =
-            Intent(context, AlertActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            Intent(context, AlertActivity::class.java).addFlags(
+                // NO_USER_ACTION: without it Android marks the pause it makes for a sleeping
+                // display as "user leaving", which reached onUserLeaveHint and ended the alert (D2).
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION,
+            )
     }
 }

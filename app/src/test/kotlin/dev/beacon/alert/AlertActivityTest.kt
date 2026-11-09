@@ -2,6 +2,7 @@ package dev.beacon.alert
 
 import android.content.Intent
 import android.os.Looper
+import android.os.PowerManager
 import android.view.WindowManager
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -16,6 +17,7 @@ import dev.beacon.settings.BlinkSpeed
 import dev.beacon.settings.FlashColour
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -28,6 +30,8 @@ import org.robolectric.Shadows.shadowOf
  * Why these tests: the alert window is the only way a deaf user sees a real
  * message, so every way it can end (Stop, Back, Home, power button, timer) and
  * the case where nothing is running must close it and leave the light off.
+ * Just as much, nothing but those must end it: a window opened while the
+ * screen is off was once ended at once by Android's sleep pause (D2).
  */
 
 /** Drives [AlertActivity] against the app's real controller. */
@@ -36,6 +40,14 @@ class AlertActivityTest {
     @get:Rule val rule = createEmptyComposeRule()
 
     private fun controller() = ApplicationProvider.getApplicationContext<BeaconApp>().alertController
+
+    /**
+     * The phone's power service, whose screen-on state the tests set.
+     *
+     * @return the app's PowerManager.
+     */
+    private fun powerManager(): PowerManager =
+        ApplicationProvider.getApplicationContext<BeaconApp>().getSystemService(PowerManager::class.java)
 
     /** Starts a real WhatsApp alert, as the watcher would, before each launch. */
     @Before fun startAlert() {
@@ -85,12 +97,38 @@ class AlertActivityTest {
         scenario.onActivity { assertTrue(it.isFinishing) }
     }
 
-    /** Home (the activity being left by the user) ends the alert. */
+    /** Home (the activity being left by the user, with the screen on) ends the alert. */
     @Test fun homeEnds() {
+        shadowOf(powerManager()).turnScreenOn(true)
         val scenario = launch()
         scenario.onActivity { InstrumentationRegistry.getInstrumentation().callActivityOnUserLeaving(it) }
         assertEquals(AlertState.Idle, controller().state.value)
         scenario.onActivity { assertTrue(it.isFinishing) }
+    }
+
+    /**
+     * The window's start is marked as not being a user action, so Android doesn't treat the
+     * alert's own arrival as the user leaving (D2: the sleep pause came with `userLeaving=true`).
+     */
+    @Test fun launchIsNotAUserAction() {
+        val flags = AlertActivity.intent(ApplicationProvider.getApplicationContext()).flags
+        assertTrue(flags and Intent.FLAG_ACTIVITY_NO_USER_ACTION != 0)
+        assertTrue(flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
+    }
+
+    /**
+     * A user-leaving call while the screen is off (the system's sleep pause, D2) leaves the alert
+     * running. As on the emulator, the screen is already off when the window opens, so its own
+     * screen-off receiver (the power button) isn't involved.
+     */
+    @Test fun userLeavingWhileScreenOffKeepsTheAlert() {
+        shadowOf(powerManager()).turnScreenOn(false)
+        // Delivers the screen-off broadcast before the window exists, as with a phone already asleep.
+        shadowOf(Looper.getMainLooper()).idle()
+        val scenario = launch()
+        scenario.onActivity { InstrumentationRegistry.getInstrumentation().callActivityOnUserLeaving(it) }
+        assertTrue(controller().state.value is AlertState.Running)
+        scenario.onActivity { assertFalse(it.isFinishing) }
     }
 
     /** The power button (screen off) ends the alert. */
