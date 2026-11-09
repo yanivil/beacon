@@ -127,7 +127,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
     spec and the PR 1 plan, and lists what the spec adds: the "Finish
     setup" card, the alert screen, and no internet use.
   - Step 2 marked in progress, with PR 0 open as yanivil/beacon#5 and PR 1
-    built and awaiting review. It now describes the `app/` module, how to
+    open as yanivil/beacon#6. It now describes the `app/` module, how to
     build, test and install the app, and what PR 1 delivers.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.

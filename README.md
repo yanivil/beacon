@@ -28,7 +28,7 @@ contrast, big touch targets and plain wording.
         ([`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md)),
         open as yanivil/beacon#5.
       - [ ] **PR 1:** the screens and the test alert, built on
-        `feature/step2-screens`, awaiting review. Emulator checks:
+        `feature/step2-screens`, open as yanivil/beacon#6. Emulator checks:
         [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
         Five of the six defects they found are fixed and re-checked on the
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
