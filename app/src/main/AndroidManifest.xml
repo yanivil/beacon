@@ -31,5 +31,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- The real alert window: over other apps and the lock screen, own task,
+             not in recents. No configChanges: rotation recreates it and it
+             redraws from the controller's clock. -->
+        <activity
+            android:name=".alert.AlertActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Beacon"
+            android:turnScreenOn="true" />
     </application>
 </manifest>

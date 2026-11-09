@@ -84,4 +84,5 @@
     <string name="test_real_length">Real alerts last</string>
     <string name="stop">Stop</string>
     <string name="alert_title">New message</string>
+    <string name="alert_window_title">New message: %1$s</string>
 </resources>
