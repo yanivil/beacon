@@ -16,12 +16,15 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -99,7 +102,7 @@ internal fun cameraLineRes(hasLight: Boolean, lightFlashing: Boolean): Int = whe
  * @param speedLabel the blink speed and rate, such as "Medium, 60 a minute".
  * @param lengthLabel how long real alerts last, such as "1 minute".
  * @param hasLight true when the phone has a camera light that flashes too.
- * @param onStop called by the Stop button.
+ * @param onStop called by the Stop button, which also takes keyboard focus when the overlay appears.
  */
 @Composable
 fun TestAlertOverlay(
@@ -111,6 +114,7 @@ fun TestAlertOverlay(
     onStop: () -> Unit,
 ) {
     val paneName = stringResource(R.string.test_label)
+    val stopFocus = remember { FocusRequester() }
     Box(
         Modifier
             .fillMaxSize()
@@ -138,7 +142,13 @@ fun TestAlertOverlay(
                     Spacer(Modifier.height(MinGap))
                     DetailsCard(colourLabel, speedLabel, lengthLabel, hasLight, running.lightFlashing)
                     Spacer(Modifier.height(MinGap))
-                    StopButton(onStop, Modifier.fillMaxWidth())
+                    StopButton(onStop, Modifier.fillMaxWidth().focusRequester(stopFocus))
+                    // Why: blocking focus from entering the shell (see BeaconAppScreen) doesn't move focus
+                    // that is already there, such as a keyboard user's focus on "Test alert". Taking it for
+                    // Stop here makes the overlay own the keyboard from the moment it appears. In touch
+                    // mode Compose refuses focus on a button, so a tap-only user sees no change. Only the
+                    // test overlay does this; the real alert screen is a window of its own.
+                    LaunchedEffect(running.clock) { stopFocus.requestFocus() }
                 }
             }
         }

@@ -106,6 +106,36 @@ class AppShellTest {
         rule.mainClock.advanceTimeByFrame()
     }
 
+    /** Presses Tab 10 times and checks focus never reaches the shell's content, its tab bar or its Test alert button. */
+    private fun assertTabNeverReachesShell() {
+        repeat(10) {
+            rule.onRoot().performKeyInput { pressKey(Key.Tab) }
+            rule.mainClock.advanceTimeByFrame()
+            // The unmerged tree, because the shell's semantics are cleared in the merged one.
+            val inShell = rule.onAllNodes(
+                isFocused() and (hasAnyAncestor(hasTestTag(SCROLL_CONTENT_TAG)) or hasRole(Role.Tab) or
+                    hasAnyAncestor(hasRole(Role.Tab)) or hasTestTag("test_button") or hasTestTag(SCROLL_CONTENT_TAG)),
+                useUnmergedTree = true,
+            ).fetchSemanticsNodes()
+            assertTrue("Tab ${it + 1} put focus in the shell: $inShell", inShell.isEmpty())
+        }
+    }
+
+    /** A keyboard user who starts the test from the shell's Test alert button has focus moved to Stop, and Tab can't leave it. */
+    @Test fun overlayTakesFocusFromTheTestButton() {
+        rule.mainClock.autoAdvance = false
+        leaveTouchMode()
+        rule.onNodeWithTag("test_button").requestFocus()
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithTag("test_button").assertIsFocused()
+        // Enter on the focused button, as a keyboard user starts it.
+        rule.onRoot().performKeyInput { pressKey(Key.Enter) }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNode(hasText("Stop") and hasRole(Role.Button)).assertIsFocused()
+        assertTabNeverReachesShell()
+    }
+
     /** While the test overlay shows, Tab never moves keyboard focus into the shell's content or tab bar under it. */
     @Test fun keyboardFocusStaysOnTheOverlay() {
         // The blink screen asks for a frame every frame, so the clock must be moved by hand.
@@ -118,17 +148,7 @@ class AppShellTest {
         rule.mainClock.advanceTimeByFrame()
         // Without this check a failed focus request would make every later check pass for nothing.
         rule.onNode(hasText("Stop") and hasRole(Role.Button)).assertIsFocused()
-        repeat(10) {
-            rule.onRoot().performKeyInput { pressKey(Key.Tab) }
-            rule.mainClock.advanceTimeByFrame()
-            // The unmerged tree, because the shell's semantics are cleared in the merged one.
-            val inShell = rule.onAllNodes(
-                isFocused() and (hasAnyAncestor(hasTestTag(SCROLL_CONTENT_TAG)) or hasRole(Role.Tab) or
-                    hasAnyAncestor(hasRole(Role.Tab)) or hasTestTag("test_button") or hasTestTag(SCROLL_CONTENT_TAG)),
-                useUnmergedTree = true,
-            ).fetchSemanticsNodes()
-            assertTrue("Tab ${it + 1} put focus in the shell: $inShell", inShell.isEmpty())
-        }
+        assertTabNeverReachesShell()
     }
 }
 
