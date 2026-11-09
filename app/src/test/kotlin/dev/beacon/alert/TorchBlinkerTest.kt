@@ -139,12 +139,14 @@ class TorchBlinkerTest {
         assertEquals(listOf(4), seenAt)
     }
 
-    /** Pins that a finite alert that ends on time never reports a refusal. */
+    /** Pins that a finite alert that ends on time never reports a refusal, even when the light refuses the final off. */
     @Test fun aNormalEndNeverCallsOnRefused() {
-        val fake = FakeTorchSwitch(); val now = SystemClock.uptimeMillis()
+        // Flips at 0, 500 and 1,000 ms are calls 1 to 3; the end's off at 1,200 ms is call 4, which the light refuses.
+        val fake = FakeTorchSwitch(refuseFrom = 4); val now = SystemClock.uptimeMillis()
         var refusals = 0
         val b = TorchBlinker(fake, BlinkClock(now, BlinkSpeed.MEDIUM, 1_200), looper, onRefused = { refusals++ })
         b.start(); idle(3_000)
+        assertEquals(4, fake.events.size)
         assertFalse(fake.events.last().second)
         assertEquals(0, refusals)
     }

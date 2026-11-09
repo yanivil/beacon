@@ -54,7 +54,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * Runs one alert at a time and ends it on time.
  *
  * Use it from the main thread only: [start], [stop], [stopIf], the heat
- * callback and the automatic end all run on the main looper.
+ * callback, the light's refusal report and the automatic end all run on the
+ * main looper.
  *
  * @param torch The camera light.
  * @param torchLooper The thread that switches the light.

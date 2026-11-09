@@ -702,7 +702,7 @@ Each names the labels in the order the person taps them.
   shows each version's last wording. On an Android 13 or 14 phone that
   hasn't had the update, one label won't match the screen.
 - **Android 10 and 11:** App info shows only its first six rows and puts
-  the rest, Battery among them on most phones, under "Advanced". The
+  the rest under "Advanced"; whether Battery is among them depends on the phone. The
   Battery page has no "Unrestricted" choice. Its "Battery optimization"
   row opens the list of apps that are "Not optimized", so the person
   switches the list to "All apps" before Beacon shows.

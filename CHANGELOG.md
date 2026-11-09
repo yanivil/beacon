@@ -252,7 +252,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
     chosen by `batteryStepsRes(manufacturer, sdkInt)`, a pure function that
     plain JUnit checks for every branch and boundary. Android 14 and later's
     steps name the words of "Allow background usage", not its switch, and
-    say to turn the next page's switch on when it is off. The tests run no
+    say to turn the next page's switch on when it is off. Only the Android
+    16 steps were seen on a screen (the emulator); the others come from
+    Android's Settings source and are Not tested. The tests run no
     other Android version than Robolectric's default, so they download no
     extra Android jars. (Fix round 0 replaced the first build's
     `@Config(sdk = 29/31/33)` tests, which downloaded about 420 MB.)
@@ -489,7 +491,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
     later, "Tap App battery usage. Tap the words Allow background usage,
     not its switch. If the next page’s switch is off, turn it on. Then tap
     Unrestricted.", followed word for word on the emulator from
-    "Optimized" and from "Restricted".
+    "Optimized" and from "Restricted". The steps for Android 10 to 15 are
+    Not tested.
 - PR 3's final fixes, in `app/`:
   - A pause change started from Home finishes even if Beacon's screen is
     closed at once, so closing it can't leave the alarm or the widget

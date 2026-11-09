@@ -184,7 +184,9 @@ Not in PR 3: every check on the test phone.
   switch would make Beacon "Restricted", so the steps steer away from it,
   and they also work when background use is already off. Android 14 and 15
   share that wording and Android 10 to 13 have their own, all taken from
-  Android's Settings source and not tested. Xiaomi's steps don't change.
+  Android's Settings source and not tested. An Android 13 or 14 phone that
+  never got its later update may show one label that differs. Xiaomi's
+  steps don't change.
 - **Checks:** 324 unit tests (11 new), lint with no errors, and emulator
   checks of the battery path on Android 16: the new steps followed word
   for word from "Optimized" and from "Restricted", each ending with the

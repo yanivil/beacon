@@ -272,6 +272,8 @@ class AlertControllerTest {
         // The start, then the first flip: refused, the light left off, and the report posted but not yet run.
         runTasks(2)
         assertFalse(fake.events.last().second)
+        // The report hasn't run yet: the controller still thinks the light is flashing.
+        assertTrue((c.state.value as AlertState.Running).lightFlashing)
         c.stop()
         assertEquals(AlertState.Idle, c.state.value)
         // A new alert whose light works starts before the old report arrives.
@@ -290,6 +292,8 @@ class AlertControllerTest {
         c.start(testRequest())
         // The test's start, then its first flip: refused, and the report left waiting.
         runTasks(2)
+        // The report hasn't run yet: the test still counts as flashing.
+        assertTrue((c.state.value as AlertState.Running).lightFlashing)
         fake.refuseFrom = Int.MAX_VALUE
         assertTrue(c.start(real(60_000)))
         idle(10)
