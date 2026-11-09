@@ -75,8 +75,10 @@ class MainActivityAlertTest {
 
     /** Rotating while Beacon is in front keeps a light-only real alert running on the same clock. */
     @Test fun rotationKeepsALightOnlyRealAlert() {
+        controller.start(request(AlertKind.REAL))
+        // Opening Beacon ends that alert (see openingBeaconStopsRealAlert).
         val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
-        // Started with Beacon in front, as when a message arrives while the app is open and the window can't show.
+        // A message arrives with Beacon in front, as when the app is open and the window can't show.
         controller.start(request(AlertKind.REAL))
         val startedAt = (controller.state.value as AlertState.Running).clock.startUptimeMillis
         activity.recreate()

@@ -291,9 +291,8 @@ class HomeScreenTest {
     }
 
     /**
-     * In right-to-left the setup card mirrors: the name sits at the right edge, and the room the ON/OFF pill
-     * takes (at least 100 dp, its own semantics are cleared so it can't be found directly) is on the left.
-     * A wide window keeps the pill beside the text; on a narrow one it wraps underneath.
+     * In right-to-left the setup card mirrors: the name sits at the right edge and the ON/OFF pill is at the
+     * row's left edge, to the left of the name. A wide window keeps the pill beside the text; on a narrow one it wraps underneath.
      */
     @Config(qualifiers = "w600dp-h900dp")
     @Test fun setupCardMirrorsInRightToLeft() {
@@ -301,9 +300,11 @@ class HomeScreenTest {
         show(direction = LayoutDirection.Rtl)
         val row = rule.onNode(hasText("Notification access") and hasState).getBoundsInRoot()
         val name = rule.onNodeWithText("Notification access", useUnmergedTree = true).getBoundsInRoot()
-        val reason = rule.onNodeWithText("So Beacon knows when a message arrives.", useUnmergedTree = true).getBoundsInRoot()
-        assertTrue("name $name row $row reason $reason", row.right - name.right < 4.dp)
-        assertTrue("name $name row $row reason $reason", reason.left - row.left >= 100.dp)
+        // The first pill is the Notification access row's (rows are in order).
+        val pill = rule.onAllNodesWithTag(SETUP_PILL_TAG, useUnmergedTree = true)[0].getBoundsInRoot()
+        assertTrue("name $name row $row", row.right - name.right < 4.dp)
+        assertTrue("pill $pill vs name $name", pill.right <= name.left)
+        assertTrue("pill $pill vs row $row", pill.left - row.left < 4.dp)
     }
 
     /** The merged row speaks its state description once: the pill's ON/OFF text is not also part of the row's text. */

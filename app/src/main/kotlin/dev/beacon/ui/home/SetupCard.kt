@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -40,6 +41,9 @@ import dev.beacon.ui.theme.LocalContentColour
  * and its spoken label starts with the visible words "Open settings" and then
  * names the row, so a voice user can say what they see (spec section 11).
  */
+
+/** Test tag on each setup row's ON/OFF pill, so a test can find it although its own semantics are cleared. */
+internal const val SETUP_PILL_TAG = "setup_pill"
 
 /**
  * The Finish setup card: a heading, a hint and one row per grant.
@@ -104,7 +108,7 @@ private fun SetupRow(item: SetupItem, nameRes: Int, reasonRes: Int, stepsRes: In
                         BasicText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
                     }
                 }
-                OnOffPill(on = on)
+                OnOffPill(on = on, modifier = Modifier.testTag(SETUP_PILL_TAG))
             },
             modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { stateDescription = state },
             measurePolicy = TextAndPillPolicy(hasTile = false),
