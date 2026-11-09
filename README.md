@@ -53,7 +53,8 @@ contrast, big touch targets and plain wording.
         and at 3 × 2 "PAUSED" broke and the resume time was cut off.
         Nothing in it has run on the test phone yet.
       - [ ] **App icon:** Beacon's own launcher icon, a black bolt on the
-        design's yellow, built on `feature/app-icon`. Emulator checks:
+        design's yellow, built on `feature/app-icon`, open as
+        yanivil/beacon#9. Emulator checks:
         [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,

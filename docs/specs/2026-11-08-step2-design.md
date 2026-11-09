@@ -1136,7 +1136,7 @@ a timed pause; follow-up R1 fixed it with `TimeChangeReceiver` and
 re-checked it on the emulator.
 
 App icon: built on `feature/app-icon`, a PR of its own beside the three
-above. Its emulator checks are in
+above, open as yanivil/beacon#9. Its emulator checks are in
 [`docs/checks/2026-11-app-icon.md`](../checks/2026-11-app-icon.md).
 
 ## 17. Not tested at the end of Step 2 (expected)

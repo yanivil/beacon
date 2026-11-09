@@ -287,8 +287,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
     its plan and its emulator checks and the three defects they found,
     all fixed, and a "What PR 3 delivers" section ending with what is not
     in PR 3.
-  - The app icon built on `feature/app-icon`, with a link to its emulator
-    checks, and a "The launcher icon" section.
+  - The app icon built on `feature/app-icon` and open as
+    yanivil/beacon#9, with a link to its emulator checks, and a "The
+    launcher icon" section.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 1:
