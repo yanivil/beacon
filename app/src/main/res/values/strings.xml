@@ -7,6 +7,7 @@
     <string name="alerts_paused">PAUSED</string>
     <string name="alerts_on_body">Your screen and camera light will flash when a message arrives.</string>
     <string name="alerts_paused_body">You will NOT see any flashes until you turn alerts back on.</string>
+    <string name="alerts_back_on_at">Back ON by itself at %1$s.</string>
     <string name="alerts_pause_button">Pause all alerts</string>
     <string name="alerts_resume_button">Turn alerts back ON</string>
     <string name="apps_heading">Flash for these apps</string>

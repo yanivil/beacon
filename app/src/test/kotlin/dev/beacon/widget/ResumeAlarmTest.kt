@@ -7,8 +7,8 @@ import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.BeaconApp
+import dev.beacon.idleMainUntil
 import dev.beacon.settings.Pause
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -69,22 +69,5 @@ class ResumeAlarmTest {
         idleMainUntil { finished.isDone }
         assertTrue("receiver finished its broadcast", finished.isDone)
         assertEquals(Pause.None, runBlocking { repo.settings.first() }.pause)
-    }
-
-    /**
-     * Runs the main looper until [done] holds, for at most 5 seconds.
-     *
-     * Why not a single idle: DataStore works on its own thread and runs the edit back on the
-     * caller's thread, here the main one, so the main looper must keep running while the test waits.
-     *
-     * @param done the condition to wait for.
-     */
-    private fun idleMainUntil(done: () -> Boolean) {
-        val main = shadowOf(Looper.getMainLooper())
-        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
-        while (!done() && System.nanoTime() < deadline) {
-            main.idle()
-            Thread.onSpinWait()
-        }
     }
 }

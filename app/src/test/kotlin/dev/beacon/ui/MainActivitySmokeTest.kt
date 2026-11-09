@@ -1,6 +1,8 @@
 package dev.beacon.ui
 
 import android.app.Activity
+import org.junit.Rule
+import dev.beacon.widget.NoWidgetRefreshRule
 import android.content.res.Configuration
 import androidx.core.view.WindowCompat
 import androidx.test.core.app.ActivityScenario
@@ -18,6 +20,9 @@ import org.robolectric.annotation.Config
  */
 @RunWith(AndroidJUnit4::class)
 class MainActivitySmokeTest {
+    /** Skips the widget refresh that opening Beacon starts. */
+    @get:Rule val noWidgets = NoWidgetRefreshRule()
+
     /** The launcher activity starts and is not finishing itself right away. */
     @Test
     fun launches() {

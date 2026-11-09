@@ -23,6 +23,7 @@ import dev.beacon.settings.SettingsRepository
 import dev.beacon.setup.SetupChecker
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.blink.testColour
+import dev.beacon.widget.PauseCoordinator
 import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -58,11 +59,13 @@ import kotlinx.coroutines.launch
  * @param repo the saved settings.
  * @param alerts the one alert controller.
  * @param checkSetup reads which Finish setup grants are in place (a function so tests can fake it).
+ * @param pauses the one place every pause change goes through (saves it, sets the resume alarm, redraws the widget).
  */
 class MainViewModel(
     private val repo: SettingsRepository,
     private val alerts: AlertController,
     private val checkSetup: () -> SetupStatus,
+    private val pauses: PauseCoordinator,
 ) : ViewModel() {
     /** The saved settings, or null until the first read; read eagerly so they are ready as soon as possible. */
     val settings: StateFlow<BeaconSettings?> = repo.settings.stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -88,12 +91,12 @@ class MainViewModel(
     }
 
     /**
-     * Saves the pause state.
+     * Saves the pause state through the coordinator, so the resume alarm and the widget follow.
      *
      * @param pause the new pause.
      */
     fun setPause(pause: Pause) {
-        save { repo.setPause(pause) }
+        save { pauses.set(pause) }
     }
 
     /**
@@ -211,7 +214,7 @@ class MainViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = checkNotNull(this[APPLICATION_KEY]) as BeaconApp
-                MainViewModel(app.settingsRepository, app.alertController, SetupChecker(app)::check)
+                MainViewModel(app.settingsRepository, app.alertController, SetupChecker(app)::check, app.pauseCoordinator)
             }
         }
     }

@@ -1,6 +1,8 @@
 package dev.beacon.ui
 
 import androidx.test.core.app.ApplicationProvider
+import org.junit.rules.RuleChain
+import dev.beacon.widget.NoWidgetRefreshRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.BeaconApp
 import dev.beacon.alert.AlertKind
@@ -34,6 +36,9 @@ import org.robolectric.Robolectric
 /** Robolectric tests for how Beacon's main screen starting and stopping ends alerts, on a plain activity. */
 @RunWith(AndroidJUnit4::class)
 class MainActivityAlertTest {
+    /** Skips the widget refresh that starting Beacon's main screen begins. */
+    @get:Rule val noWidgets = NoWidgetRefreshRule()
+
     private val controller = ApplicationProvider.getApplicationContext<BeaconApp>().alertController
 
     /** Ends whatever a test left running, so the next test starts from Idle. */
@@ -84,7 +89,10 @@ class MainActivityAlertTest {
 @RunWith(AndroidJUnit4::class)
 class MainActivityRunningTestTest {
     /** Launches MainActivity for each test. */
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    val rule = createAndroidComposeRule<MainActivity>()
+
+    /** Skips the widget refresh that opening Beacon starts, before the activity launches. */
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(rule)
 
     private val controller = ApplicationProvider.getApplicationContext<BeaconApp>().alertController
 

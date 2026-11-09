@@ -39,12 +39,13 @@ import dev.beacon.ui.theme.LocalContentColour
  * The alerts card: the ON card when [paused] is false, the PAUSED card when true.
  *
  * @param paused whether alerts are paused.
+ * @param resumeTime the formatted time a timed pause ends, or null for an open pause (and on the ON card).
  * @param onPause called by the ON card's "Pause all alerts" button.
  * @param onResume called by the PAUSED card's "Turn alerts back ON" button.
  */
 @Composable
-fun AlertsCard(paused: Boolean, onPause: () -> Unit, onResume: () -> Unit) {
-    if (paused) PausedCard(onResume) else OnCard(onPause)
+fun AlertsCard(paused: Boolean, resumeTime: String?, onPause: () -> Unit, onResume: () -> Unit) {
+    if (paused) PausedCard(resumeTime, onResume) else OnCard(onPause)
 }
 
 /**
@@ -89,10 +90,11 @@ private fun OnCard(onPause: () -> Unit) {
 /**
  * The dark PAUSED card with a 4 dp white border.
  *
+ * @param resumeTime the formatted time the pause ends, or null when it has no end.
  * @param onResume called when "Turn alerts back ON" is tapped.
  */
 @Composable
-private fun PausedCard(onResume: () -> Unit) {
+private fun PausedCard(resumeTime: String?, onResume: () -> Unit) {
     val shape = RoundedCornerShape(24.dp)
     Column(
         Modifier
@@ -114,6 +116,13 @@ private fun PausedCard(onResume: () -> Unit) {
             stringResource(R.string.alerts_paused_body),
             style = BeaconType.BodyStrong.copy(color = BeaconColors.White),
         )
+        // Only a timed pause comes back by itself; an open one stays paused until the user acts.
+        if (resumeTime != null) {
+            BasicText(
+                stringResource(R.string.alerts_back_on_at, resumeTime),
+                style = BeaconType.BodyStrong.copy(color = BeaconColors.White),
+            )
+        }
         FilledButton(
             text = stringResource(R.string.alerts_resume_button),
             onClick = onResume,

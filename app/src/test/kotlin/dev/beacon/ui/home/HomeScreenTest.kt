@@ -49,6 +49,7 @@ import dev.beacon.settings.Pause
 import dev.beacon.setup.SetupItem
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.WithFontScale
+import dev.beacon.ui.formatResumeTime
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.components.TRAILING_ICON_TAG
 import dev.beacon.ui.theme.BeaconTheme
@@ -78,6 +79,9 @@ class HomeScreenTest {
 
     /** The settings Home shows; changing it recomposes the screen. */
     private var settings by mutableStateOf(BeaconSettings.DEFAULT)
+
+    /** The clock Home reads, which a test can move. */
+    private var clockMillis = System.currentTimeMillis()
 
     /** The setup status Home shows; null means not read yet. */
     private var setup by mutableStateOf<SetupStatus?>(null)
@@ -110,7 +114,7 @@ class HomeScreenTest {
                     WithFontScale(fontScale) {
                         // Like the app shell: a scrolling column with the shell's side padding, so nothing is squeezed into the window height.
                         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
-                            HomeScreen(settings, setup, actions)
+                            HomeScreen(settings, setup, actions) { clockMillis }
                         }
                     }
                 }
@@ -317,5 +321,54 @@ class HomeScreenTest {
         val card = rule.onNodeWithText("Finish setup").getUnclippedBoundsInRoot().top
         val alerts = rule.onNodeWithText("Visual alerts").getUnclippedBoundsInRoot().top
         assertTrue("title $title, card $card, alerts $alerts", title < card && card < alerts)
+    }
+
+    /** The text of the resume line for a resume time. */
+    private fun resumeLine(resumeAt: Long) =
+        "Back ON by itself at ${formatResumeTime(ApplicationProvider.getApplicationContext(), resumeAt)}."
+
+    /** A timed pause says when alerts come back on by themselves. */
+    @Test fun timedPauseShowsTheResumeLine() {
+        val resumeAt = clockMillis + 3_600_000
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(resumeAt)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        rule.onNodeWithText(resumeLine(resumeAt)).assertExists()
+    }
+
+    /** A pause with no end has no resume line. */
+    @Test fun openPauseHasNoResumeLine() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Indefinite))
+        rule.onNodeWithText("PAUSED").assertExists()
+        rule.onAllNodes(hasText("Back ON", substring = true)).assertCountEquals(0)
+    }
+
+    /** A stored timed pause whose time has passed shows the ON card and no banner. */
+    @Test fun homeShowsOnAfterExpiry() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis - 1_000)))
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+        rule.onNodeWithText("All alerts are paused right now.").assertDoesNotExist()
+    }
+
+    /** The card turns ON by itself when the clock reaches the deadline, with no new settings. */
+    @Test fun cardTurnsOnAtTheDeadline() {
+        // Manual time, so the wait is advanced only by this test.
+        rule.mainClock.autoAdvance = false
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 2_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        clockMillis += 2_000
+        rule.mainClock.advanceTimeBy(2_000)
+        // One more frame draws the recomposition the deadline caused.
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+        rule.onNodeWithText("All alerts are paused right now.").assertDoesNotExist()
+    }
+
+    /** Nothing is cut off at the largest font size with the resume line shown. */
+    @Test fun resumeLineNoOverflowAtLargestFont() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)), fontScale = 2.0f)
+        rule.onNodeWithText("Back ON by itself at", substring = true).assertExists()
+        rule.assertNoTextOverflow()
     }
 }

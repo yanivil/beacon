@@ -1,6 +1,7 @@
 package dev.beacon.ui.blink
 
 import android.os.Looper
+import dev.beacon.widget.NoWidgetRefreshRule
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -144,7 +145,10 @@ private val overlayPane = SemanticsMatcher.expectValue(SemanticsProperties.PaneT
 @Config(qualifiers = "w360dp-h800dp")
 class TestAlertOverlayTest {
     /** Launches MainActivity for each test. */
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    val rule = createAndroidComposeRule<MainActivity>()
+
+    /** Skips the widget refresh that opening Beacon starts, before the activity launches. */
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(rule)
 
     /** Turns off auto-advance (the blink never idles), then waits for the settings to load. */
     @Before fun setUp() {
@@ -322,7 +326,7 @@ class TestAlertOverlayLargestFontTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     /** Sets the 200% font scale before the activity launches, and resets it after. */
-    @get:Rule val chain: RuleChain = RuleChain.outerRule(FontScaleRule(2.0f)).around(rule)
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(FontScaleRule(2.0f)).around(rule)
 
     /** Turns off auto-advance (the blink never idles), then waits for the settings to load. */
     @Before fun setUp() {

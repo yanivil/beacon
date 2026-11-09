@@ -11,6 +11,8 @@ import dev.beacon.BeaconApp
 import dev.beacon.alert.AlertKind
 import dev.beacon.alert.ListenerConnection
 import dev.beacon.ui.theme.BeaconTheme
+import java.io.IOException
+import kotlinx.coroutines.launch
 
 /*
  * Why the system bars are always dark: Beacon's page is always #0B0B0D,
@@ -65,10 +67,21 @@ class MainActivity : ComponentActivity() {
      * Re-binds the message listener at once if access is granted but the
      * system dropped it. Right after a cold start this can run before the
      * system has bound the listener, which costs one harmless off-and-on.
+     * Also cleans up a timed pause that ended while Beacon was away, and
+     * sets the resume alarm and redraws the widget.
      */
     override fun onResume() {
         super.onResume()
         ListenerConnection.reconnectIfDropped(this)
+        val app = application as BeaconApp
+        // On the app's scope, not the activity's: the cleanup should finish even if the screen closes at once.
+        app.appScope.launch {
+            try {
+                app.pauseCoordinator.catchUp()
+            } catch (_: IOException) {
+                // The settings can't be read or saved: leave things as they are; every screen checks the clock anyway.
+            }
+        }
     }
 
     /**
