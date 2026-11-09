@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark window background so there is no white flash before Compose draws;
+         transparent bars because the app draws edge to edge. -->
+    <style name="Theme.Beacon" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0B0B0D</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

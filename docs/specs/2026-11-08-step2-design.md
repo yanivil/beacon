@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026 |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -72,12 +72,16 @@ The project rules win. Each conflict and its resolution:
 | 5 | Loads Atkinson Hyperlegible Next from Google Fonts over the web. | The font is bundled in the app (OFL licence), so nothing is downloaded. The widget uses the system font, because a home-screen widget can't load a bundled font. |
 | 6 | Sizes in CSS px on a 390 px wide frame. | 1 px = 1 dp for sizes and 1 sp for text. All text is in sp. |
 | 7 | App rows use generic placeholder glyphs. The design's own note says a real build shows each app's launcher icon. | Beacon shows the app's own launcher icon when that app is installed, and the design's glyph otherwise. The icon is decorative: the row's name is its label. |
-| 8 | Options use `aria-pressed` toggle buttons. Tabs use `aria-current`. | Rules require platform roles: options are **RadioButton** in a selectable group, tabs are **Tab**, and the app rows are **Switch** (section 11). |
+| 8 | Options use `aria-pressed` toggle buttons. Tabs use `aria-current`. | Rules require platform roles: options are **RadioButton** in a group that TalkBack reads as a list ("2 of 4"), tabs are **Tab**, and the app rows are **Switch** (section 11). |
 | 9 | The Test alert button and tab bar are always fixed at the bottom. | At the largest font size, a fixed area can fill most of the screen. The tab bar always stays fixed. The Test alert button stays fixed only while the fixed area takes at most a third of the window height. Otherwise it becomes the last item of the scrolling content. |
 | 10 | Duration and colour grids always have 2 columns. | At large font sizes two columns would break words. A grid has 2 columns only when the available width divided by the font scale is at least 300 dp. Otherwise it has 1 column. |
 | 11 | The widget has fixed text sizes in a fixed box. | A widget can't scroll. Text stays in sp, and lines are left out in a fixed order when they don't fit (section 10). Every line stays in the widget's spoken label. |
 | 12 | The paused card on Home has no resume time. | When the pause came from the widget, the card also says "Back ON by itself at HH:MM." |
 | 13 | Step 1's report says the design's "VISUAL ALERTS" and "TEST ALERT" headings are 20 px uppercase. | The version read for this spec already uses 28 px bold, mixed case, for both. Nothing to change. |
+| 14 | A disabled Shorter or Longer button is drawn only in grey. | The rules say state is never shown by colour alone, and white against `#AEAEB6` is only about 2.2:1. A disabled button also draws its border dashed. |
+| 15 | The ON/OFF pill always sits beside the app's name. | At the largest font that broke words into two-letter lines. The pill wraps under the text when a word would otherwise break. |
+| 16 | The per-app colour card's Change/Done button always sits beside the name. | At large fonts the names broke mid-word. The button sits under the name when the available width divided by the font scale is under 250 dp. |
+| 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
 
 ## 4. Architecture
 
@@ -112,6 +116,9 @@ on it.
 | Widget | Jetpack Glance (`glance-appwidget`) |
 | Navigation | None: two tabs switched by a saved state value |
 | Build | Gradle 9.8.2 wrapper, AGP 9.5.1 with its built-in Kotlin, the Compose compiler plugin matching that Kotlin, and a version catalog. Library versions are pinned to exact releases looked up on Google Maven when the plan is written. |
+| Library versions (PR 1) | Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0. Compose 1.12, core 1.19 and lifecycle 2.11 need compileSdk 37 (their AAR metadata says `minCompileSdk=37`), and the project rules fix compileSdk at 36. |
+| Ripple | material-ripple 1.11.4 has no `ripple()` function, so `BeaconTheme` builds its white press ripple with the public `createRippleModifierNode`. |
+| Unit tests | On JDK 21, Robolectric needs the JVM flag `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED`, which the app's test tasks set. |
 | SDK | minSdk 29, compileSdk 36, targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` |
 
 ### Data flow
@@ -315,6 +322,10 @@ An alert ends at the first of these:
 Ending always turns the light off, releases the wake lock and closes the
 alert screen.
 
+The Home-button and screen-off end conditions are wired with the real alert
+screen in PR 2. PR 2 also stops a running test when Beacon's main screen
+stops.
+
 ### The two halves of the blink
 
 - **BlinkClock:** works out the phase from the clock. The colour shows in
@@ -325,10 +336,16 @@ alert screen.
     the screen.
   - It schedules each flip at `start + step × half period`, so delays don't
     add up.
+  - It never replays missed flips. After a stall, a late start or a restart
+    it jumps to the clock's current phase, so it never goes past 3 flashes a
+    second.
+  - A finite alert always ends with the light off.
   - It prefers the back camera's light.
   - If the light is unavailable or in use, it stops quietly for that alert.
 - **BlinkScreen** (Compose):
   - It reads the clock once per frame.
+  - It gives its content the frame time (`() -> Long`), so the test
+    overlay's countdown and the background share one clock.
   - It flips at the first frame after each half-period boundary, so it is
     never faster than the preset.
   - The colour fills the whole window, including behind the status and
@@ -357,6 +374,9 @@ dp and sp, 1:1 with the design's px.
     icon, and weight 800.
   - Each tab opens at its top.
   - Back on Alert settings goes to Home. Back on Home leaves the app.
+  - It keeps clear of the navigation bar and a side camera cutout, but not
+    of the keyboard, so a text field can never push it up. The Test alert
+    strip and the content use the same insets.
 
 ### Home
 
@@ -372,6 +392,7 @@ From top to bottom:
      - A black "Pause all alerts" button: white text, pause icon, at least 80 dp.
    - **PAUSED:**
      - `#1B1B20` with a 4 dp white border.
+     - The heading "Visual alerts" at 28 sp, as on the ON card.
      - A pause icon with "PAUSED".
      - The text "You will NOT see any flashes until you turn alerts back on."
      - When the pause is timed, the extra line "Back ON by itself at HH:MM."
@@ -388,7 +409,8 @@ From top to bottom:
      - Under the name, "<Colour> flash" with a swatch, or "No flash" when
        the app is OFF.
      - On the end side, a 100 × 60 dp pill with the text ON or OFF and a
-       42 dp knob.
+       42 dp knob. At the largest font, when a word of the text beside it
+       would otherwise break, the pill wraps under the text.
      - ON pill: yellow with dark text. OFF pill: black, with a white border
        and white text, laid out in reverse.
 5. **"How alerts look".** A card with three label and value rows:
@@ -411,7 +433,8 @@ From top to bottom:
    - **When Custom is chosen, a "Custom length" panel opens:**
      - The value at 40 sp, read aloud when it changes.
      - "Shorter" and "Longer" buttons, at least 76 dp, with − and + icons.
-     - At either end, that button is disabled and drawn in `#AEAEB6`.
+     - At either end, that button is disabled and drawn in `#AEAEB6`, with
+       a dashed border, so the state isn't shown by colour alone.
      - The line "From 1 to 60 minutes."
 3. **"Blink speed"**, with the line "All three speeds are safe limits that
    protect your camera light and battery."
@@ -427,6 +450,8 @@ From top to bottom:
      96 dp, with White spanning the full row.
    - **Per-app mode:** one card per app showing its name and current colour,
      and a "Change" button (at least 120 × 64 dp).
+     - The button sits beside the name. When the available width divided by
+       the font scale is under 250 dp, it sits under the name, full width.
      - The button opens that app's swatch grid, with swatches at least 88 dp.
      - When open, the button reads "Done".
      - Only one app's grid is open at a time.
@@ -466,6 +491,12 @@ depends on colour alone.
   "Stop" at 32 sp.
 - **Test colour in per-app mode:** the app whose colour card is open. If no
   card is open, the first app that is ON. If no app is ON, Texts (SMS).
+- **Over the app.** Taps on the overlay never reach the screen underneath.
+  TalkBack reaches only the overlay, which it knows as the pane "Test
+  alert".
+- **Back** during a test ends the test and stays on the current tab.
+- **One clock.** The countdown reads the same frame time as the blinking
+  background (see `BlinkScreen` in section 7).
 
 ### The real alert screen
 
@@ -613,13 +644,20 @@ Headings are marked as headings for TalkBack.
   fixed area and the grids.
 - **Orientation:** portrait and landscape both work. State survives
   rotation.
+- **System bars:** always dark, whatever the phone's theme. The status bar
+  and navigation bar are transparent with light icons and buttons, and the
+  system draws no contrast scrim, so the page (`#0B0B0D`) and the tab bar
+  (`#141418`) show behind them. White on those is 19.66:1 and 18.37:1.
+  While a flash fills the window, the bar icons sit on the flash colour.
+  This is accepted for the 3-second test, and decided for real alerts with
+  PR 2's alert screen, which applies the same choice to the test overlay.
 
 ### TalkBack
 
 | Control | Role | State read aloud | Label |
 |---|---|---|---|
 | App row | Switch | "On" / "Off" | App name and its flash line, such as "Texts (SMS), Yellow flash" |
-| Duration, speed, mode and swatch options | RadioButton, in a selectable group | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
+| Duration, speed, mode and swatch options | RadioButton, in a group read as a one-column list ("In list, 4 items", then "2 of 4") | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
 | Tabs | Tab, in a selectable group | "Selected" | "Home" / "Alert settings" |
 | Per-app Change/Done | Button | "Expanded" / "Collapsed" | "Change color for Telegram" / "Done choosing color for Telegram" |
 | Shorter/Longer | Button | "Disabled" at the ends | "Shorter" / "Longer" |
@@ -629,6 +667,30 @@ Headings are marked as headings for TalkBack.
 
 Spoken labels always contain the visible text, so voice control matches what
 is on screen.
+
+**List positions.** Every radio group is read as a one-column list in
+reading order, whatever its visual columns: "1 of 4" to "4 of 4" for the
+durations, "1 of 5" to "5 of 5" for the swatches.
+
+- The one-column groups (blink speed, colour mode) are a `selectableGroup`;
+  Compose counts their options itself.
+- The grids (durations and both swatch grids) state the list's size, with
+  one column, and each option states its row. Compose 1.11 counts a
+  `selectableGroup`'s options by their place in their own parent layout,
+  and every grid option sits alone in its grid cell, so all of them were
+  read as "1 of 4". It also writes its own count over an option's stated
+  row whenever the parent is a `selectableGroup`, so the grids don't use
+  one.
+
+**Live regions.** TalkBack reads a live region when it gets a content-change
+event from it. The live region holds its text, and a change inside it
+reaches TalkBack as a subtree change of the live region:
+
+- The countdown's numbers and words change width, which is such a change.
+- The Custom value's text is a new node for each length, so every step is
+  such a change, even when the new value is as wide as the old one. Compose
+  1.11 can drop a text change made in place from its events (it depends on
+  hash order), and on the Android 16 emulator it always did.
 
 ### Rules kept
 
@@ -645,6 +707,9 @@ is on screen.
   and end only.
 - **Icons:** icons that point, such as the chevron, are mirrored for
   right-to-left.
+- **Short added text:** the Test alert button's "(3 sec)" takes its
+  direction from its own text (content direction), so an English string in
+  a right-to-left layout stays on one line.
 - **Translation:** none in Step 2. A Hebrew translation can be added later
   without layout changes.
 
@@ -652,14 +717,16 @@ is on screen.
 
 | Case | What Beacon does |
 |---|---|
-| No camera light, or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
+| No camera light (or no camera service), or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
 | "Display over other apps" off | Only the light flashes. The setup card shows it OFF. |
 | Notification access off | Nothing is detected. The setup card shows it OFF. |
 | Listener dropped by the system | Reconnected when Beacon is opened (section 6). |
 | Phone too hot (Severe or worse) | The light stops and the screen keeps blinking. |
 | Messages arrive during an alert | Recorded, no second alert. |
 | A real message during a test | The test ends and the real alert starts. |
-| Settings unreadable | Defaults are used. |
+| Settings unreadable | Defaults are used, and the app stays on them until it is restarted. |
+| Settings can't be saved | The change isn't kept, and the screen keeps showing the saved value. No message in PR 1. |
+| An app's icon can't be drawn | Beacon shows its own glyph for that app. |
 | A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up within the alarm window, or on the next screen-on. |
 | The phone restarts | Settings and pause are kept. Android rebinds the listener. With HyperOS Autostart off, it may stay unbound until Beacon is opened. This is Step 1's open risk, and not tested. |
 | Another app's notification has a one-time code | Android 15+ may hide the content. Beacon doesn't need content, so no effect is expected. Not tested. |
@@ -696,10 +763,18 @@ is on screen.
 
 - Roles, states and labels from section 11 on Home, Alert settings, the test
   overlay and the alert screen.
+- The list positions TalkBack reads, taken from the node information
+  Compose builds for TalkBack, not only from the semantics.
+- The system bars' style in the light and the dark system theme.
 - Tab switching.
 - Option selection.
 - Custom length at both ends.
 - Per-app colour editing, with one grid open at a time.
+- The content-change event TalkBack gets from the Custom value's live
+  region, after both Longer and Shorter.
+- The overflow check that the largest-font tests use: it fails on
+  ellipsized and clipped text, and passes on text that fits.
+- No camera service means no light, without a crash.
 
 ### Emulator (Android 16, API 36)
 
@@ -736,6 +811,9 @@ what earlier PRs found.
 | 1 | Project setup, theme, fonts, settings, Home, Alert settings, test overlay (with `BlinkClock`, `TorchBlinker` and the test path of `AlertController`) |
 | 2 | Listener, classifier, the full alert controller, `AlertActivity`, the setup card |
 | 3 | Widget, timed pause and its Home line, widget refresh |
+
+PR 1: built on `feature/step2-screens`. Its emulator checks are in
+[`docs/checks/2026-11-step2-pr1.md`](../checks/2026-11-step2-pr1.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 
