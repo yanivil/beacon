@@ -16,8 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * light and could push the flash rate past the safe limit (WCAG 2.3.1). A
  * second start while one runs is dropped, with one exception: a real alert
  * replaces a running test, because a message matters more than a button press.
- * The replacement runs stop() first, so the old blinker's off is queued on the
- * torch thread before the new blinker's start.
+ * The replacement ends the test first (everything stop() does except the Idle
+ * state), so the old blinker's off is queued on the torch thread before the new
+ * blinker's start, and screens never see a brief Idle between the two.
  *
  * Why the end and the renewal are posted with tokens: stop() must cancel both,
  * or an old end could cut a newer alert short, or a renewal could re-take the
@@ -99,7 +100,8 @@ class AlertController(
             val replacesTest = request.kind == AlertKind.REAL && running.request.kind == AlertKind.TEST
             if (!replacesTest) return false
             // Ends the test completely (light off queued, lock released) before the new alert begins.
-            stop()
+            // The state is not set to Idle: it goes straight from the test to the new alert.
+            endCurrent()
         }
         startCount++
         val now = SystemClock.uptimeMillis()
@@ -161,6 +163,16 @@ class AlertController(
      * Ends the alert and leaves the light off. Safe to call when idle or more than once.
      */
     fun stop() {
+        endCurrent()
+        mutableState.value = AlertState.Idle
+    }
+
+    /**
+     * Does everything that ends an alert except publishing [AlertState.Idle]: cancels the posted work,
+     * stops the light and the heat watch, and releases the wake lock behind the light's off.
+     * [start] uses it alone when a real alert replaces a test, so observers never see a brief Idle.
+     */
+    private fun endCurrent() {
         mainHandler.removeCallbacksAndMessages(END_TOKEN)
         mainHandler.removeCallbacksAndMessages(RENEW_TOKEN)
         mainHandler.removeCallbacksAndMessages(HEAT_TOKEN)
@@ -168,7 +180,6 @@ class AlertController(
         blinker = null
         platform.stopWatchingHeat()
         releaseWakeLockAfterOff()
-        mutableState.value = AlertState.Idle
     }
 
     /**

@@ -11,6 +11,8 @@ import dev.beacon.BeaconApp
 import dev.beacon.alert.AlertKind
 import dev.beacon.alert.ListenerConnection
 import dev.beacon.ui.theme.BeaconTheme
+import java.io.IOException
+import kotlinx.coroutines.launch
 
 /*
  * Why the system bars are always dark: Beacon's page is always #0B0B0D,
@@ -54,21 +56,40 @@ class MainActivity : ComponentActivity() {
 
     /**
      * Ends a real alert: opening Beacon is how a light-only alert is stopped.
-     * A test is left alone.
+     * A test is left alone. Coming back from a rotation or font change is not
+     * "opening" Beacon: Beacon never left the front, so a light-only alert
+     * that started meanwhile keeps running.
      */
     override fun onStart() {
         super.onStart()
-        (application as BeaconApp).alertController.stopIf(AlertKind.REAL)
+        if (recreating) {
+            // Skip once, then clear: the next start is a real opening again.
+            recreating = false
+        } else {
+            (application as BeaconApp).alertController.stopIf(AlertKind.REAL)
+        }
     }
 
     /**
      * Re-binds the message listener at once if access is granted but the
      * system dropped it. Right after a cold start this can run before the
      * system has bound the listener, which costs one harmless off-and-on.
+     * Also cleans up a timed pause that ended while Beacon was away and sets
+     * the resume alarm again; the widget is redrawn only if that changed the
+     * saved pause.
      */
     override fun onResume() {
         super.onResume()
         ListenerConnection.reconnectIfDropped(this)
+        val app = application as BeaconApp
+        // On the app's scope, not the activity's: the cleanup should finish even if the screen closes at once.
+        app.appScope.launch {
+            try {
+                app.pauseCoordinator.catchUp()
+            } catch (_: IOException) {
+                // The settings can't be read or saved: leave things as they are; every screen checks the clock anyway.
+            }
+        }
     }
 
     /**
@@ -80,8 +101,18 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         // Rotation stops the old activity before the new one starts; the test must survive it.
+        // The flag outlives this instance (it is static) so the new instance's onStart can read it.
+        recreating = isChangingConfigurations
         if (!isChangingConfigurations) {
             (application as BeaconApp).alertController.stopIf(AlertKind.TEST)
         }
+    }
+
+    private companion object {
+        /**
+         * True from a stop caused by a configuration change (rotation, font size) until the next start,
+         * which reads and clears it. Static because the stop and the start belong to two different instances.
+         */
+        var recreating = false
     }
 }

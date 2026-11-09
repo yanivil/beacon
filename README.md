@@ -24,17 +24,17 @@ contrast, big touch targets and plain wording.
       [`docs/specs/2026-11-08-step2-design.md`](docs/specs/2026-11-08-step2-design.md).
       It is built in three PRs: screens, then the alert engine, then the
       widget.
-      - [ ] **PR 0:** the spec and the plan for PR 1
+      - [x] **PR 0:** the spec and the plan for PR 1
         ([`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md)),
-        open as yanivil/beacon#5.
-      - [ ] **PR 1:** the screens and the test alert, built on
-        `feature/step2-screens`, open as yanivil/beacon#6. Emulator checks:
+        merged as yanivil/beacon#5 on 9 November 2026.
+      - [x] **PR 1:** the screens and the test alert, merged as
+        yanivil/beacon#6 on 9 November 2026. Emulator checks:
         [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
         Five of the six defects they found are fixed and re-checked on the
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
         run on the test phone yet.
-      - [ ] **PR 2:** the alert engine, built on
-        `feature/step2-alert-engine`, open as yanivil/beacon#7. Plan:
+      - [x] **PR 2:** the alert engine, merged as yanivil/beacon#7 on
+        9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr2.md`](docs/checks/2026-11-step2-pr2.md).
@@ -42,7 +42,16 @@ contrast, big touch targets and plain wording.
         an alert that started while the screen was off ended at once, and
         Android's one-time "Viewing full screen" panel covered the first
         alert. Nothing in it has run on the test phone yet.
-      - [ ] **PR 3:** the widget.
+      - [ ] **PR 3:** the widget and the timed pause, built on
+        `feature/step2-widget` and not merged yet. Plan:
+        [`docs/plans/2026-11-09-step2-pr3-widget.md`](docs/plans/2026-11-09-step2-pr3-widget.md).
+        Emulator checks:
+        [`docs/checks/2026-11-step2-pr3.md`](docs/checks/2026-11-step2-pr3.md).
+        They found three defects, all fixed and re-checked on the
+        emulator: after only a font-size change the widget stayed clipped
+        until Glance drew it afresh, the launcher let it shrink to 3 × 2,
+        and at 3 × 2 "PAUSED" broke and the resume time was cut off.
+        Nothing in it has run on the test phone yet.
       - [ ] **App icon:** Beacon's own launcher icon, a black bolt on the
         design's yellow, built on `feature/app-icon`. Emulator checks:
         [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
@@ -110,6 +119,47 @@ card (PR 2), and the widget (PR 3).
   hiding the system bars brought up Android's "Viewing full screen" panel.
 
 Not in PR 2: the widget, the timed pause and its Home line (PR 3).
+
+## What PR 3 delivers
+
+- **The home-screen widget:** "Beacon" in the widget picker, 4 × 2 cells
+  by default. It shows ON on yellow or PAUSED on black, in the system font,
+  and the whole widget is one tap target with one spoken label. One tap
+  pauses alerts for 1 hour; a tap while paused turns them ON. Each line is
+  measured as the launcher will draw it. When the widget is small or the
+  font is large, the tap hint goes first, then the title, then the icon,
+  then the resume time, which TalkBack still reads; the state word always
+  stays. After a font-size change the widget is fitted again.
+- **Following the phone's settings:** the widget follows a change of the
+  12- or 24-hour setting, the time zone or the language by itself.
+- **The timed pause:** Home's PAUSED card says "Back ON by itself at HH:MM."
+  in the phone's 12- or 24-hour format, and Home turns ON at that time by
+  itself.
+- **Keeping it current:** every pause change goes through one coordinator,
+  which saves it, sets or cancels a resume alarm and, when the pause
+  changed, redraws the widget. A change that has started finishes even if
+  Beacon is closed at once. The alarm is inexact with a 10-minute window,
+  so Beacon needs no exact-alarm permission. A pause that has ended is
+  also cleaned up when Beacon comes to the front, when the screen turns
+  on, and after a time, time-zone or language change. Alerts never wait
+  for any of this: they check the clock.
+- **No new permissions:** the ones Glance's background library would add
+  are removed, so Beacon still asks only for "Display over other apps" and
+  the wake lock, and still has no internet permission.
+- **PR 2's carry-overs:** rotating no longer ends a light-only alert while
+  Beacon is in front, a real alert replaces a test without a moment of
+  Idle in between, and the blink works out its regions only when the size
+  or the bars change.
+- **Checks:** 305 unit tests, lint with no errors, and emulator checks of
+  the widget picker, the tap and pause path, auto-resume with the
+  emulator's clock moved forward, the widget at font 1.0 and 2.0 at three
+  sizes, TalkBack and the rotation carry-over. They found three defects, all fixed and re-checked:
+  the widget stayed clipped after only a font-size change, it could be
+  shrunk to 3 × 2, and at 3 × 2 its PAUSED state didn't fit.
+
+Not in PR 3: telling the alert when the camera refuses the light, and new
+battery steps for phones other than Xiaomi (both left from PR 2's reviews),
+and every check on the test phone.
 
 ## The launcher icon
 

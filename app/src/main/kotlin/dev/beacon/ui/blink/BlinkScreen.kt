@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -67,7 +67,9 @@ internal fun blinkColour(clock: BlinkClock, colour: FlashColour, nowUptimeMillis
  * @param top the system bars' height at the top, in pixels (the status bar).
  * @param right the system bars' width at the right edge, in pixels (a side navigation bar).
  * @param bottom the system bars' height at the bottom, in pixels (the navigation bar).
- * @param phaseColour the current phase's colour, from [blinkColour].
+ * @param phaseColour the current phase's colour, from [blinkColour]. It may be [Color.Unspecified] as a
+ *   placeholder: the caller then paints that rectangle with the phase colour in its draw step, so the
+ *   regions can be worked out once and reused across phases.
  * @return each rectangle with its colour, in painting order; a later one covers an earlier one.
  */
 internal fun blinkRegions(
@@ -110,17 +112,25 @@ fun BlinkScreen(clock: BlinkClock, colour: FlashColour, content: @Composable (no
     Box(
         Modifier
             .fillMaxSize()
-            // Read while drawing, so a flip only redraws the background, not the cards.
-            .drawBehind {
+            // The regions are worked out in the cache, which is rebuilt only when the size or the bars change.
+            // The phase is read in the draw block, so a flip only redraws the background, not the cards.
+            .drawWithCache {
                 val regions = blinkRegions(
                     size,
                     left = bars.getLeft(this, layoutDirection).toFloat(),
                     top = bars.getTop(this).toFloat(),
                     right = bars.getRight(this, layoutDirection).toFloat(),
                     bottom = bars.getBottom(this).toFloat(),
-                    phaseColour = blinkColour(clock, colour, now.longValue),
+                    // Placeholder: the real phase colour is only known per frame, below.
+                    phaseColour = Color.Unspecified,
                 )
-                regions.forEach { (rect, regionColour) -> drawRect(regionColour, rect.topLeft, rect.size) }
+                onDrawBehind {
+                    val phaseColour = blinkColour(clock, colour, now.longValue)
+                    regions.forEach { (rect, regionColour) ->
+                        // The first region is the black base; the others take the current phase's colour.
+                        drawRect(if (regionColour == Color.Unspecified) phaseColour else regionColour, rect.topLeft, rect.size)
+                    }
+                }
             },
     ) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))) { content(readNow) }

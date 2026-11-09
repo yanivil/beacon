@@ -140,6 +140,17 @@ class AlertActivityTest {
         scenario.onActivity { assertTrue(it.isFinishing) }
     }
 
+    /** The window's screen-off receiver is removed with the window, so none is left behind. */
+    @Test fun screenOffReceiverGoesWithTheWindow() {
+        val app = ApplicationProvider.getApplicationContext<BeaconApp>()
+        fun screenOffReceivers() = shadowOf(app).registeredReceivers.count { it.intentFilter.hasAction(Intent.ACTION_SCREEN_OFF) }
+        val before = screenOffReceivers()
+        val scenario = launch()
+        assertEquals(before + 1, screenOffReceivers())
+        scenario.close()
+        assertEquals(before, screenOffReceivers())
+    }
+
     /** With nothing running the window closes itself straight away. */
     @Test fun finishesWhenNothingRuns() {
         controller().stop()

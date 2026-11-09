@@ -7,6 +7,7 @@
     <string name="alerts_paused">PAUSED</string>
     <string name="alerts_on_body">Your screen and camera light will flash when a message arrives.</string>
     <string name="alerts_paused_body">You will NOT see any flashes until you turn alerts back on.</string>
+    <string name="alerts_back_on_at">Back ON by itself at %1$s.</string>
     <string name="alerts_pause_button">Pause all alerts</string>
     <string name="alerts_resume_button">Turn alerts back ON</string>
     <string name="apps_heading">Flash for these apps</string>
@@ -100,4 +101,13 @@
     <string name="setup_open_for">Open settings for %1$s</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
+
+    <!-- Home-screen widget -->
+    <string name="widget_tap_pause">Tap to pause for 1 hour</string>
+    <string name="widget_tap_resume">Tap to turn ON now</string>
+    <string name="widget_back_on_at">Back ON by itself at %1$s</string>
+    <string name="widget_label_on">Visual alerts are ON. Tap to pause for 1 hour.</string>
+    <string name="widget_label_paused_until">Visual alerts are PAUSED until %1$s. Tap to turn them back on now.</string>
+    <string name="widget_label_paused">Visual alerts are PAUSED. Tap to turn them back on now.</string>
+    <string name="widget_description">Shows whether visual alerts are ON. One tap pauses them for 1 hour.</string>
 </resources>

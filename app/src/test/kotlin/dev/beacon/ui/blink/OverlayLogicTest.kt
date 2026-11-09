@@ -59,6 +59,15 @@ class OverlayLogicTest {
         assertEquals(Color(FlashColour.YELLOW.argb), landscape.paintedAt(Offset(1_200f, 540f)))
     }
 
+    /** Rotation 270 with 3-button navigation puts the navigation bar at the left: its strip stays black. */
+    @Test fun leftBarStripIsBlack() {
+        val clock = BlinkClock(1_000, BlinkSpeed.MEDIUM, TEST_LENGTH_MILLIS)
+        val yellow = blinkColour(clock, FlashColour.YELLOW, 1_000)
+        val regions = blinkRegions(Size(2_400f, 1_080f), left = 48f, top = 63f, right = 0f, bottom = 0f, yellow)
+        assertEquals(BeaconColors.Black, regions.paintedAt(Offset(10f, 540f)))
+        assertEquals(Color(FlashColour.YELLOW.argb), regions.paintedAt(Offset(1_200f, 540f)))
+    }
+
     /** In the black phase the whole window is black, strips and all. */
     @Test fun blackPhaseIsBlackEverywhere() {
         val clock = BlinkClock(1_000, BlinkSpeed.MEDIUM, TEST_LENGTH_MILLIS)

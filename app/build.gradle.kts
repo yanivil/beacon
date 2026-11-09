@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.datastore.preferences)
     implementation(libs.core.ktx)
+    implementation(libs.glance.appwidget)
 
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.junit)
@@ -66,5 +67,6 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.glance.appwidget.testing)
     debugImplementation(libs.compose.ui.test.manifest)
 }
