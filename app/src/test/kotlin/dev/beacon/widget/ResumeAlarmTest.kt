@@ -12,6 +12,7 @@ import dev.beacon.settings.Pause
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -20,7 +21,7 @@ import org.robolectric.shadows.ShadowAlarmManager
 
 /*
  * Why Robolectric: the alarm is only as good as what AlarmManager is asked
- * for (inexact, allowed while idle, aimed at Beacon's own receiver), and the
+ * for (inexact, a 10-minute window, aimed at Beacon's own receiver), and the
  * receiver only works through a real broadcast with goAsync(). The receiver
  * test goes through the real app, its coordinator and its settings file.
  */
@@ -34,15 +35,16 @@ class ResumeAlarmTest {
     /** Robolectric's view of the alarms that were set. */
     private val alarms: ShadowAlarmManager get() = shadowOf(app.getSystemService(AlarmManager::class.java))
 
-    /** A deadline sets one inexact wake-up, allowed while idle, which reaches the resume receiver. */
+    /** A deadline sets one inexact wake-up with a 10-minute window, which reaches the resume receiver (ruling F2). */
     @Test fun schedulesAnInexactWakeup() {
         AndroidResumeAlarm(app).schedule(5_000)
         val alarm = alarms.scheduledAlarms.single()
         assertEquals(AlarmManager.RTC_WAKEUP, alarm.getType())
         assertEquals(5_000L, alarm.getTriggerAtMs())
-        assertTrue("allowed while idle", alarm.isAllowWhileIdle())
-        // Inexact: the system picks the window, so no exact-alarm permission is needed.
-        assertEquals(ShadowAlarmManager.WINDOW_HEURISTIC, alarm.getWindowLengthMs())
+        // Inexact with a set window: 10 minutes at most, not Android's 75 % of the delay, and no exact-alarm permission.
+        assertEquals(10 * 60_000L, alarm.getWindowLengthMs())
+        // setWindow alarms wait for Doze's maintenance windows; the screen-on catch-up covers the time the widget is seen.
+        assertFalse("not allowed while idle", alarm.isAllowWhileIdle())
         // Firing it sends its pending intent: an explicit broadcast to the resume receiver.
         alarms.fireAlarm(alarm)
         assertEquals(ComponentName(app, ResumeReceiver::class.java), shadowOf(app).broadcastIntents.last().component)

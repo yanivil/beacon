@@ -13,10 +13,20 @@ import kotlinx.coroutines.launch
  * Why a resume alarm: alerts check the clock themselves, so a timed pause
  * ends on time without it. The alarm only cleans up after the deadline:
  * it wakes Beacon near that time so the stored pause becomes ON and the
- * widget redraws. It is inexact (setAndAllowWhileIdle), so no exact-alarm
- * permission is needed and it may fire a little late (rulings 3 and 4).
- * It is not set again after a restart: there is no RECEIVE_BOOT_COMPLETED.
+ * widget redraws. It is inexact, with a 10-minute window (setWindow), so no
+ * exact-alarm permission is needed and it fires at most 10 minutes late
+ * while the phone is awake (ruling F2, which replaces ruling 3's
+ * setAndAllowWhileIdle and its window of 75 % of the delay). It is not set
+ * again after a restart: there is no RECEIVE_BOOT_COMPLETED (ruling 4).
  */
+
+/**
+ * How late the resume alarm may fire, in milliseconds. 10 minutes is the smallest inexact window
+ * Android allows without the exact-alarm permission; a shorter one is stretched to 10 minutes.
+ * The alarm isn't allowed to fire in Doze: the widget is only seen with the screen on, and the
+ * screen turning on already catches the pause up.
+ */
+internal const val RESUME_WINDOW_MILLIS = 10 * 60_000L
 
 /** Wakes Beacon when a timed pause ends. */
 interface ResumeAlarm {
@@ -41,7 +51,7 @@ class AndroidResumeAlarm(context: Context) : ResumeAlarm {
     private val alarmManager: AlarmManager = appContext.getSystemService(AlarmManager::class.java)
 
     /**
-     * Sets an inexact wake-up at [atEpochMillis], or cancels the alarm.
+     * Sets an inexact wake-up between [atEpochMillis] and [RESUME_WINDOW_MILLIS] after it, or cancels the alarm.
      *
      * @param atEpochMillis when the pause ends, in epoch milliseconds; null cancels the alarm.
      */
@@ -51,7 +61,7 @@ class AndroidResumeAlarm(context: Context) : ResumeAlarm {
             alarmManager.cancel(pending)
         } else {
             // The same pending intent each time, so a new alarm replaces the old one: there is only ever one.
-            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atEpochMillis, pending)
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, atEpochMillis, RESUME_WINDOW_MILLIS, pending)
         }
     }
 
