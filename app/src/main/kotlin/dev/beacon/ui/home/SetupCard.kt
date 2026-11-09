@@ -39,6 +39,9 @@ import dev.beacon.ui.theme.LocalContentColour
  * Steps that name labels the person can't find are worse than none, so the
  * card names the ones their version shows. Where one version changed its
  * wording in an update (Android 13 and 14), the card uses the last one.
+ * On Android 14 and later the steps also steer away from the switch in
+ * "Allow background usage", which restricts Beacon, and say how to get
+ * past the next page's switch when it is already off.
  *
  * Why a dark card with a thick white border: like the PAUSED card, it must
  * stand out from the rest of Home by more than colour, because until these
@@ -116,7 +119,8 @@ internal fun batteryStepsRes(manufacturer: String, sdkInt: Int): Int = when {
     sdkInt <= Build.VERSION_CODES.S_V2 -> R.string.setup_battery_steps_api31
     // Android 13: an early update renamed the row App battery usage; its page still has Unrestricted on it.
     sdkInt == Build.VERSION_CODES.TIRAMISU -> R.string.setup_battery_steps_api33
-    // Android 14 (from a 2024 update) and later, and any newer version: Unrestricted is behind Allow background usage.
+    // Android 14 (from a 2024 update) and later, and any newer version: Unrestricted is behind the words
+    // Allow background usage, whose switch would restrict Beacon instead.
     else -> R.string.setup_battery_steps_api34
 }
 

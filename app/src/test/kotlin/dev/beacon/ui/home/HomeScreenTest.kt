@@ -456,8 +456,13 @@ class HomeScreenTest {
     }
 
     private companion object {
-        /** Android 14 and later's steps, the ones Robolectric's Android 16 phone gets. */
-        const val STEPS_API34 = "Tap App battery usage, then Allow background usage, then Unrestricted."
+        /**
+         * Android 14 and later's steps, the ones Robolectric's Android 16 phone gets. They name the words of
+         * "Allow background usage", whose switch would restrict Beacon, and say what to do when the next
+         * page's switch is already off.
+         */
+        const val STEPS_API34 = "Tap App battery usage. Tap the words Allow background usage, not its switch. " +
+            "If the next page’s switch is off, turn it on. Then tap Unrestricted."
 
         /** Android 10 and 11's steps, the longest. */
         const val STEPS_API29 = "Tap Advanced, then Battery, then Battery optimization. Choose All apps, " +

@@ -104,8 +104,10 @@
     <string name="setup_battery_steps_api31">Tap Battery, then Unrestricted.</string>
     <!-- Android 13 (API 33). -->
     <string name="setup_battery_steps_api33">Tap App battery usage, then Unrestricted.</string>
-    <!-- Android 14 and later (API 34 and up); read on the Android 16 emulator. -->
-    <string name="setup_battery_steps_api34">Tap App battery usage, then Allow background usage, then Unrestricted.</string>
+    <!-- Android 14 and later (API 34 and up); read and followed on the Android 16 emulator. The row's
+         switch would restrict Beacon, so the step names its words; when background use is already off,
+         the next page's switch is off and Unrestricted can't be chosen until it is turned on. -->
+    <string name="setup_battery_steps_api34">Tap App battery usage. Tap the words Allow background usage, not its switch. If the next page’s switch is off, turn it on. Then tap Unrestricted.</string>
     <string name="setup_open">Open settings</string>
     <string name="setup_open_for">Open settings for %1$s</string>
     <string name="state_on">On</string>
