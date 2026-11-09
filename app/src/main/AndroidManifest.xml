@@ -109,9 +109,12 @@
             </intent-filter>
         </receiver>
         <!-- WorkManager's foreground service; Beacon runs no foreground
-             service (ruling 2). -->
+             service (ruling 2). The class is declared only in WorkManager's
+             own manifest, which this entry removes, so lint's MissingClass
+             check can't find it here: ignored for this entry only. -->
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
+            tools:ignore="MissingClass"
             tools:node="remove" />
     </application>
 </manifest>

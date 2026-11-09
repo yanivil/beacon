@@ -2,6 +2,7 @@ package dev.beacon.widget
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.graphics.text.LineBreaker
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -59,7 +60,9 @@ internal class StaticLayoutMeasure(private val metrics: DisplayMetrics) : LineMe
             .setAlignment(Layout.Alignment.ALIGN_CENTER)
             // A TextView's defaults: font padding included, high-quality line breaks.
             .setIncludePad(true)
-            .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+            // LineBreaker's constant (API 29, Beacon's minimum) is what lint expects; it has the same value
+            // as Layout.BREAK_STRATEGY_HIGH_QUALITY.
+            .setBreakStrategy(LineBreaker.BREAK_STRATEGY_HIGH_QUALITY)
             .build()
         return layout.height / density + LINE_MARGIN_DP
     }
