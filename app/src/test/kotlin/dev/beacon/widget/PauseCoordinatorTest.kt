@@ -34,6 +34,9 @@ import org.junit.runner.RunWith
  * DataStore shows what was stored; the alarm and the refresh are recorded.
  * Two tests hold the change half-way with a gate and cancel the caller
  * there, as when the person leaves Beacon right after a tap (ruling F1).
+ * The catch-up after a time, zone or language change redraws for a reason
+ * other than a changed pause, so its tests count the redraws per state
+ * (follow-up R1).
  */
 
 /** Tests for [PauseCoordinator] over a real DataStore file, a recording alarm and a settable clock. */
@@ -53,6 +56,9 @@ class PauseCoordinatorTest {
 
     /** The coordinator's clock, in epoch milliseconds; every test starts at 1_000 (ruling P2). */
     private var now = 1_000L
+
+    /** Half an hour, in milliseconds. */
+    private val halfHour = 30 * 60_000L
 
     /** The real DataStore on a temporary file. */
     private lateinit var realStore: DataStore<Preferences>
@@ -121,6 +127,51 @@ class PauseCoordinatorTest {
     @Test fun settingTheSamePauseDoesNotRefresh() = runTest {
         c.tapFromWidget(); c.set(Pause.Until(3_601_000))
         assertEquals(listOf<Long?>(3_601_000, 3_601_000), alarm.scheduled); assertEquals(1, refreshes)
+    }
+
+    /**
+     * After a time, zone or 12/24-hour change, a running timed pause is redrawn once, since the widget
+     * shows its time; the pause is kept and the alarm armed for its deadline (follow-up R1).
+     */
+    @Test fun timeChangeRedrawsARunningTimedPause() = runTest {
+        repo.setPause(Pause.Until(now + halfHour)); c.catchUpAfterTimeChange(languageChanged = false)
+        assertEquals(1, refreshes)
+        assertEquals(Pause.Until(1_000 + halfHour), repo.settings.first().pause)
+        assertEquals(listOf<Long?>(1_000 + halfHour), alarm.scheduled)
+    }
+
+    /** ON and the open-ended pause show no time, so a time change redraws neither; their alarm is cancelled. */
+    @Test fun timeChangeLeavesOnAndIndefiniteAlone() = runTest {
+        repo.setPause(Pause.None); c.catchUpAfterTimeChange(languageChanged = false)
+        assertEquals(0, refreshes)
+        repo.setPause(Pause.Indefinite); c.catchUpAfterTimeChange(languageChanged = false)
+        assertEquals(0, refreshes)
+        assertEquals(listOf<Long?>(null, null), alarm.scheduled)
+    }
+
+    /** Every state shows words, so a language change redraws ON and the open-ended pause once each. */
+    @Test fun languageChangeRedrawsEveryState() = runTest {
+        repo.setPause(Pause.None); c.catchUpAfterTimeChange(languageChanged = true)
+        assertEquals(1, refreshes)
+        repo.setPause(Pause.Indefinite); c.catchUpAfterTimeChange(languageChanged = true)
+        assertEquals(2, refreshes)
+        assertEquals(Pause.Indefinite, repo.settings.first().pause)
+    }
+
+    /** A timed pause that a time change has ended is cleaned up to ON with exactly one redraw, and its alarm is cancelled. */
+    @Test fun timeChangeEndsAnExpiredPauseWithOneRedraw() = runTest {
+        repo.setPause(Pause.Until(now - 1)); c.catchUpAfterTimeChange(languageChanged = false)
+        assertEquals(Pause.None, repo.settings.first().pause)
+        assertEquals(1, refreshes)
+        assertEquals(listOf<Long?>(null), alarm.scheduled)
+    }
+
+    /** Two reasons at once still give one redraw: an ended pause, or a running one, after a language change. */
+    @Test fun twoReasonsStillRedrawOnce() = runTest {
+        repo.setPause(Pause.Until(now - 1)); c.catchUpAfterTimeChange(languageChanged = true)
+        assertEquals(1, refreshes)
+        repo.setPause(Pause.Until(now + halfHour)); c.catchUpAfterTimeChange(languageChanged = true)
+        assertEquals(2, refreshes)
     }
 
     /**

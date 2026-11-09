@@ -28,6 +28,15 @@ import kotlinx.coroutines.withContext
  * every screen-on and every return to Beacon catches up. The alarm is always
  * set again, which also re-arms one lost to a restart.
  *
+ * One exception (follow-up R1): after the clock, the time zone, the
+ * 12/24-hour setting or the language changed, what the widget shows can be
+ * out of date with the pause unchanged. A language change changes the words
+ * of every state, so it always redraws. A time change redraws only while a
+ * timed pause is running, because only then does the widget show a time:
+ * automatic time sends TIME_SET whenever it corrects the clock, and every
+ * refresh is a Glance session of about 45 seconds. Either way it is one
+ * refresh at most.
+ *
  * Threads: every function is a suspend function and safe from any thread.
  * DataStore makes each read-and-write atomic; the lock also keeps the alarm
  * in the order of the writes, so two quick changes can't leave it set for the
@@ -37,6 +46,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * Makes every pause change: saves it, sets the resume alarm for it and, when it changed, refreshes the widget.
+ * After a time, time-zone or language change it also refreshes the widget when what it shows depends on it.
  *
  * @param repo the saved settings.
  * @param alarm the resume alarm, set for a timed pause and cancelled for any other.
@@ -60,7 +70,7 @@ class PauseCoordinator(
      *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
      */
     suspend fun set(pause: Pause) {
-        change { pause }
+        change({ pause })
     }
 
     /**
@@ -70,7 +80,7 @@ class PauseCoordinator(
      * @throws java.io.IOException if the settings can't be read or saved, and then the alarm and the widget
      *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
      */
-    suspend fun tapFromWidget(): Pause = change { pauseAfterWidgetTap(it, now()) }
+    suspend fun tapFromWidget(): Pause = change({ pauseAfterWidgetTap(it, now()) })
 
     /**
      * Cleans up a timed pause whose deadline has passed: it becomes ON. Any other pause is kept, and
@@ -80,20 +90,49 @@ class PauseCoordinator(
      *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
      */
     suspend fun catchUp() {
-        change { if (it.isExpiredAt(now())) Pause.None else it }
+        change(::endIfExpired)
     }
 
     /**
+     * Catches up after the clock, the time zone, the 12/24-hour setting or the language changed. It
+     * cleans up an ended timed pause as [catchUp] does, and refreshes the widgets at most once: when
+     * the saved pause changed, after a language change (every state shows words), or while a timed
+     * pause is still running (only then does the widget show a time).
+     *
+     * @param languageChanged true after a language change; false after a change of the clock, the time
+     *   zone or the 12/24-hour setting.
+     * @throws java.io.IOException if the settings can't be read or saved, and then the alarm and the widget
+     *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
+     */
+    suspend fun catchUpAfterTimeChange(languageChanged: Boolean) {
+        // A timed pause left after the clean-up is still running: an ended one has just become ON.
+        change(::endIfExpired, redrawAnyway = { saved -> languageChanged || saved is Pause.Until })
+    }
+
+    /**
+     * The catch-up's rule: a timed pause whose deadline has passed becomes ON, and any other pause is kept.
+     *
+     * @param stored the stored pause.
+     * @return ON for a timed pause that has ended, else [stored].
+     */
+    private fun endIfExpired(stored: Pause): Pause = if (stored.isExpiredAt(now())) Pause.None else stored
+
+    /**
      * Saves the pause [transform] gives and sets or cancels the alarm for it, then refreshes the
-     * widgets if the saved pause differs from the one stored before. Runs to the end even if the
-     * caller is cancelled once it has started.
+     * widgets once if the saved pause differs from the one stored before or [redrawAnyway] holds for
+     * it. Runs to the end even if the caller is cancelled once it has started.
      *
      * @param transform maps the stored pause to the new one, inside one atomic edit; it may run more than once.
+     * @param redrawAnyway given the saved pause, whether the widgets need redrawing although it didn't
+     *   change; never, by default (ruling F3).
      * @return the pause that was saved.
      * @throws java.io.IOException if the settings can't be read or saved, and then the alarm and the widget
      *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
      */
-    private suspend fun change(transform: (Pause) -> Pause): Pause = withContext(NonCancellable) {
+    private suspend fun change(
+        transform: (Pause) -> Pause,
+        redrawAnyway: (saved: Pause) -> Boolean = { false },
+    ): Pause = withContext(NonCancellable) {
         // The pause the committed edit started from. Each run of the transform overwrites it, so the
         // value left is the last run's, the one DataStore wrote: the same rule updatePause's result follows.
         var before: Pause = Pause.None
@@ -103,8 +142,9 @@ class PauseCoordinator(
                 // Always set again, even when unchanged: this re-arms an alarm lost to a restart.
                 .also { alarm.schedule(it.resumeAtMillis()) }
         }
-        // Unchanged (a catch-up with nothing to clean up): the widget already shows it, so no Glance session.
-        if (saved != before) refreshWidgets()
+        // Unchanged (a catch-up with nothing to clean up): the widget already shows it, so no Glance session,
+        // unless the caller knows that what it shows is out of date (follow-up R1). One refresh either way.
+        if (saved != before || redrawAnyway(saved)) refreshWidgets()
         saved
     }
 }
