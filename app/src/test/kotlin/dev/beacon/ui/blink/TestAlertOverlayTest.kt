@@ -18,6 +18,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -34,6 +35,16 @@ import dev.beacon.settings.Pause
 import dev.beacon.ui.FontScaleRule
 import dev.beacon.ui.MainActivity
 import dev.beacon.ui.assertNoTextOverflow
+import dev.beacon.ui.enableAccessibilityService
+import dev.beacon.ui.recordAccessibilityEvents
+import dev.beacon.ui.theme.BeaconTheme
+import android.os.SystemClock
+import android.view.accessibility.AccessibilityEvent
+import dev.beacon.alert.AlertRequest
+import dev.beacon.alert.BlinkClock
+import dev.beacon.alert.MessageSource
+import dev.beacon.settings.BlinkSpeed
+import dev.beacon.settings.FlashColour
 import dev.beacon.ui.hasRole
 import java.time.Duration
 import kotlinx.coroutines.runBlocking
@@ -244,6 +255,61 @@ class TestAlertOverlayTest {
         rule.onNode(hasText("Stop") and hasRole(Role.Button)).performClick()
         rule.advance(16)
         rule.onNode(hasRole(Role.Tab) and hasText("Home")).assertIsSelected()
+    }
+
+    /**
+     * The countdown is one polite live region whose text is a new node each
+     * second, so TalkBack gets a subtree change from it at 2 and again at 1.
+     * Each step starts with no events, so the second one can't ride on the first.
+     */
+    @Test fun countdownReachesTalkBackEverySecond() {
+        enableAccessibilityService()
+        rule.openTest()
+        val events = rule.recordAccessibilityEvents()
+        val region = rule.onNode(hasText("3") and politeLiveRegion).fetchSemanticsNode()
+        listOf("2", "1").forEach { second ->
+            events.clear()
+            rule.advance(1_000)
+            // Compose batches its accessibility events and sends them up to 100 ms after a
+            // change, so time moves on, still inside this second, before the events are checked.
+            rule.advance(300)
+            rule.onNode(hasText(second) and politeLiveRegion).assertExists()
+            val changes = events.filter {
+                it.type == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED &&
+                    it.sourceId == region.id &&
+                    it.changes and AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE != 0
+            }
+            // Compose sends this change in two batches 100 ms apart, so "at least one", as in D4.
+            assertTrue("TalkBack gets a subtree change from the countdown at $second; sent: $events", changes.isNotEmpty())
+        }
+    }
+}
+
+/** Robolectric test for the camera row of the Test alert overlay when the heat check has stopped the light. */
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(qualifiers = "w360dp-h800dp")
+class TestAlertOverlayCameraTest {
+    /** Hosts the overlay alone in an empty activity. */
+    @get:Rule val rule = createComposeRule()
+
+    /** A phone with a light whose light has stopped: the row says why, not "Flashing too". */
+    @Test fun cameraLineSaysHotWhenLightStopped() {
+        // BlinkScreen asks for a frame on every frame, so the clock never idles.
+        rule.mainClock.autoAdvance = false
+        val running = AlertState.Running(
+            request = AlertRequest(AlertKind.TEST, FlashColour.YELLOW, BlinkSpeed.MEDIUM, 3_000L, null),
+            clock = BlinkClock(SystemClock.uptimeMillis(), BlinkSpeed.MEDIUM, 3_000L),
+            lightFlashing = false,
+        )
+        rule.setContent {
+            BeaconTheme {
+                TestAlertOverlay(running, "Yellow", "Medium, 60 a minute", "1 minute", hasLight = true, onStop = {})
+            }
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("Off while the phone is hot").assertExists()
+        rule.onNodeWithText("Flashing too").assertDoesNotExist()
     }
 }
 

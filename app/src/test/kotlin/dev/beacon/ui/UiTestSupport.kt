@@ -1,5 +1,11 @@
 package dev.beacon.ui
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
+import android.view.View
+import android.view.ViewGroup
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -11,9 +17,12 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -22,6 +31,9 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowAccessibilityRecord
 
 /*
  * Why shared helpers: the largest-font rule ("nothing clipped or truncated")
@@ -215,3 +227,56 @@ fun ComposeContentTestRule.assertTalkBackReadsList(options: List<SemanticsMatche
  * @return a matcher for nodes with exactly that role.
  */
 fun hasRole(role: Role): SemanticsMatcher = SemanticsMatcher.expectValue(SemanticsProperties.Role, role)
+
+/**
+ * One accessibility event as it was sent, copied when it was sent.
+ *
+ * @property type the event type, such as TYPE_WINDOW_CONTENT_CHANGED.
+ * @property changes the content-change types, such as SUBTREE.
+ * @property sourceId the virtual view id of the source, which is its semantics id.
+ */
+data class SentEvent(val type: Int, val changes: Int, val sourceId: Int)
+
+/**
+ * Makes Robolectric report an enabled accessibility service, as when
+ * TalkBack is on, so Compose sends accessibility events. Robolectric
+ * resets this after each test.
+ */
+fun enableAccessibilityService() {
+    val manager = ApplicationProvider.getApplicationContext<Context>().getSystemService(AccessibilityManager::class.java)
+    // The service list first: Compose counts accessibility as on only with an enabled service.
+    shadowOf(manager).setEnabledAccessibilityServiceList(listOf(AccessibilityServiceInfo()))
+    shadowOf(manager).setEnabled(true)
+}
+
+/**
+ * Records every accessibility event the Compose view sends, at its parent
+ * view, the first place each event goes on its way to TalkBack.
+ *
+ * @return the events sent from now on, in order; clear it to start again.
+ * @throws AssertionError if the screen has no host view or the view has no parent.
+ */
+fun SemanticsNodeInteractionsProvider.recordAccessibilityEvents(): MutableList<SentEvent> {
+    val view = (onRoot().fetchSemanticsNode().root as? ViewRootForTest)?.view
+    assertNotNull("the screen has no host view", view)
+    val parent = view!!.parent as? ViewGroup
+    assertNotNull("the host view has no parent", parent)
+    val events = mutableListOf<SentEvent>()
+    parent!!.accessibilityDelegate = object : View.AccessibilityDelegate() {
+        /**
+         * Copies the event, then lets it travel on as usual.
+         *
+         * @param host this parent.
+         * @param child the Compose view that sent the event.
+         * @param event the event.
+         * @return whether the event travels on, as without this delegate.
+         */
+        override fun onRequestSendAccessibilityEvent(host: ViewGroup, child: View, event: AccessibilityEvent): Boolean {
+            // Robolectric keeps the source's virtual id in its shadow of the record.
+            val source = Shadow.extract<ShadowAccessibilityRecord>(event).virtualDescendantId
+            events += SentEvent(event.eventType, event.contentChangeTypes, source)
+            return super.onRequestSendAccessibilityEvent(host, child, event)
+        }
+    }
+    return events
+}

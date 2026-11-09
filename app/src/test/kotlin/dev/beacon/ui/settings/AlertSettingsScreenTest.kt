@@ -1,10 +1,6 @@
 package dev.beacon.ui.settings
 
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.view.View
-import android.view.ViewGroup
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -13,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -46,23 +41,21 @@ import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.assertOwnListPositions
 import dev.beacon.ui.assertTalkBackReadsList
+import dev.beacon.ui.enableAccessibilityService
+import dev.beacon.ui.recordAccessibilityEvents
 import dev.beacon.ui.hasRole
 import dev.beacon.ui.theme.BeaconTheme
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.text.TextLayoutResult
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadow.api.Shadow
-import org.robolectric.shadows.ShadowAccessibilityRecord
 
 /*
  * Why these tests: Alert settings is where a senior changes how alerts look,
@@ -197,7 +190,7 @@ class AlertSettingsScreenTest {
     @Test fun customValueStaysOneLiveRegionWithANewTextEachStep() {
         enableAccessibilityService()
         show(BeaconSettings.DEFAULT.copy(duration = DurationChoice.CUSTOM, customLength = CustomLength.of(10)))
-        val events = recordAccessibilityEvents()
+        val events = rule.recordAccessibilityEvents()
         val live = SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion)
         val region = rule.onNode(live).fetchSemanticsNode()
         assertEquals(LiveRegionMode.Polite, region.config[SemanticsProperties.LiveRegion])
@@ -223,59 +216,6 @@ class AlertSettingsScreenTest {
                 events.any { it.type == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && it.sourceId == region.id },
             )
         }
-    }
-
-    /**
-     * One accessibility event as it was sent, copied when it was sent.
-     *
-     * @property type the event type, such as TYPE_WINDOW_CONTENT_CHANGED.
-     * @property changes the content-change types, such as SUBTREE.
-     * @property sourceId the virtual view id of the source, which is its semantics id.
-     */
-    private data class SentEvent(val type: Int, val changes: Int, val sourceId: Int)
-
-    /**
-     * Makes Robolectric report an enabled accessibility service, as when
-     * TalkBack is on, so Compose sends accessibility events. Robolectric
-     * resets this after each test.
-     */
-    private fun enableAccessibilityService() {
-        val manager = ApplicationProvider.getApplicationContext<Context>().getSystemService(AccessibilityManager::class.java)
-        // The service list first: Compose counts accessibility as on only with an enabled service.
-        shadowOf(manager).setEnabledAccessibilityServiceList(listOf(AccessibilityServiceInfo()))
-        shadowOf(manager).setEnabled(true)
-    }
-
-    /**
-     * Records every accessibility event the Compose view sends, at its parent
-     * view, the first place each event goes on its way to TalkBack.
-     *
-     * @return the events sent from now on, in order; clear it to start again.
-     * @throws AssertionError if the screen has no host view or the view has no parent.
-     */
-    private fun recordAccessibilityEvents(): MutableList<SentEvent> {
-        val view = (rule.onRoot().fetchSemanticsNode().root as? ViewRootForTest)?.view
-        assertNotNull("the screen has no host view", view)
-        val parent = view!!.parent as? ViewGroup
-        assertNotNull("the host view has no parent", parent)
-        val events = mutableListOf<SentEvent>()
-        parent!!.accessibilityDelegate = object : View.AccessibilityDelegate() {
-            /**
-             * Copies the event, then lets it travel on as usual.
-             *
-             * @param host this parent.
-             * @param child the Compose view that sent the event.
-             * @param event the event.
-             * @return whether the event travels on, as without this delegate.
-             */
-            override fun onRequestSendAccessibilityEvent(host: ViewGroup, child: View, event: AccessibilityEvent): Boolean {
-                // Robolectric keeps the source's virtual id in its shadow of the record.
-                val source = Shadow.extract<ShadowAccessibilityRecord>(event).virtualDescendantId
-                events += SentEvent(event.eventType, event.contentChangeTypes, source)
-                return super.onRequestSendAccessibilityEvent(host, child, event)
-            }
-        }
-        return events
     }
 
     /** Medium is chosen by default, Fast carries its note, and a tap picks a speed. */

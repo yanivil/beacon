@@ -4,7 +4,9 @@ import android.os.SystemClock
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +35,10 @@ import dev.beacon.ui.theme.BeaconColors
  *
  * Why the colour fills the whole window but the content doesn't: the blink
  * shows behind the status and navigation bars too (the app draws edge to
- * edge), while the cards keep clear of the bars and any camera cutout.
+ * edge), while the cards keep clear of any camera cutout. The bars are hidden
+ * while the screen shows, so the cutout is all that is left to clear; the
+ * system-bar inset stays in the padding for the moment a swipe brings the
+ * bars back. The keyboard inset is left out: no flash screen has a text field.
  */
 
 /**
@@ -49,7 +54,8 @@ internal fun blinkColour(clock: BlinkClock, colour: FlashColour, nowUptimeMillis
 
 /**
  * A window-filling background that blinks between [colour] and black on
- * [clock]'s schedule, with [content] on top, clear of the system bars.
+ * [clock]'s schedule, with [content] on top, clear of the camera cutout. The
+ * system bars are hidden while it shows.
  *
  * @param clock the running alert's timing; the same clock drives the camera light.
  * @param colour the flash colour.
@@ -60,6 +66,8 @@ internal fun blinkColour(clock: BlinkClock, colour: FlashColour, nowUptimeMillis
  */
 @Composable
 fun BlinkScreen(clock: BlinkClock, colour: FlashColour, content: @Composable (nowUptimeMillis: () -> Long) -> Unit) {
+    // Both the test overlay and the real alert screen fill the window with a flash, so both hide the bars.
+    HideSystemBars()
     // The latest frame's uptime; it starts at "now" so the very first draw already has a phase.
     val now = remember(clock) { mutableLongStateOf(SystemClock.uptimeMillis()) }
     val readNow = remember(now) { { now.longValue } }
@@ -73,6 +81,6 @@ fun BlinkScreen(clock: BlinkClock, colour: FlashColour, content: @Composable (no
             // Read while drawing, so a flip only redraws the background, not the cards.
             .drawBehind { drawRect(blinkColour(clock, colour, now.longValue)) },
     ) {
-        Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) { content(readNow) }
+        Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))) { content(readNow) }
     }
 }

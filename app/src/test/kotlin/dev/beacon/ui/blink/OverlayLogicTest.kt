@@ -1,6 +1,7 @@
 package dev.beacon.ui.blink
 
 import androidx.compose.ui.graphics.Color
+import dev.beacon.R
 import dev.beacon.alert.BlinkClock
 import dev.beacon.alert.TEST_LENGTH_MILLIS
 import dev.beacon.settings.BlinkSpeed
@@ -41,5 +42,12 @@ class OverlayLogicTest {
         assertEquals(2, countdownSeconds(clock, 2_000))
         assertEquals(1, countdownSeconds(clock, 3_999))
         assertEquals(1, countdownSeconds(clock, 4_000)) // at the end: 0 s left, still "1" until the overlay closes
+    }
+
+    /** The camera row says "Flashing too", "Off while the phone is hot" or "Not on this phone". */
+    @Test fun cameraLine() {
+        assertEquals(R.string.test_camera_on, cameraLineRes(hasLight = true, lightFlashing = true))
+        assertEquals(R.string.test_camera_hot, cameraLineRes(hasLight = true, lightFlashing = false))
+        assertEquals(R.string.test_camera_none, cameraLineRes(hasLight = false, lightFlashing = false))
     }
 }

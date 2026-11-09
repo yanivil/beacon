@@ -79,7 +79,9 @@
     <string name="test_speed">Speed</string>
     <string name="test_camera">Camera light</string>
     <string name="test_camera_on">Flashing too</string>
+    <string name="test_camera_hot">Off while the phone is hot</string>
     <string name="test_camera_none">Not on this phone</string>
     <string name="test_real_length">Real alerts last</string>
     <string name="stop">Stop</string>
+    <string name="alert_title">New message</string>
 </resources>
