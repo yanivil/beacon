@@ -33,7 +33,10 @@ contrast, big touch targets and plain wording.
         Five of the six defects they found are fixed and re-checked on the
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
         run on the test phone yet.
-      - [ ] **PR 2:** the alert engine. **PR 3:** the widget.
+      - [ ] **PR 2:** the alert engine. Its plan is written and waiting
+        for review:
+        [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
+      - [ ] **PR 3:** the widget.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)

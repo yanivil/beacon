@@ -6,6 +6,7 @@
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
+| Plan for PR 2 | [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](../plans/2026-11-09-step2-pr2-alert-engine.md) |
 | Builds on | [`docs/feasibility.md`](../feasibility.md) (Step 1, approved when PR #4 merged) |
 | Design reference | https://claude.ai/code/artifact/57db235d-b0b1-4b3d-af5c-bdee1677e1f2 (version read: `1794128372-2bae`) |
 

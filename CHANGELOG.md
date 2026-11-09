@@ -86,6 +86,20 @@ and the project uses [Semantic Versioning](https://semver.org/).
   only. The sixth, a switch's new state after a double tap with TalkBack,
   needs the phone. The file also lists what stays not tested until the
   phone is connected.
+- `docs/plans/2026-11-09-step2-pr2-alert-engine.md`: the implementation
+  plan for Step 2's second PR, the alert engine. It has 8 test-first tasks:
+  - The message facts and the classifier's rules.
+  - The alert screen, with the system bars hidden while a flash shows.
+  - The alert window over other apps and the lock screen.
+  - The full alert controller: a real alert replaces a test, plus the wake
+    lock, the heat check and opening the alert window.
+  - Listening for messages.
+  - Ending alerts from Beacon's main screen.
+  - The "Finish setup" card.
+  - Emulator checks.
+
+  It also records 12 rulings where the spec left a choice, and the items
+  PR 1's reviews left for PR 2.
 
 ### Changed
 
