@@ -35,6 +35,7 @@ import dev.beacon.alert.AlertState
 import dev.beacon.settings.Pause
 import dev.beacon.ui.FontScaleRule
 import dev.beacon.ui.MainActivity
+import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.enableAccessibilityService
 import dev.beacon.ui.recordAccessibilityEvents
@@ -289,7 +290,7 @@ class TestAlertOverlayTest {
     }
 }
 
-/** Robolectric test for the camera row of the Test alert overlay when the heat check has stopped the light. */
+/** Robolectric tests for the camera row of the Test alert overlay when the heat check or a refusal has stopped the light. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w360dp-h800dp")
@@ -314,6 +315,32 @@ class TestAlertOverlayCameraTest {
         rule.mainClock.advanceTimeByFrame()
         rule.onNodeWithText("Off while the phone is hot").assertExists()
         rule.onNodeWithText("Flashing too").assertDoesNotExist()
+    }
+
+    /**
+     * A light that refused (another app has the camera): the row says so, not that the phone is hot,
+     * and at the largest font the longer line wraps without being cut off.
+     */
+    @Test fun cameraLineSaysBusyWhenLightRefused() {
+        rule.mainClock.autoAdvance = false
+        val running = AlertState.Running(
+            request = AlertRequest(AlertKind.TEST, FlashColour.YELLOW, BlinkSpeed.MEDIUM, 3_000L, null),
+            clock = BlinkClock(SystemClock.uptimeMillis(), BlinkSpeed.MEDIUM, 3_000L),
+            lightFlashing = false,
+            lightRefused = true,
+        )
+        rule.setContent {
+            BeaconTheme {
+                WithFontScale(2.0f) {
+                    TestAlertOverlay(running, "Yellow", "Medium, 60 a minute", "1 minute", hasLight = true, onStop = {})
+                }
+            }
+        }
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("Off while another app uses the camera").assertExists()
+        rule.onNodeWithText("Off while the phone is hot").assertDoesNotExist()
+        rule.onNodeWithText("Flashing too").assertDoesNotExist()
+        rule.assertNoTextOverflow()
     }
 }
 

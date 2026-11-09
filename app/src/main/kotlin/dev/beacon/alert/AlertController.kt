@@ -173,7 +173,7 @@ class AlertController(
      */
     private fun onTooHot(forBlinker: TorchBlinker) {
         // Only the running alert's light is stopped; a late callback changes nothing.
-        if (markLightOff(forBlinker)) forBlinker.stop()
+        if (markLightOff(forBlinker, refused = false)) forBlinker.stop()
     }
 
     /**
@@ -184,7 +184,7 @@ class AlertController(
     private fun onLightRefused(forBlinker: TorchBlinker) {
         // No stop(): the blinker already ended its run and tried to leave the light off,
         // so stopping it again would only send the camera one more command.
-        markLightOff(forBlinker)
+        markLightOff(forBlinker, refused = true)
     }
 
     /**
@@ -192,16 +192,17 @@ class AlertController(
      * heat stop and a refused light. The heat listener stays registered; [endCurrent] removes it.
      *
      * @param forBlinker The blinker the heat watch or the refusal belongs to.
+     * @param refused True for a refused light, so the test overlay says why the light is off; false for heat.
      * @return True when it acted; false when that blinker is no longer the running alert's, so a late
      *   callback from an alert that ended or was replaced changes nothing.
      */
-    private fun markLightOff(forBlinker: TorchBlinker): Boolean {
+    private fun markLightOff(forBlinker: TorchBlinker, refused: Boolean): Boolean {
         // A late callback for an alert that ended or was replaced must change nothing.
         if (blinker !== forBlinker) return false
         val running = mutableState.value as? AlertState.Running ?: return false
         blinker = null
         mainHandler.removeCallbacksAndMessages(HEAT_TOKEN)
-        mutableState.value = running.copy(lightFlashing = false)
+        mutableState.value = running.copy(lightFlashing = false, lightRefused = refused)
         return true
     }
 

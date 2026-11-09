@@ -97,10 +97,14 @@ class OverlayLogicTest {
         assertEquals(1, countdownSeconds(clock, 4_000)) // at the end: 0 s left, still "1" until the overlay closes
     }
 
-    /** The camera row says "Flashing too", "Off while the phone is hot" or "Not on this phone". */
+    /**
+     * The camera row says "Flashing too", "Off while the phone is hot", "Off while another app uses the camera"
+     * (the light refused) or "Not on this phone".
+     */
     @Test fun cameraLine() {
-        assertEquals(R.string.test_camera_on, cameraLineRes(hasLight = true, lightFlashing = true))
-        assertEquals(R.string.test_camera_hot, cameraLineRes(hasLight = true, lightFlashing = false))
-        assertEquals(R.string.test_camera_none, cameraLineRes(hasLight = false, lightFlashing = false))
+        assertEquals(R.string.test_camera_on, cameraLineRes(hasLight = true, lightFlashing = true, lightRefused = false))
+        assertEquals(R.string.test_camera_hot, cameraLineRes(hasLight = true, lightFlashing = false, lightRefused = false))
+        assertEquals(R.string.test_camera_busy, cameraLineRes(hasLight = true, lightFlashing = false, lightRefused = true))
+        assertEquals(R.string.test_camera_none, cameraLineRes(hasLight = false, lightFlashing = false, lightRefused = false))
     }
 }

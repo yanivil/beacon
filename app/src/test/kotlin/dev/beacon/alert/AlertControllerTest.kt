@@ -173,6 +173,8 @@ class AlertControllerTest {
         c.start(real(60_000)); idle(200); p.fireTooHot(); idle(10)
         val r = c.state.value as AlertState.Running
         assertFalse(r.lightFlashing); assertFalse(fake.events.last().second)
+        // Heat, not a refusal: the overlay keeps saying the phone is hot.
+        assertFalse(r.lightRefused)
         idle(1_000); assertTrue(fake.events.none { it.first > r.clock.startUptimeMillis + 300 && it.second })
     }
 
@@ -257,6 +259,8 @@ class AlertControllerTest {
         assertEquals(checks, p.heatChecks)
         val r = c.state.value as AlertState.Running
         assertFalse(r.lightFlashing)
+        // The test overlay's camera line reads this to say why the light is off.
+        assertTrue(r.lightRefused)
         assertFalse(p.released)
         assertFalse(fake.events.last().second)
     }

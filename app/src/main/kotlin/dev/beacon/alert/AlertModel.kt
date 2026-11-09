@@ -59,11 +59,15 @@ sealed interface AlertState {
      *
      * @property request What was asked for.
      * @property clock The shared timing of the screen and the light.
-     * @property lightFlashing False when the phone has no usable camera light or is too hot, so only the screen blinks.
+     * @property lightFlashing False when the phone has no usable camera light, is too hot, or the light
+     *   refused, so only the screen blinks.
+     * @property lightRefused True when the light stopped because it refused a command (for example another
+     *   app has the camera), rather than for heat. Only ever true while [lightFlashing] is false.
      */
     data class Running(
         val request: AlertRequest,
         val clock: BlinkClock,
         val lightFlashing: Boolean,
+        val lightRefused: Boolean = false,
     ) : AlertState
 }

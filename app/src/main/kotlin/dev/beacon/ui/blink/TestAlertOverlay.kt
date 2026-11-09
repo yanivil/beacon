@@ -82,13 +82,17 @@ internal fun countdownSeconds(clock: BlinkClock, nowUptimeMillis: Long): Int {
  * The string for the details card's camera row.
  *
  * @param hasLight true when the phone has a camera light.
- * @param lightFlashing true while the light is flashing; false when the heat check has stopped it.
- * @return "Flashing too", "Off while the phone is hot" (a light that has stopped), or "Not on this phone".
+ * @param lightFlashing true while the light is flashing; false when the heat check has stopped it or it refused.
+ * @param lightRefused true when the light stopped because it refused (another app has the camera).
+ * @return "Flashing too", "Off while another app uses the camera" (a light that refused), "Off while the
+ *   phone is hot" (any other light that has stopped), or "Not on this phone".
  */
 @StringRes
-internal fun cameraLineRes(hasLight: Boolean, lightFlashing: Boolean): Int = when {
+internal fun cameraLineRes(hasLight: Boolean, lightFlashing: Boolean, lightRefused: Boolean): Int = when {
     !hasLight -> R.string.test_camera_none
     lightFlashing -> R.string.test_camera_on
+    // A refusal isn't heat: saying the phone is hot would be wrong, and a senior might worry.
+    lightRefused -> R.string.test_camera_busy
     else -> R.string.test_camera_hot
 }
 
@@ -140,7 +144,7 @@ fun TestAlertOverlay(
                     Spacer(Modifier.height(MinGap))
                     CountdownCard(seconds, Modifier.align(Alignment.CenterHorizontally))
                     Spacer(Modifier.height(MinGap))
-                    DetailsCard(colourLabel, speedLabel, lengthLabel, hasLight, running.lightFlashing)
+                    DetailsCard(colourLabel, speedLabel, lengthLabel, hasLight, running.lightFlashing, running.lightRefused)
                     Spacer(Modifier.height(MinGap))
                     StopButton(onStop, Modifier.fillMaxWidth().focusRequester(stopFocus))
                     // Why: blocking focus from entering the shell (see BeaconAppScreen) doesn't move focus
@@ -191,10 +195,18 @@ private fun CountdownCard(seconds: Int, modifier: Modifier) {
  * @param speedLabel the blink speed and rate.
  * @param lengthLabel how long real alerts last.
  * @param hasLight true when the phone has a camera light.
- * @param lightFlashing false when the heat check has stopped the light.
+ * @param lightFlashing false when the heat check has stopped the light or it refused.
+ * @param lightRefused true when the light stopped because it refused.
  */
 @Composable
-private fun DetailsCard(colourLabel: String, speedLabel: String, lengthLabel: String, hasLight: Boolean, lightFlashing: Boolean) {
+private fun DetailsCard(
+    colourLabel: String,
+    speedLabel: String,
+    lengthLabel: String,
+    hasLight: Boolean,
+    lightFlashing: Boolean,
+    lightRefused: Boolean,
+) {
     Column(
         Modifier.fillMaxWidth().overlayCard(radius = 24.dp, horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -203,7 +215,7 @@ private fun DetailsCard(colourLabel: String, speedLabel: String, lengthLabel: St
         DetailRow(stringResource(R.string.test_speed), speedLabel)
         DetailRow(
             stringResource(R.string.test_camera),
-            stringResource(cameraLineRes(hasLight, lightFlashing)),
+            stringResource(cameraLineRes(hasLight, lightFlashing, lightRefused)),
         )
         DetailRow(stringResource(R.string.test_real_length), lengthLabel)
     }
