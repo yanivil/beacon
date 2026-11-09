@@ -1,6 +1,7 @@
 package dev.beacon.widget
 
 import android.app.Application
+import android.provider.Settings
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MonotonicFrameClock
@@ -18,6 +19,8 @@ import androidx.glance.text.EmittableText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.BeaconSettings
+import dev.beacon.settings.Pause
+import dev.beacon.ui.formatResumeTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -25,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RuntimeEnvironment
@@ -36,7 +40,9 @@ import org.robolectric.annotation.GraphicsMode
  * only a font-size change nothing it read had changed, so it drew nothing
  * new and the old lines clipped (PR 3's D1). The composition now reads the
  * configuration key; this test changes the key under a running composition
- * and checks that the widget is fitted again.
+ * and checks that the widget is fitted again. A second test does the same
+ * for the 12/24-hour setting, which the key also holds (follow-up R1), and
+ * checks that the resume time is formatted again.
  *
  * Why its own small session: Glance's unit-test harness copies its node tree
  * only when it sees the recomposer turn idle, and it misses a recomposition
@@ -84,7 +90,7 @@ class BeaconWidgetTest {
         val recomposer = Recomposer(coroutineContext)
         val composition = Composition(Applier(root), recomposer)
         val session = launch(ImmediateFrameClock) { recomposer.runRecomposeAndApplyChanges() }
-        val config = MutableStateFlow(WidgetConfigKey.of(app.resources.configuration))
+        val config = MutableStateFlow(WidgetConfigKey.of(app, app.resources.configuration))
         try {
             composition.setContent {
                 CompositionLocalProvider(LocalContext provides app, LocalSize provides DpSize(360.dp, 224.dp)) {
@@ -96,13 +102,60 @@ class BeaconWidgetTest {
 
             RuntimeEnvironment.setFontScale(2.0f)
             // What BeaconApp does in onConfigurationChanged.
-            config.value = WidgetConfigKey.of(app.resources.configuration)
+            config.value = WidgetConfigKey.of(app, app.resources.configuration)
             advanceUntilIdle()
             Snapshot.sendApplyNotifications()
             advanceUntilIdle()
             assertEquals(listOf("Visual alerts", "ON"), texts(root))
         } finally {
             RuntimeEnvironment.setFontScale(1.0f)
+            composition.dispose()
+            recomposer.cancel()
+            session.cancel()
+        }
+    }
+
+    /**
+     * A 12/24-hour change under a running composition formats the resume time again (follow-up R1):
+     * the same session that drew the 12-hour time draws the 24-hour one once the key holds the new setting.
+     */
+    @Test fun aRunningSessionRedrawsTheTimeWhenTheClockKeyChanges() = runTest {
+        val root = RemoteViewsRoot(maxDepth = 10)
+        val recomposer = Recomposer(coroutineContext)
+        val composition = Composition(Applier(root), recomposer)
+        val session = launch(ImmediateFrameClock) { recomposer.runRecomposeAndApplyChanges() }
+        Settings.System.putString(app.contentResolver, Settings.System.TIME_12_24, "12")
+        val config = MutableStateFlow(WidgetConfigKey.of(app, app.resources.configuration))
+        // From the real clock: WidgetBody reads it to tell a running pause from one that has ended.
+        val resumeAt = System.currentTimeMillis() + 30 * 60_000L
+        val paused = BeaconSettings.DEFAULT.copy(pause = Pause.Until(resumeAt))
+        val twelveHour = formatResumeTime(app, resumeAt)
+        try {
+            composition.setContent {
+                CompositionLocalProvider(LocalContext provides app, LocalSize provides DpSize(360.dp, 224.dp)) {
+                    WidgetBody(app, flowOf(paused), paused, config)
+                }
+            }
+            advanceUntilIdle()
+            assertEquals(
+                listOf("Visual alerts", "PAUSED", "Back ON by itself at $twelveHour", "Tap to turn ON now"),
+                texts(root),
+            )
+
+            Settings.System.putString(app.contentResolver, Settings.System.TIME_12_24, "24")
+            val twentyFourHour = formatResumeTime(app, resumeAt)
+            // Guards the test itself: the two forms must differ for the check below to mean anything.
+            assertNotEquals(twelveHour, twentyFourHour)
+            // What BeaconApp does when the time-change receiver runs.
+            config.value = WidgetConfigKey.of(app, app.resources.configuration)
+            advanceUntilIdle()
+            Snapshot.sendApplyNotifications()
+            advanceUntilIdle()
+            assertEquals(
+                listOf("Visual alerts", "PAUSED", "Back ON by itself at $twentyFourHour", "Tap to turn ON now"),
+                texts(root),
+            )
+        } finally {
             composition.dispose()
             recomposer.cancel()
             session.cancel()

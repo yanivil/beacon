@@ -32,7 +32,8 @@ import kotlinx.coroutines.flow.first
  * The widget only reads the saved settings and draws them with the clock;
  * every change goes through the PauseCoordinator (ruling 5). Its composition
  * also reads the app's configuration key, so a font-size change re-fits a
- * session that is still running (ruling F6).
+ * session that is still running (ruling F6), and a 12/24-hour or time-zone
+ * change formats its resume time again (follow-up R1).
  */
 
 /** The home-screen widget: shows ON or PAUSED, and one tap pauses for 1 hour or turns alerts ON. */
@@ -62,7 +63,8 @@ class BeaconWidget : GlanceAppWidget() {
  * @param context the app's context, for the strings, the time format and the display metrics.
  * @param settings the saved settings as they change.
  * @param saved the settings read before the first frame.
- * @param config the font size, density and languages the widget is fitted for.
+ * @param config the font size, density and languages the widget is fitted for, and the 12/24-hour
+ *   setting and time zone its resume time is shown in.
  */
 @Composable
 internal fun WidgetBody(
@@ -78,7 +80,8 @@ internal fun WidgetBody(
     val resumeTime = (state as? WidgetState.Paused)?.resumeAtMillis?.let { formatResumeTime(context, it) }
     // A new measure for each key (ruling F6): reading the key here makes a running session compose
     // again after a font-size, density or language change, and the new measure makes the fit run again.
-    // The display metrics are already updated when the key changes.
+    // The display metrics are already updated when the key changes. The same recomposition formats the
+    // resume time above again, so a 12/24-hour or time-zone change in the key shows too (follow-up R1).
     val measure = remember(key) { StaticLayoutMeasure(context.resources.displayMetrics) }
     WidgetContent(
         state = state,

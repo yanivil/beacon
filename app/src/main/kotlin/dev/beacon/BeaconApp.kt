@@ -40,16 +40,19 @@ class BeaconApp : Application() {
     /** The camera light; built in [onCreate] because the context isn't attached yet at construction. */
     private lateinit var torch: CameraTorchSwitch
 
-    /** What the widget's fit depends on in the configuration; set in [onCreate], when the resources exist. */
+    /** What the widget's drawing depends on outside the saved settings; set in [onCreate], when the resources exist. */
     private lateinit var widgetConfigState: MutableStateFlow<WidgetConfigKey>
 
-    /** The font size, density and languages the widget is fitted for, as state its composition reads. */
+    /**
+     * The font size, density and languages the widget is fitted for, and the 12/24-hour setting and
+     * time zone its resume time is shown in, as state its composition reads.
+     */
     val widgetConfig: StateFlow<WidgetConfigKey> get() = widgetConfigState
 
     /** Reads the widget's configuration key, starts the light thread and runs the camera lookup on it. */
     override fun onCreate() {
         super.onCreate()
-        widgetConfigState = MutableStateFlow(WidgetConfigKey.of(resources.configuration))
+        widgetConfigState = MutableStateFlow(WidgetConfigKey.of(this, resources.configuration))
         torch = CameraTorchSwitch(this)
         torchThread.start()
         // Warm the lookup off the main thread (a PR 1 carry-over); later calls reuse the result.
@@ -66,10 +69,8 @@ class BeaconApp : Application() {
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        val key = WidgetConfigKey.of(newConfig)
         // Unchanged for a rotation, a dark-mode switch and the like: no Glance session for those.
-        if (key == widgetConfigState.value) return
-        widgetConfigState.value = key
+        if (!updateWidgetConfig(newConfig)) return
         appScope.launch {
             try {
                 WidgetRefresher.refresh(this@BeaconApp)
@@ -78,6 +79,23 @@ class BeaconApp : Application() {
                 // and the next pause change refreshes them.
             }
         }
+    }
+
+    /**
+     * Reads the widget's key again and stores it if it changed, so a Glance session that is still
+     * running composes again (rulings F6 and R1). It refreshes nothing itself: each caller decides
+     * whether a refresh is needed, so one change starts at most one Glance session. Called on the
+     * main thread, by [onConfigurationChanged] and by the time-change receiver.
+     *
+     * @param config the configuration now in force; the app's current one by default, as when the
+     *   12/24-hour setting or the time zone changed, which the configuration doesn't hold.
+     * @return true if the key changed.
+     */
+    internal fun updateWidgetConfig(config: Configuration = resources.configuration): Boolean {
+        val key = WidgetConfigKey.of(this, config)
+        if (key == widgetConfigState.value) return false
+        widgetConfigState.value = key
+        return true
     }
 
     /** The one alert controller; created on first use, after [onCreate] has started the light thread. */
