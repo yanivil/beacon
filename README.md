@@ -43,6 +43,9 @@ contrast, big touch targets and plain wording.
         Android's one-time "Viewing full screen" panel covered the first
         alert. Nothing in it has run on the test phone yet.
       - [ ] **PR 3:** the widget.
+      - [ ] **App icon:** Beacon's own launcher icon, a black bolt on the
+        design's yellow, built on `feature/app-icon`. Emulator checks:
+        [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -107,6 +110,28 @@ card (PR 2), and the widget (PR 3).
   hiding the system bars brought up Android's "Viewing full screen" panel.
 
 Not in PR 2: the widget, the timed pause and its Home line (PR 3).
+
+## The launcher icon
+
+Beacon's icon is the design's bolt in near-black `#0B0B0D` on the design's
+yellow `#FFD60A`, 13.93:1: the widget's ON card, as an icon. The design has
+no icon of its own; the owner chose this one from three ideas on
+9 November 2026.
+
+- **Adaptive:** `ic_launcher` and `ic_launcher_round` in
+  `app/src/main/res/mipmap-anydpi/`, with vector background, foreground and
+  monochrome layers. Each launcher cuts it to its own shape, and Android 13
+  and later can show it as a themed icon.
+- **Size:** the bolt is 44 dp tall and stays inside the 66 dp safe zone,
+  which no launcher mask clips.
+- **Widget picker:** the widget has no preview image of its own, so the
+  picker shows this icon too.
+- **Checks:** `LauncherIconTest` (8 unit tests, 230 in all) ties the
+  colours to the theme tokens, the path to the design's bolt and the bolt
+  to the safe zone. The emulator checks (launcher, App info, widget picker
+  and themed icons) are Not tested yet, because the emulator is busy with
+  PR 3's checks:
+  [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
 
 ## What Step 1 found
 

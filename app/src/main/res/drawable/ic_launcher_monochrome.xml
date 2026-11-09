@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon, monochrome layer: for themed icons on Android 13 and
+     later. Android uses only this layer's alpha and tints it with the
+     wallpaper's colours, so the bolt is drawn opaque white; the colour
+     itself never shows. Same path, place and size as the foreground layer,
+     so a themed Beacon icon is the same bolt. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="2"
+        android:scaleY="2"
+        android:translateX="30"
+        android:translateY="30">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+            android:strokeColor="#FFFFFFFF"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2" />
+    </group>
+</vector>

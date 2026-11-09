@@ -153,6 +153,24 @@ and the project uses [Semantic Versioning](https://semver.org/).
   the fixed build, on the alert screen and the test overlay in both
   orientations. The file also lists what stays not tested until the phone
   is connected.
+- `app/`: Beacon's launcher icon, a black bolt on the design's yellow
+  (230 unit tests). The owner chose it from three ideas. It adds:
+  - An adaptive icon, `@mipmap/ic_launcher` and `@mipmap/ic_launcher_round`
+    in `res/mipmap-anydpi/`, with vector background, foreground and
+    monochrome layers in `res/drawable/`. The manifest now sets
+    `android:icon` and `android:roundIcon`, so Android no longer shows its
+    default icon, and lint's `MissingApplicationIcon` warning is gone.
+  - The monochrome layer, so Android 13 and later can show a themed icon.
+  - `LauncherIconTest` (8 tests): both icons inflate as adaptive icons with
+    a monochrome layer; the manifest names both; the colours are
+    `BeaconColors.Accent` and `OnAccent` at 13.93:1; the path is the
+    design's bolt; and every corner of the stroked bolt stays inside the
+    66 dp safe zone.
+- `docs/checks/2026-11-app-icon.md`: the icon's unit-test and lint
+  results, and its emulator checks (AVD `beacon-api36`, Android 16) on the
+  home screen, in App info, in the widget picker and as a themed icon. The
+  emulator checks are Not tested yet: the emulator was busy with PR 3's
+  checks.
 
 ### Changed
 
@@ -199,6 +217,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - PR 2 built on `feature/step2-alert-engine` and open as yanivil/beacon#7, with
     links to its plan and its emulator checks and the two defects they
     found and that are fixed, and a "What PR 2 delivers" section.
+  - The app icon built on `feature/app-icon`, with a link to its emulator
+    checks, and a "The launcher icon" section.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 1:
@@ -261,6 +281,16 @@ and the project uses [Semantic Versioning](https://semver.org/).
     can't end the real alert.
   - Section 16: PR 2 built on `feature/step2-alert-engine`, with links to
     its plan and checks and the two defects they found and that are fixed.
+- `docs/specs/2026-11-08-step2-design.md`, for the launcher icon:
+  - Status: the launcher icon built on `feature/app-icon`.
+  - Section 8: a "Launcher icon" part: the look, the three layers, the size
+    and safe zone, the themed icon and the widget picker.
+  - Section 11: the icon's `#0B0B0D` on `#FFD60A` pair (13.93:1), held to
+    7:1 although WCAG asks only 3:1 of a graphic, and checked by
+    `LauncherIconTest` rather than the text-pair table.
+  - Section 15: what `LauncherIconTest` checks, and the icon's emulator
+    checks.
+  - Section 16: the app icon as a PR of its own, with a link to its checks.
 - `docs/plans/2026-11-08-step2-pr1-screens.md`:
   - The library versions: Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx
     1.18.0 and lifecycle 2.10.0. The newer Compose 1.12, core 1.19 and
