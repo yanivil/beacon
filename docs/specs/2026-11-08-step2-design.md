@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card); its emulator checks found two defects, D1 and D2, not fixed yet. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -328,7 +328,14 @@ An alert ends at the first of these:
 
 - its end time;
 - Stop or Back on the alert screen;
-- the Home button on the alert screen (`onUserLeaveHint`);
+- the Home button on the alert screen (`onUserLeaveHint`), but only while
+  the screen is on. The alert screen is started with
+  `FLAG_ACTIVITY_NO_USER_ACTION`, because a message, not the person, opens
+  it. Without that flag, Android paused a window that opened while the
+  display was asleep as "user leaving" (`userLeaving=true,sleep`), which
+  reached `onUserLeaveHint` and ended every alert that arrived with the
+  screen off (PR 2's D2). A person can only press Home on a screen that is
+  on, so a call while it is off is never Home;
 - the screen turning off (the power button) while the alert screen shows.
   `AlertActivity` listens for the screen turning off; that screen keeps the
   display on, so the screen going off means the power button. A light-only
@@ -379,8 +386,11 @@ All these endings are built in PR 2.
     overlay's countdown and the background share one clock.
   - It flips at the first frame after each half-period boundary, so it is
     never faster than the preset.
-  - The colour fills the whole window, including behind the status and
-    navigation bars. The cards keep clear of the bars.
+  - The colour fills the window except for black strips behind the system
+    bars: the status bar, the navigation bar, and the navigation bar at the
+    side in landscape (the system-bar insets). The bars stay visible with
+    white icons, 21:1 on black (section 11). The cards keep clear of the
+    bars and of any camera cutout.
 
 ### Safety
 
@@ -689,11 +699,14 @@ Headings are marked as headings for TalkBack.
   and navigation bar are transparent with light icons and buttons, and the
   system draws no contrast scrim, so the page (`#0B0B0D`) and the tab bar
   (`#141418`) show behind them. White on those is 19.66:1 and 18.37:1.
-  While a flash fills the window, in the test overlay and on the real alert
-  screen, both bars are hidden, because their white icons on Yellow were
-  about 1.4:1. A swipe from the screen edge shows them for a moment, and
-  they come back when the flash ends. The cost is that the clock and
-  battery icons are hidden during an alert.
+  The bars are always visible and dark, and never hidden, also while a
+  flash fills the window. During a flash, in the test overlay and on the
+  real alert screen, the strips behind the bars stay black, so their white
+  icons are 21:1; the blink fills the rest (section 7). A blink behind the
+  bars would put those icons on the flash colour (about 1.4:1 on Yellow).
+  Hiding the bars instead was tried in PR 2 and made Android show its
+  one-time "Viewing full screen" panel over the first alert and the first
+  test, covering the title and dimming the blink (PR 2's D1).
 
 ### TalkBack
 
@@ -866,9 +879,10 @@ PR 2: built on `feature/step2-alert-engine`, from the plan
 [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](../plans/2026-11-09-step2-pr2-alert-engine.md).
 Its emulator checks are in
 [`docs/checks/2026-11-step2-pr2.md`](../checks/2026-11-step2-pr2.md). They
-found two defects, not fixed yet: Android's one-time "Viewing full screen"
-panel covers the first alert and the first test (D1), and an alert that
-starts while the screen is off ends at once (D2).
+found two defects, both fixed and re-checked on the emulator: Android's
+one-time "Viewing full screen" panel covered the first alert and the first
+test (D1), and an alert that started while the screen was off ended at
+once (D2).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

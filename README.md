@@ -38,10 +38,10 @@ contrast, big touch targets and plain wording.
         [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr2.md`](docs/checks/2026-11-step2-pr2.md).
-        They found two defects, not fixed yet: an alert that starts while
-        the screen is off ends at once, and Android's one-time "Viewing full
-        screen" panel covers the first alert. Nothing in it has run on the
-        test phone yet.
+        They found two defects, both fixed and re-checked on the emulator:
+        an alert that started while the screen was off ended at once, and
+        Android's one-time "Viewing full screen" panel covered the first
+        alert. Nothing in it has run on the test phone yet.
       - [ ] **PR 3:** the widget.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
@@ -92,17 +92,19 @@ card (PR 2), and the widget (PR 3).
   and releases the wake lock only after the light is off.
 - **The alert screen:** "New message" and the app's name over the blinking
   colour, with a big Stop button that TalkBack focuses first. It opens over
-  other apps and the lock screen, with the system bars hidden while it
-  flashes. It never shows who sent the message or what it says.
+  other apps and the lock screen, also when the screen is off. The system
+  bars stay visible on black strips while it flashes, so their icons stay
+  readable. It never shows who sent the message or what it says.
 - **Endings:** Stop, Back, Home, the power button, the timer, or opening
   Beacon (the way to end a light-only alert).
 - **The "Finish setup" card:** on Home while notification access, "Display
   over other apps" or the battery exemption is missing. Each row says ON or
   OFF and has an "Open settings" button for its page.
-- **Checks:** 216 unit tests, and emulator checks of the setup card, real
+- **Checks:** 219 unit tests, and emulator checks of the setup card, real
   SMS alerts, every ending, the false-alert cases, the largest font,
-  TalkBack and the keyboard. They found two defects, recorded and not fixed
-  yet.
+  TalkBack and the keyboard. They found two defects, both fixed and
+  re-checked: an alert that started with the screen off ended at once, and
+  hiding the system bars brought up Android's "Viewing full screen" panel.
 
 Not in PR 2: the widget, the timed pause and its Home line (PR 3).
 

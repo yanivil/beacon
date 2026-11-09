@@ -100,7 +100,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
   It also records 12 rulings where the spec left a choice, and the items
   PR 1's reviews left for PR 2.
-- `app/`: Step 2's PR 2, the alert engine (216 unit tests). It adds:
+- `app/`: Step 2's PR 2, the alert engine (219 unit tests). It adds:
   - The message facts and the classifier's rules: Beacon reads only a
     notification's structure, never its text, and flashes only for a new
     message from an app that is ON while alerts aren't paused. Ongoing
@@ -116,9 +116,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
     alert window.
   - The alert window (`AlertActivity`): "New message" and the app's name
     over the blink, over other apps and the lock screen, with Stop first
-    for TalkBack and the system bars hidden while it flashes. It closes
-    itself whenever no real alert runs, and ends the alert on Stop, Back,
-    Home or the screen turning off.
+    for TalkBack. It opens as a non-user action and treats Home as an
+    ending only while the screen is on, so an alert that arrives with the
+    screen off stays up. It closes itself whenever no real alert runs, and
+    ends the alert on Stop, Back, Home or the screen turning off.
+  - The flash keeps the system bars visible: the blink paints black strips
+    behind them, so their white icons stay 21:1, and the rest of the
+    window blinks.
   - Endings from Beacon's main screen: opening Beacon ends a real alert;
     leaving it ends a test, except for a rotation. The test overlay's Stop
     and Back end only a test, and keyboard focus moves to its Stop when it
@@ -132,11 +136,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `docs/checks/step2-pr2/`: PR 2's emulator checks (AVD `beacon-api36`,
   Android 16) of the setup card, real SMS alerts from the emulator's own
   modem, every ending, light-only alerts, the false-alert cases, the
-  largest font, TalkBack and the keyboard. They found two defects, not
-  fixed yet: an alert that starts while the screen is off ends within a
-  third of a second (D2), and Android's one-time "Viewing full screen"
-  panel covers the first alert and the first test (D1). The file also
-  lists what stays not tested until the phone is connected.
+  largest font, TalkBack and the keyboard. They found two defects, both
+  fixed and re-checked on the emulator: an alert that started while the
+  screen was off ended within a third of a second (D2), and hiding the
+  system bars made Android's one-time "Viewing full screen" panel cover the
+  first alert and the first test (D1). The file also lists what stays not
+  tested until the phone is connected.
 
 ### Changed
 
@@ -181,8 +186,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
     open as yanivil/beacon#6. It now describes the `app/` module, how to
     build, test and install the app, and what PR 1 delivers.
   - PR 2 built on `feature/step2-alert-engine` and awaiting review, with
-    links to its plan and its emulator checks and their two open defects,
-    and a "What PR 2 delivers" section.
+    links to its plan and its emulator checks and the two defects they
+    found and that are fixed, and a "What PR 2 delivers" section.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 1:
@@ -213,8 +218,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - Section 16: PR 1 built on `feature/step2-screens`, with a link to its
     checks.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 2:
-  - Status: PR 2 built, with its emulator checks' defects D1 and D2 not
-    fixed yet.
+  - Status: PR 2 built, with its emulator checks' defects D1 and D2 fixed.
   - Section 6: the listener waits for the saved settings, and the
     reconnect runs at once when Beacon comes to the front.
   - Section 7: a real alert replaces a test without dropping the wake lock;
@@ -224,22 +228,25 @@ and the project uses [Semantic Versioning](https://semver.org/).
     window, so it doesn't end a light-only alert; a test ends when Beacon's
     main screen stops, except for a rotation; the wake lock is released
     only after the light's off has run; the alert window closes itself
-    whenever no real alert runs.
+    whenever no real alert runs; Home ends an alert only while the screen
+    is on, and the window opens as a non-user action (D2); the blink
+    leaves black strips behind the system bars (D1).
   - Section 8: the camera line's third value, "Off while the phone is hot";
     keyboard focus moves to Stop when the test overlay opens; the overlay's
     Stop and Back end only a test; the alert window's title.
   - Section 9: on Android 11 and later, the "Display over other apps"
     button opens the list of apps; the battery steps sit above the button,
     and stock Android 16 names the row "App battery usage".
-  - Section 11: the system bars are hidden while a flash fills the window,
-    in the test overlay and on the alert screen, replacing "decided for real
-    alerts with PR 2". The countdown is a new text node every second.
+  - Section 11: the system bars are always visible and dark, never hidden,
+    with black strips behind them during a flash, replacing "decided for
+    real alerts with PR 2" (hiding them brought up Android's "Viewing full
+    screen" panel, D1). The countdown is a new text node every second.
   - Section 13: rows for Beacon open in front without "Display over other
     apps", and for a refused heat listener; the hot-phone and
     real-during-test rows say what the overlay shows and that its Stop
     can't end the real alert.
   - Section 16: PR 2 built on `feature/step2-alert-engine`, with links to
-    its plan and checks.
+    its plan and checks and the two defects they found and that are fixed.
 - `docs/plans/2026-11-08-step2-pr1-screens.md`:
   - The library versions: Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx
     1.18.0 and lifecycle 2.10.0. The newer Compose 1.12, core 1.19 and
