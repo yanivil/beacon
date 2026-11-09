@@ -18,6 +18,7 @@ import androidx.glance.text.EmittableText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.BeaconSettings
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -69,6 +70,7 @@ private fun texts(node: Emittable): List<String> = when (node) {
 }
 
 /** Tests for [WidgetBody], the widget's composition. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h914dp-420dpi")
