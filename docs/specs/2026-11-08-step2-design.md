@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card); its emulator checks found two defects, D1 and D2, not fixed yet. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -275,14 +275,18 @@ otherwise the first reason that fails:
 
 `BeaconListener` (`NotificationListenerService`):
 
-- Reads the current settings, builds the facts, asks the classifier, and
-  hands an `Alert` to the controller.
+- Builds the facts, waits for the saved settings, asks the classifier, and
+  hands an `Alert` to the controller. A message that arrives before the
+  saved settings have loaded waits for them; it is never decided with the
+  defaults, which would flash while the person has paused alerts.
 - While connected, it also refreshes the widget when the screen turns on
   (section 10).
 - **Reconnect:** when Beacon is opened, `MainActivity` checks whether access
   is granted but the listener isn't connected. If so, it turns the listener
   component off and on again. This is the Step 1 fix for HyperOS refusing to
-  rebind with Autostart off, and Step 1 requirement 5.
+  rebind with Autostart off, and Step 1 requirement 5. The check runs at
+  once each time Beacon comes to the front, with no delay, so just after a
+  cold start it may switch the listener off and on once for nothing.
 
 ## 7. The alert
 
@@ -296,36 +300,62 @@ requirement 4).
 `start(request)`:
 
 1. **Busy check.** If an alert is running, a real alert replaces a running
-   *test*. Otherwise the new request is dropped.
+   *test*: the test is ended first, exactly as Stop would end it, and the
+   real alert starts at once, so the wake lock stays held throughout.
+   Otherwise the new request is dropped.
 2. **Clock.** Create a `BlinkClock`: the start time (`SystemClock.uptimeMillis`),
    the half period from `BlinkSpeed`, and the end time. "Until I stop it"
    has no end time.
 3. **Wake lock.** Hold a partial wake lock for the alert's length plus
-   10 seconds. "Until I stop it" holds it for 60 minutes and renews it every
-   60 minutes while the alert runs.
+   10 seconds. "Until I stop it" holds it for 60 minutes plus 10 seconds and
+   renews it every 60 minutes while the alert runs. The 10-second margin
+   makes sure the renewal runs before the old lock lapses; if it is wrong,
+   it costs at most 10 seconds of extra CPU time.
 4. **Camera light.** Start `TorchBlinker` on the same clock, unless the
    thermal status is already Severe or worse.
 5. **Screen.** For a real alert, start `AlertActivity` directly, but only if
    "Display over other apps" is granted (Step 1 requirement 6). Without it,
    Android would block the screen, so the alert is light-only.
 6. **Thermal.** Listen to thermal status. At Severe or worse, stop the light
-   and keep the screen blinking.
+   and keep the screen blinking. The running state's `lightFlashing` then
+   turns false, so the test overlay's camera line changes to "Off while the
+   phone is hot" (section 8). If the system refuses the thermal listener,
+   the controller checks the thermal status itself every 30 seconds while
+   the light flashes, so at worst the light runs 30 seconds after the phone
+   turns Severe.
 
 An alert ends at the first of these:
 
 - its end time;
 - Stop or Back on the alert screen;
 - the Home button on the alert screen (`onUserLeaveHint`);
-- the screen turning off (the power button);
+- the screen turning off (the power button) while the alert screen shows.
+  `AlertActivity` listens for the screen turning off; that screen keeps the
+  display on, so the screen going off means the power button. A light-only
+  real alert has no alert screen, and the screen going off doesn't end it:
+  if it did, an ordinary screen timeout would end it too. It ends on its
+  timer or when Beacon is opened;
 - for a real alert, Beacon's main screen (`MainActivity`) coming to the
-  front. This is how a light-only alert can be stopped.
+  front. This is how a light-only alert can be stopped;
+- for a test, Beacon's main screen stopping (Home, another app, the screen
+  turning off), but not when it is only recreated for a rotation or a font
+  change, so the countdown carries on.
 
 Ending always turns the light off, releases the wake lock and closes the
-alert screen.
+alert screen:
 
-The Home-button and screen-off end conditions are wired with the real alert
-screen in PR 2. PR 2 also stops a running test when Beacon's main screen
-stops.
+- **Light, then wake lock.** The light is switched on its own thread, and
+  ending only queues its off there. The wake lock is released after that
+  off has run, so the phone can't fall asleep with the light on. If a new
+  alert has started in the meantime, the late release does nothing.
+- **The alert screen closes itself** whenever no real alert is running. It
+  watches the controller's state even while it is in the background, so it
+  also closes after an ending that happened elsewhere (the timer, Beacon
+  opened), and a stale start finds nothing to show and closes at once. Its
+  own endings (Stop, Back, Home, screen off) act only while a real alert
+  is running, so a window left behind can never end a later test.
+
+All these endings are built in PR 2.
 
 ### The two halves of the blink
 
@@ -485,7 +515,7 @@ depends on colour alone.
   |---|---|
   | Color | The colour name. In per-app mode, "Name (App)". |
   | Speed | For example "Medium, 60 a minute" |
-  | Camera light | "Flashing too", or "Not on this phone" when there's no light |
+  | Camera light | "Flashing too"; "Off while the phone is hot" when the phone has a light but the heat check stopped it (section 7); or "Not on this phone" when there's no light |
   | Real alerts last | The duration summary |
 
 - **Stop button.** White, with a 4 dp black border, at least 96 dp tall, and
@@ -495,7 +525,13 @@ depends on colour alone.
 - **Over the app.** Taps on the overlay never reach the screen underneath.
   TalkBack reaches only the overlay, which it knows as the pane "Test
   alert".
+- **Keyboard focus.** When the overlay opens, keyboard focus moves to its
+  Stop button, even when it was on the Test alert button that started the
+  test. Focus can't move into the screen underneath.
 - **Back** during a test ends the test and stays on the current tab.
+- **Stop and Back end only a test.** If a real message has just replaced
+  the test (section 7), they leave the real alert running; it has its own
+  screen.
 - **One clock.** The countdown reads the same frame time as the blinking
   background (see `BlinkScreen` in section 7).
 
@@ -506,11 +542,15 @@ This screen is not in the design. It reuses the test overlay's layout and
 
 - **Window behaviour.** `AlertActivity` shows over the lock screen and turns
   the screen on. It keeps the screen on, stays out of recent apps, and runs
-  in its own task. The phone stays locked behind it.
+  in its own task. The phone stays locked behind it. It closes itself
+  whenever no real alert is running (section 7), and a rotation redraws it
+  from the same clock.
 - **Top card:**
   - "New message" (28 sp, weight 800)
   - The app's name, such as "WhatsApp messages" (34 sp, weight 800),
     announced when the screen opens
+- **Window title.** "New message: <app name>", which TalkBack reads when the
+  window opens.
 - **No message content.** No sender, title or text is ever shown or read
   aloud.
 - **Stop button.** The same Stop button as the test overlay. It is the first
@@ -541,8 +581,8 @@ This screen is not in the design. It reuses the test overlay's layout and
 | Row | Reason shown | Checked with | Button opens |
 |---|---|---|---|
 | Notification access | So Beacon knows when a message arrives. | `NotificationManagerCompat.getEnabledListenerPackages` | Android 11+: Beacon's own notification-access page. Android 10: the notification-access list. |
-| Display over other apps | So the screen can flash over other apps and the lock screen. | `Settings.canDrawOverlays` | Beacon's "Display over other apps" page |
-| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps under the button. On Xiaomi phones: "Tap Battery saver, then No restrictions." On other phones: "Tap Battery, then Unrestricted." Other phones are not tested. |
+| Display over other apps | So the screen can flash over other apps and the lock screen. | `Settings.canDrawOverlays` | Beacon asks for its own "Display over other apps" page. Android 11 and later ignore the app's address for this page and open the list of apps, where the person taps Beacon (seen on the Android 16 emulator). |
+| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps in the row, above the button. On Xiaomi phones: "Tap Battery saver, then No restrictions." On other phones: "Tap Battery, then Unrestricted." Other phones are not tested; stock Android 16 on the emulator names the row "App battery usage". |
 
 ### Not used
 
@@ -649,9 +689,11 @@ Headings are marked as headings for TalkBack.
   and navigation bar are transparent with light icons and buttons, and the
   system draws no contrast scrim, so the page (`#0B0B0D`) and the tab bar
   (`#141418`) show behind them. White on those is 19.66:1 and 18.37:1.
-  While a flash fills the window, the bar icons sit on the flash colour.
-  This is accepted for the 3-second test, and decided for real alerts with
-  PR 2's alert screen, which applies the same choice to the test overlay.
+  While a flash fills the window, in the test overlay and on the real alert
+  screen, both bars are hidden, because their white icons on Yellow were
+  about 1.4:1. A swipe from the screen edge shows them for a moment, and
+  they come back when the flash ends. The cost is that the clock and
+  battery icons are hidden during an alert.
 
 ### TalkBack
 
@@ -687,7 +729,9 @@ durations, "1 of 5" to "5 of 5" for the swatches.
 event from it. The live region holds its text, and a change inside it
 reaches TalkBack as a subtree change of the live region:
 
-- The countdown's numbers and words change width, which is such a change.
+- The countdown's number and words are new nodes for each second, so every
+  second is such a change, whatever the glyph widths. Before PR 2 it relied
+  on the text changing width.
 - The Custom value's text is a new node for each length, so every step is
   such a change, even when the new value is as wide as the old one. Compose
   1.11 can drop a text change made in place from its events (it depends on
@@ -720,11 +764,13 @@ reaches TalkBack as a subtree change of the live region:
 |---|---|
 | No camera light (or no camera service), or the camera is in use | Only the screen blinks. The test overlay says "Not on this phone" for a missing light. |
 | "Display over other apps" off | Only the light flashes. The setup card shows it OFF. |
+| Beacon open in front with "Display over other apps" off | Only the light flashes, as everywhere else without that permission; no blink screen opens over Beacon. It ends on its timer or when Beacon is opened again. |
 | Notification access off | Nothing is detected. The setup card shows it OFF. |
 | Listener dropped by the system | Reconnected when Beacon is opened (section 6). |
-| Phone too hot (Severe or worse) | The light stops and the screen keeps blinking. |
+| Phone too hot (Severe or worse) | The light stops and the screen keeps blinking. The test overlay says "Off while the phone is hot". |
+| The system refuses the thermal listener | The controller checks the thermal status itself every 30 seconds while the light flashes (section 7). |
 | Messages arrive during an alert | Recorded, no second alert. |
-| A real message during a test | The test ends and the real alert starts. |
+| A real message during a test | The test ends and the real alert starts. The overlay's Stop and Back can't end that real alert. |
 | Settings unreadable | Defaults are used, and the app stays on them until it is restarted. |
 | Settings can't be saved | The change isn't kept, and the screen keeps showing the saved value. No message in PR 1. |
 | An app's icon can't be drawn | Beacon shows its own glyph for that app. |
@@ -815,6 +861,14 @@ what earlier PRs found.
 
 PR 1: built on `feature/step2-screens`. Its emulator checks are in
 [`docs/checks/2026-11-step2-pr1.md`](../checks/2026-11-step2-pr1.md).
+
+PR 2: built on `feature/step2-alert-engine`, from the plan
+[`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](../plans/2026-11-09-step2-pr2-alert-engine.md).
+Its emulator checks are in
+[`docs/checks/2026-11-step2-pr2.md`](../checks/2026-11-step2-pr2.md). They
+found two defects, not fixed yet: Android's one-time "Viewing full screen"
+panel covers the first alert and the first test (D1), and an alert that
+starts while the screen is off ends at once (D2).
 
 ## 17. Not tested at the end of Step 2 (expected)
 
