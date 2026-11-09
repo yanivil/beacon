@@ -89,7 +89,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/plans/2026-11-09-step2-pr2-alert-engine.md`: the implementation
   plan for Step 2's second PR, the alert engine. It has 8 test-first tasks:
   - The message facts and the classifier's rules.
-  - The alert screen, with the system bars hidden while a flash shows.
+  - The alert screen, with the system bars hidden while a flash shows
+    (replaced while building: the bars stay on black strips, D1).
   - The alert window over other apps and the lock screen.
   - The full alert controller: a real alert replaces a test, plus the wake
     lock, the heat check and opening the alert window.
@@ -100,7 +101,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
   It also records 12 rulings where the spec left a choice, and the items
   PR 1's reviews left for PR 2.
-- `app/`: Step 2's PR 2, the alert engine (219 unit tests). It adds:
+- `app/`: Step 2's PR 2, the alert engine (222 unit tests). It adds:
   - The message facts and the classifier's rules: Beacon reads only a
     notification's structure, never its text, and flashes only for a new
     message from an app that is ON while alerts aren't paused. Ongoing
@@ -132,6 +133,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - The "Finish setup" card on Home, with notification access, "Display
     over other apps" and the battery exemption, each ON or OFF with an
     "Open settings" button. App icons now load off the main thread.
+  - The setup buttons never crash on a refused settings page: a page that
+    throws (as some HyperOS pages can) falls back to App info, and if that
+    fails too, nothing happens.
+  - A listener reconnect forgets the "already handled" record before
+    priming from what is showing, so a message re-posted after a
+    disconnect can alert again.
+  - The alert screen's window title no longer assumes a source, so a
+    request without one cannot crash it.
 - `docs/checks/2026-11-step2-pr2.md`, with screenshots in
   `docs/checks/step2-pr2/`: PR 2's emulator checks (AVD `beacon-api36`,
   Android 16) of the setup card, real SMS alerts from the emulator's own

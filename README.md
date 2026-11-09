@@ -100,7 +100,7 @@ card (PR 2), and the widget (PR 3).
 - **The "Finish setup" card:** on Home while notification access, "Display
   over other apps" or the battery exemption is missing. Each row says ON or
   OFF and has an "Open settings" button for its page.
-- **Checks:** 219 unit tests, and emulator checks of the setup card, real
+- **Checks:** 222 unit tests, and emulator checks of the setup card, real
   SMS alerts, every ending, the false-alert cases, the largest font,
   TalkBack and the keyboard. They found two defects, both fixed and
   re-checked: an alert that started with the screen off ended at once, and

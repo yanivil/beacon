@@ -81,6 +81,7 @@ reviews left a choice. Each says what it costs if it's wrong.
    for a moment. This settles PR 1's open item: white bar icons on Yellow
    were about 1.4:1.
    - Cost if wrong: the clock and battery icons are hidden during an alert.
+   - Replaced while building (D1): the bars stay visible on black strips; see spec section 11 and `docs/checks/2026-11-step2-pr2.md`.
 2. **A new camera-light line, "Off while the phone is hot".** The test
    overlay shows it when the phone has a light but the heat check stopped
    it. Before, the overlay would have said "Flashing too".

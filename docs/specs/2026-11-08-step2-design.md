@@ -601,7 +601,7 @@ This screen is not in the design. It reuses the test overlay's layout and
 - `USE_FULL_SCREEN_INTENT`, foreground services, and the SMS, call-log or
   camera permissions.
 
-The manifest asks only for `SYSTEM_ALERT_WINDOW` and `WAKE_LOCK`. The
+Beacon itself asks only for `SYSTEM_ALERT_WINDOW` and `WAKE_LOCK`. The
 listener service is protected by `BIND_NOTIFICATION_LISTENER_SERVICE`. The
 merged manifest also has `dev.beacon.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`:
 AndroidX core 1.18's own manifest declares and uses it, so that
