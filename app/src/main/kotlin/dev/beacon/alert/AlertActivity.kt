@@ -12,10 +12,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import dev.beacon.BeaconApp
 import dev.beacon.R
 import dev.beacon.ui.blink.AlertScreen
@@ -69,22 +72,28 @@ class AlertActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() = controller.stop()
+                override fun handleOnBackPressed() = endAndClose()
             },
         )
         registerScreenOffReceiver()
 
+        // Closing must not depend on Compose: collecting from CREATED keeps working while the
+        // activity is stopped (for example just after Home), when no frame is composed.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                controller.state.collect { if (realRunning() == null) finishAndRemoveTask() }
+            }
+        }
+
         setContent {
             BeaconTheme {
-                val state by controller.state.collectAsStateWithLifecycle()
+                val state by controller.state.collectAsState()
                 val current = (state as? AlertState.Running)?.takeIf { it.request.kind == AlertKind.REAL }
-                if (current == null) {
-                    // The alert ended (timer, Stop, replaced): close the window.
-                    LaunchedEffect(Unit) { finishAndRemoveTask() }
-                } else {
+                // When no real alert runs the collector above closes the window; draw nothing meanwhile.
+                if (current != null) {
                     // A real alert always has a source; the empty fallback only avoids a crash.
                     val name = current.request.source?.let { getString(it.nameRes) }.orEmpty()
-                    AlertScreen(current, name) { controller.stop() }
+                    AlertScreen(current, name) { endAndClose() }
                 }
             }
         }
@@ -95,7 +104,7 @@ class AlertActivity : ComponentActivity() {
      */
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        controller.stop()
+        endAndClose()
     }
 
     /**
@@ -113,7 +122,7 @@ class AlertActivity : ComponentActivity() {
      */
     private fun registerScreenOffReceiver() {
         val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) = controller.stop()
+            override fun onReceive(context: Context, intent: Intent) = endAndClose()
         }
         ContextCompat.registerReceiver(
             this,
@@ -122,6 +131,15 @@ class AlertActivity : ComponentActivity() {
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         screenOffReceiver = receiver
+    }
+
+    /**
+     * Ends the alert and closes this window at once, but only when a real alert is running, so a
+     * lingering or stale instance can never stop a test alert or anything else.
+     */
+    private fun endAndClose() {
+        if (realRunning() != null) controller.stop()
+        finishAndRemoveTask()
     }
 
     /**

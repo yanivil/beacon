@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -78,21 +79,27 @@ class AlertActivityTest {
 
     /** Back ends the alert. */
     @Test fun backEnds() {
-        launch().onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        val scenario = launch()
+        scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         assertEquals(AlertState.Idle, controller().state.value)
+        scenario.onActivity { assertTrue(it.isFinishing) }
     }
 
     /** Home (the activity being left by the user) ends the alert. */
     @Test fun homeEnds() {
-        launch().onActivity { InstrumentationRegistry.getInstrumentation().callActivityOnUserLeaving(it) }
+        val scenario = launch()
+        scenario.onActivity { InstrumentationRegistry.getInstrumentation().callActivityOnUserLeaving(it) }
         assertEquals(AlertState.Idle, controller().state.value)
+        scenario.onActivity { assertTrue(it.isFinishing) }
     }
 
     /** The power button (screen off) ends the alert. */
     @Test fun screenOffEnds() {
-        launch().onActivity { it.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF)) }
+        val scenario = launch()
+        scenario.onActivity { it.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF)) }
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(AlertState.Idle, controller().state.value)
+        scenario.onActivity { assertTrue(it.isFinishing) }
     }
 
     /** With nothing running the window closes itself straight away. */
@@ -118,5 +125,30 @@ class AlertActivityTest {
         scenario.recreate()
         val after = controller().state.value as AlertState.Running
         assertEquals(before, after.clock.startUptimeMillis)
+    }
+
+    /** The alert ending while the window is stopped still closes it (no Compose frame needed). */
+    @Test fun closesWhileStopped() {
+        val scenario = launch()
+        scenario.moveToState(Lifecycle.State.CREATED)
+        controller().stop()
+        shadowOf(Looper.getMainLooper()).idle()
+        scenario.onActivity { assertTrue(it.isFinishing) }
+    }
+
+    /** A lingering window must not stop a test alert on Home or screen-off. */
+    @Test fun lingeringWindowLeavesATestAlone() {
+        val scenario = launch()
+        scenario.onActivity { activity ->
+            // Simulate an instance that outlived its alert: stop, then a test starts.
+            controller().stop()
+            controller().start(
+                AlertRequest(AlertKind.TEST, FlashColour.YELLOW, BlinkSpeed.MEDIUM, 60_000L, null),
+            )
+            activity.sendBroadcast(Intent(Intent.ACTION_SCREEN_OFF))
+            shadowOf(Looper.getMainLooper()).idle()
+            InstrumentationRegistry.getInstrumentation().callActivityOnUserLeaving(activity)
+            assertTrue(controller().state.value is AlertState.Running)
+        }
     }
 }
