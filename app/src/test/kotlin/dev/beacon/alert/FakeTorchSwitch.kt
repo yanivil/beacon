@@ -14,11 +14,13 @@ import android.os.SystemClock
  * @param available Whether the pretend phone has a camera light.
  * @param refuseFrom The 1-based call number from which [set] returns false.
  * @param onCall Called after each command is recorded, with its 1-based number; a test can use it to stall time.
+ * @property refuseFrom The 1-based call number from which [set] returns false; a test may raise it to
+ *   [Int.MAX_VALUE] so a later alert's light works again.
  * @property events Every call as (uptime in ms, requested on/off), in order.
  */
 class FakeTorchSwitch(
     override val available: Boolean = true,
-    private val refuseFrom: Int = Int.MAX_VALUE,
+    var refuseFrom: Int = Int.MAX_VALUE,
     private val onCall: (Int) -> Unit = {},
 ) : TorchSwitch {
     private val recorded = mutableListOf<Pair<Long, Boolean>>()
