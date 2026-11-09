@@ -3,16 +3,23 @@ package dev.beacon.ui
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.input.key.Key
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -79,6 +86,49 @@ class AppShellTest {
         val button = rule.onNodeWithTag("test_button").assertIsDisplayed().getBoundsInRoot()
         val tab = rule.onNode(hasRole(Role.Tab) and hasText("Home")).getBoundsInRoot()
         assertTrue("button ${button.bottom} above tabs ${tab.top}", button.bottom <= tab.top)
+    }
+
+    /**
+     * Switches the window out of touch mode, as a real keyboard press does.
+     *
+     * In touch mode Compose gives buttons no keyboard focus, and Robolectric
+     * starts every window in it. There is no public call, so this uses the
+     * window root's own method.
+     */
+    private fun leaveTouchMode() {
+        rule.runOnUiThread {
+            val decor = rule.activity.window.decorView
+            val root = android.view.View::class.java.getMethod("getViewRootImpl").invoke(decor)!!
+            val ensure = root.javaClass.getDeclaredMethod("ensureTouchMode", Boolean::class.javaPrimitiveType)
+            ensure.isAccessible = true
+            ensure.invoke(root, false)
+        }
+        rule.mainClock.advanceTimeByFrame()
+    }
+
+    /** While the test overlay shows, Tab never moves keyboard focus into the shell's content or tab bar under it. */
+    @Test fun keyboardFocusStaysOnTheOverlay() {
+        // The blink screen asks for a frame every frame, so the clock must be moved by hand.
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag("test_button").performClick()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        leaveTouchMode()
+        rule.onNode(hasText("Stop") and hasRole(Role.Button)).requestFocus()
+        rule.mainClock.advanceTimeByFrame()
+        // Without this check a failed focus request would make every later check pass for nothing.
+        rule.onNode(hasText("Stop") and hasRole(Role.Button)).assertIsFocused()
+        repeat(10) {
+            rule.onRoot().performKeyInput { pressKey(Key.Tab) }
+            rule.mainClock.advanceTimeByFrame()
+            // The unmerged tree, because the shell's semantics are cleared in the merged one.
+            val inShell = rule.onAllNodes(
+                isFocused() and (hasAnyAncestor(hasTestTag(SCROLL_CONTENT_TAG)) or hasRole(Role.Tab) or
+                    hasAnyAncestor(hasRole(Role.Tab)) or hasTestTag("test_button") or hasTestTag(SCROLL_CONTENT_TAG)),
+                useUnmergedTree = true,
+            ).fetchSemanticsNodes()
+            assertTrue("Tab ${it + 1} put focus in the shell: $inShell", inShell.isEmpty())
+        }
     }
 }
 

@@ -3,6 +3,9 @@ package dev.beacon.ui
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.alert.AlertController
+import dev.beacon.alert.AlertKind
+import dev.beacon.alert.AlertRequest
+import dev.beacon.alert.AlertState
 import dev.beacon.alert.FakeAlertPlatform
 import dev.beacon.alert.FakeTorchSwitch
 import dev.beacon.alert.MessageSource
@@ -22,6 +25,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,5 +64,16 @@ class MainViewModelTest {
         vm.setSpeed(BlinkSpeed.FAST)
         // A lost save leaves the loaded value showing.
         assertEquals(BeaconSettings.DEFAULT, vm.settings.value)
+    }
+
+    /** Stop on the test overlay never ends a real alert that has just replaced the test. */
+    @Test fun stopTestLeavesRealAlertRunning() = runTest {
+        val controller = AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform())
+        val vm = MainViewModel(SettingsRepository(UnreadableDataStore()), controller)
+        controller.start(AlertRequest(AlertKind.REAL, FlashColour.RED, BlinkSpeed.MEDIUM, 60_000L, MessageSource.SMS))
+        vm.stopTest()
+        val state = controller.state.value
+        assertTrue("real alert still running: $state", state is AlertState.Running && state.request.kind == AlertKind.REAL)
+        controller.stop()
     }
 }

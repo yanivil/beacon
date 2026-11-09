@@ -154,9 +154,14 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
         alerts.start(AlertRequest(AlertKind.TEST, colour, s.speed, TEST_LENGTH_MILLIS, source = null))
     }
 
-    /** Stops the Test alert at once and leaves the camera light off. Safe to call when nothing runs. */
+    /**
+     * Stops the Test alert at once and leaves the camera light off. Safe to
+     * call when nothing runs. It stops only a test: a real alert that has just
+     * replaced the test (a message arrived under the overlay) keeps running
+     * when Stop or Back is pressed a moment later.
+     */
     fun stopTest() {
-        alerts.stop()
+        alerts.stopIf(AlertKind.TEST)
     }
 
     /**

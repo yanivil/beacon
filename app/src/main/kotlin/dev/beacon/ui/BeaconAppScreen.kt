@@ -2,6 +2,7 @@ package dev.beacon.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -121,7 +123,13 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
                 tabBar = { TabBar(tab, onSelect = { tab = it }) },
                 onTest = { viewModel.startTest(editingApp) },
                 // Hidden from TalkBack while the overlay covers it, so only the overlay can be reached.
-                modifier = if (runningTest != null) Modifier.clearAndSetSemantics {} else Modifier,
+                // Keyboard focus is blocked the same way: the group refuses Tab and arrow keys from
+                // entering it, so focus can't land on a control the overlay is covering.
+                modifier = if (runningTest != null) {
+                    Modifier.clearAndSetSemantics {}.focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()
+                } else {
+                    Modifier
+                },
             ) { trailing ->
                 key(tab) { TabContent(tab, settings, viewModel, editingApp, { editingApp = it }, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
             }
