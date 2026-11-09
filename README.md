@@ -127,6 +127,8 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   font is large, the tap hint goes first, then the title, then the icon,
   then the resume time, which TalkBack still reads; the state word always
   stays. After a font-size change the widget is fitted again.
+- **Following the phone's settings:** the widget follows a change of the
+  12- or 24-hour setting, the time zone or the language by itself.
 - **The timed pause:** Home's PAUSED card says "Back ON by itself at HH:MM."
   in the phone's 12- or 24-hour format, and Home turns ON at that time by
   itself.
@@ -144,7 +146,7 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   Beacon is in front, a real alert replaces a test without a moment of
   Idle in between, and the blink works out its regions only when the size
   or the bars change.
-- **Checks:** 289 unit tests, and emulator checks of the widget picker,
+- **Checks:** 305 unit tests, and emulator checks of the widget picker,
   the tap and pause path, auto-resume with the emulator's clock moved
   forward, the widget at font 1.0 and 2.0 at three sizes, TalkBack and the
   rotation carry-over. They found three defects, all fixed and re-checked:

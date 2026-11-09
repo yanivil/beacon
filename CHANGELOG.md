@@ -170,7 +170,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   It also records 11 rulings, including removing the permissions Glance's
   WorkManager would add (the app keeps only `SYSTEM_ALERT_WINDOW` and
   `WAKE_LOCK`, plus the AndroidX signature permission).
-- `app/`: Step 2's PR 3, the widget and the timed pause (289 unit tests,
+- `app/`: Step 2's PR 3, the widget and the timed pause (305 unit tests,
   Jetpack Glance 1.2.0). It adds:
   - The timed pause rules: a widget tap pauses for 1 hour while ON and
     turns alerts ON while paused; a timed pause past its time counts as
@@ -384,9 +384,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - PR 3's final fixes, in `app/`:
-  - A pause change started from Home finishes even if Beacon is closed at
-    once, so the alarm and the widget never fall behind the saved pause
-    (ruling F1).
+  - A pause change started from Home finishes even if Beacon's screen is
+    closed at once, so closing it can't leave the alarm or the widget
+    behind the saved pause (ruling F1). This covers Beacon being closed,
+    not its process being killed during the change. A widget refresh lost
+    that way isn't repaired by a later catch-up while the pause stays the
+    same, so the widget can show the old state until the next pause
+    change, the resume alarm or a tap.
   - The resume alarm's window is 10 minutes instead of Android's 75% of
     the delay, which was 45 minutes for a 1-hour pause (ruling F2).
   - A screen-on or a return to Beacon with nothing to clean up no longer
@@ -402,3 +406,17 @@ and the project uses [Semantic Versioning](https://semver.org/).
     without clipping (D2, ruling F4).
   - KDoc for the listener's screen-on receiver and three test helpers, and
     corrected comments (ruling F8).
+- PR 3's follow-up R1, in `app/`: the widget follows a 12/24-hour,
+  time-zone or language change by itself. Since ruling F3 a timed pause
+  kept its "Back ON" time in the old format or zone until the next pause
+  change, the alarm or a tap. A new `TimeChangeReceiver`, in the manifest,
+  not exported and with no new permission, gets TIME_SET (also sent for
+  the 12/24-hour switch), TIMEZONE_CHANGED and LOCALE_CHANGED. The widget's
+  key now also holds the 12/24-hour setting and the time zone, so a
+  running Glance session redraws, and a new catch-up redraws the widget
+  once while a timed pause runs, and in any state after a language
+  change. 16 new unit tests (305). Re-checked on the emulator through the
+  Settings app, with no screen off and on (checks 6 and 20 to 22 in
+  `docs/checks/2026-11-step2-pr3.md`); the spec's sections 5, 9, 10, 13,
+  15 and 16 describe it, and the plan's ruling 5 records it as an
+  amendment of ruling F3.

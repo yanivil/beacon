@@ -115,6 +115,11 @@ Executors read the spec too.
    Home, the widget, the alarm, the app coming to the front and the screen
    turning on.
    - Cost if wrong: none.
+   - **Amended while building (rulings F3 and R1):** it redraws the widget
+     only when the saved pause changed (F3), except after a time,
+     time-zone or language change, which `TimeChangeReceiver` reports: a
+     running timed pause is redrawn, and every state after a language
+     change (R1). See spec section 5.
 6. **The widget can't be resized below 4 × 2 cells**
    (`minResizeWidth` 250 dp, `minResizeHeight` 110 dp, the same as its
    minimum). It can only grow. At 4 × 2, the 52 sp "PAUSED", its icon and
