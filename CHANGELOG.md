@@ -140,8 +140,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   fixed and re-checked on the emulator: an alert that started while the
   screen was off ended within a third of a second (D2), and hiding the
   system bars made Android's one-time "Viewing full screen" panel cover the
-  first alert and the first test (D1). The file also lists what stays not
-  tested until the phone is connected.
+  first alert and the first test (D1). The largest font was re-checked on
+  the fixed build, on the alert screen and the test overlay in both
+  orientations. The file also lists what stays not tested until the phone
+  is connected.
 
 ### Changed
 
@@ -236,7 +238,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
     Stop and Back end only a test; the alert window's title.
   - Section 9: on Android 11 and later, the "Display over other apps"
     button opens the list of apps; the battery steps sit above the button,
-    and stock Android 16 names the row "App battery usage".
+    and stock Android 16 names the row "App battery usage". The merged
+    manifest also carries AndroidX core's signature-level
+    `dev.beacon.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, which grants
+    nothing to other apps.
   - Section 11: the system bars are always visible and dark, never hidden,
     with black strips behind them during a flash, replacing "decided for
     real alerts with PR 2" (hiding them brought up Android's "Viewing full

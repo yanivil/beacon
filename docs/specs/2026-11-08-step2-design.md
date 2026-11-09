@@ -602,7 +602,12 @@ This screen is not in the design. It reuses the test overlay's layout and
   camera permissions.
 
 The manifest asks only for `SYSTEM_ALERT_WINDOW` and `WAKE_LOCK`. The
-listener service is protected by `BIND_NOTIFICATION_LISTENER_SERVICE`.
+listener service is protected by `BIND_NOTIFICATION_LISTENER_SERVICE`. The
+merged manifest also has `dev.beacon.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`:
+AndroidX core 1.18's own manifest declares and uses it, so that
+`ContextCompat.registerReceiver` can keep a receiver private on Android
+versions before 13. Its protection level is signature, so it grants nothing
+to other apps and the person is never asked for it.
 
 ## 10. The widget
 
