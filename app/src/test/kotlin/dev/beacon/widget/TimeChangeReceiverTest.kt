@@ -57,7 +57,11 @@ class TimeChangeReceiverTest {
      */
     private fun save(pause: Pause) = runBlocking { app.settingsRepository.setPause(pause) }
 
-    /** A timed pause that ends half an hour from the real clock, which the app's coordinator reads. */
+    /**
+     * Makes a timed pause that ends half an hour from the real clock, which the app's coordinator reads.
+     *
+     * @return the timed pause.
+     */
     private fun runningTimedPause() = Pause.Until(System.currentTimeMillis() + 30 * 60_000L)
 
     /**
