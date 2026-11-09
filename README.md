@@ -24,17 +24,17 @@ contrast, big touch targets and plain wording.
       [`docs/specs/2026-11-08-step2-design.md`](docs/specs/2026-11-08-step2-design.md).
       It is built in three PRs: screens, then the alert engine, then the
       widget.
-      - [ ] **PR 0:** the spec and the plan for PR 1
+      - [x] **PR 0:** the spec and the plan for PR 1
         ([`docs/plans/2026-11-08-step2-pr1-screens.md`](docs/plans/2026-11-08-step2-pr1-screens.md)),
-        open as yanivil/beacon#5.
-      - [ ] **PR 1:** the screens and the test alert, built on
-        `feature/step2-screens`, open as yanivil/beacon#6. Emulator checks:
+        merged as yanivil/beacon#5 on 9 November 2026.
+      - [x] **PR 1:** the screens and the test alert, merged as
+        yanivil/beacon#6 on 9 November 2026. Emulator checks:
         [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
         Five of the six defects they found are fixed and re-checked on the
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
         run on the test phone yet.
-      - [ ] **PR 2:** the alert engine, built on
-        `feature/step2-alert-engine`, open as yanivil/beacon#7. Plan:
+      - [x] **PR 2:** the alert engine, merged as yanivil/beacon#7 on
+        9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr2.md`](docs/checks/2026-11-step2-pr2.md).
@@ -42,7 +42,9 @@ contrast, big touch targets and plain wording.
         an alert that started while the screen was off ended at once, and
         Android's one-time "Viewing full screen" panel covered the first
         alert. Nothing in it has run on the test phone yet.
-      - [ ] **PR 3:** the widget.
+      - [ ] **PR 3:** the widget and the timed pause. Its plan is written
+        and waiting for review:
+        [`docs/plans/2026-11-09-step2-pr3-widget.md`](docs/plans/2026-11-09-step2-pr3-widget.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)

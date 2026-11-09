@@ -154,6 +154,23 @@ and the project uses [Semantic Versioning](https://semver.org/).
   orientations. The file also lists what stays not tested until the phone
   is connected.
 
+- `docs/plans/2026-11-09-step2-pr3-widget.md`: the implementation plan for
+  Step 2's third PR, the widget and the timed pause. It has 6 test-first
+  tasks:
+  - The timed pause rules and an atomic pause update.
+  - The widget's look, which lines fit, and the resume time in the phone's
+    12- or 24-hour format.
+  - The widget itself, the resume alarm, and one coordinator for every
+    pause change.
+  - Home's "Back ON by itself at HH:MM" line, and catching up when Beacon
+    opens and when the screen turns on.
+  - The items PR 2's reviews left for PR 3.
+  - Emulator checks.
+
+  It also records 11 rulings, including removing the permissions Glance's
+  WorkManager would add (the app keeps only `SYSTEM_ALERT_WINDOW` and
+  `WAKE_LOCK`, plus the AndroidX signature permission).
+
 ### Changed
 
 - `CLAUDE.md`:
@@ -199,6 +216,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - PR 2 built on `feature/step2-alert-engine` and open as yanivil/beacon#7, with
     links to its plan and its emulator checks and the two defects they
     found and that are fixed, and a "What PR 2 delivers" section.
+  - PRs 0, 1 and 2 marked merged (yanivil/beacon#5, #6 and #7, on
+    9 November 2026), and PR 3's plan linked.
 - `docs/feasibility.md`:
   - The owner's scope and defaults, as in `CLAUDE.md`.
 - `docs/specs/2026-11-08-step2-design.md`, while building PR 1:
@@ -266,3 +285,5 @@ and the project uses [Semantic Versioning](https://semver.org/).
     1.18.0 and lifecycle 2.10.0. The newer Compose 1.12, core 1.19 and
     lifecycle 2.11 need compileSdk 37, and the project rules fix compileSdk
     at 36.
+- `docs/specs/2026-11-08-step2-design.md`, before PR 3: a "Plan for PR 3"
+  row in its header, and PRs 0 to 2 recorded as merged in section 16.
