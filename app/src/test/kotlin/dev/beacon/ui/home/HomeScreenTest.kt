@@ -47,6 +47,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dev.beacon.R
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.ColourMode
@@ -327,22 +328,31 @@ class HomeScreenTest {
         assertEquals(listOf("openSetup:OVERLAY", "openSetup:NOTIFICATIONS", "openSetup:BATTERY"), calls)
     }
 
-    /** The battery steps follow the maker; on this Android 16 test phone the other steps are Android 14 and later's. */
-    @Test fun batteryStepsFollowTheMaker() {
-        var xiaomi by mutableStateOf(true)
+    /**
+     * The card shows the battery steps this phone itself gets: Robolectric's phone is no Xiaomi and runs
+     * the default Android version (16), so Android 14 and later's steps. The choice for every maker and
+     * version is checked in plain JUnit (BatteryStepsTest), so no other Android version is started here.
+     */
+    @Test fun batteryStepsOnThisPhone() {
+        setup = SetupStatus(false, false, false)
+        show()
+        rule.onNodeWithText(STEPS_API34).performScrollTo().assertExists()
+        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
+    }
+
+    /** The longest steps (Android 10 and 11's) wrap at the largest font size with nothing cut off. */
+    @Test fun longestBatteryStepsFitAtLargestFont() {
         rule.setContent {
             BeaconTheme {
-                Column(Modifier.verticalScroll(rememberScrollState())) {
-                    SetupCard(SetupStatus(false, false, false), xiaomi, onOpen = {})
+                WithFontScale(2.0f) {
+                    Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+                        SetupCard(SetupStatus(false, false, false), R.string.setup_battery_steps_api29, onOpen = {})
+                    }
                 }
             }
         }
-        val other = "Tap App battery usage, then Allow background usage, then Unrestricted."
-        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertExists()
-        rule.onNodeWithText(other).assertDoesNotExist()
-        xiaomi = false
-        rule.onNodeWithText(other).assertExists()
-        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
+        rule.onNodeWithText(STEPS_API29).assertExists()
+        rule.assertNoTextOverflow()
     }
 
     /** Nothing is cut off at the largest font size with the card shown. */
@@ -443,6 +453,15 @@ class HomeScreenTest {
         rule.mainClock.advanceTimeByFrame()
         rule.onNodeWithText("ON").assertExists()
         rule.onNodeWithText("PAUSED").assertDoesNotExist()
+    }
+
+    private companion object {
+        /** Android 14 and later's steps, the ones Robolectric's Android 16 phone gets. */
+        const val STEPS_API34 = "Tap App battery usage, then Allow background usage, then Unrestricted."
+
+        /** Android 10 and 11's steps, the longest. */
+        const val STEPS_API29 = "Tap Advanced, then Battery, then Battery optimization. Choose All apps, " +
+            "tap Beacon, then Don’t optimize, then Done."
     }
 }
 
