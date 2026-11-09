@@ -116,7 +116,11 @@ class TogglePauseAction : ActionCallback {
     }
 }
 
-/** Redraws every placed Beacon widget; the coordinator calls it after each pause change. */
+/**
+ * Redraws every placed Beacon widget. The coordinator calls it after each pause change and after a time,
+ * time-zone or language change that what the widget shows depends on; BeaconApp after a font-size, density
+ * or language change.
+ */
 object WidgetRefresher {
     /**
      * What a refresh does. Tests that start Beacon's main screen or connect the listener, which both

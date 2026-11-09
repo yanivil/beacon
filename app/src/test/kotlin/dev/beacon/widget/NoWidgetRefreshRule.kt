@@ -9,8 +9,9 @@ import org.junit.runner.Description
  * state, and a Robolectric test that ends while an update is still running
  * can leave the next real update waiting forever. So every test class that
  * launches MainActivity or connects BeaconListener applies this rule, and
- * BeaconAppTest applies it before swapping in its own counter, so the real
- * refresh is put back afterwards. ResumeAlarmTest keeps the real refresh.
+ * BeaconAppTest and TimeChangeReceiverTest apply it before swapping in
+ * their own counter, so the real refresh is put back afterwards.
+ * ResumeAlarmTest keeps the real refresh.
  */
 
 /** Replaces the widget refresh with a no-op for one test, then restores it. */
