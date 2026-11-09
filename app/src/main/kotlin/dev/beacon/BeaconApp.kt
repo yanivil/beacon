@@ -1,9 +1,11 @@
 package dev.beacon
 
 import android.app.Application
+import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import dev.beacon.alert.AlertController
+import dev.beacon.alert.AndroidAlertPlatform
 import dev.beacon.alert.CameraTorchSwitch
 import dev.beacon.settings.SettingsRepository
 
@@ -17,17 +19,21 @@ class BeaconApp : Application() {
     /** Background thread that switches the camera light; lives as long as the process, so never quit. */
     private val torchThread = HandlerThread("beacon-torch")
 
-    /** Starts the light thread. */
+    /** The camera light; built in [onCreate] because the context isn't attached yet at construction. */
+    private lateinit var torch: CameraTorchSwitch
+
+    /** Starts the light thread and runs the camera lookup on it. */
     override fun onCreate() {
         super.onCreate()
+        torch = CameraTorchSwitch(this)
         torchThread.start()
+        // Warm the lookup off the main thread (a PR 1 carry-over); later calls reuse the result.
+        Handler(torchThread.looper).post { torch.available }
     }
 
     /** The one alert controller; created on first use, after [onCreate] has started the light thread. */
     val alertController: AlertController by lazy {
-        // The switch's camera lookup runs once, here, on the main thread (when the
-        // view model first asks for the controller). PR 2 moves it to the torch thread.
-        AlertController(CameraTorchSwitch(this), torchThread.looper, Looper.getMainLooper())
+        AlertController(torch, torchThread.looper, Looper.getMainLooper(), AndroidAlertPlatform(this))
     }
 
     /** The saved settings; created on first use, once per process (one DataStore per file). */

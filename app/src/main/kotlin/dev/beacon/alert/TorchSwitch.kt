@@ -31,12 +31,15 @@ interface TorchSwitch {
  * @param context Any context; only the application context is kept.
  */
 class CameraTorchSwitch(context: Context) : TorchSwitch {
-    // Looked up once, on the thread that builds the switch (see BeaconApp).
     // Null on a phone without a camera service: then there is no light, and no crash.
     private val cameraManager: CameraManager? = context.applicationContext.getSystemService(CameraManager::class.java)
-    private val cameraId: String? = findFlashCamera()
 
-    override val available: Boolean = cameraId != null
+    // Looked up once, on first use of [available] or [set] (BeaconApp makes that first use
+    // on the torch thread, so the slow camera query never runs on the main thread).
+    // Synchronized so two threads asking at once still run the lookup only once.
+    private val cameraId: String? by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { findFlashCamera() }
+
+    override val available: Boolean get() = cameraId != null
 
     /**
      * Switches the camera light.

@@ -14,6 +14,12 @@ import dev.beacon.settings.FlashColour
 /** How long a Test alert lasts, in milliseconds (3 seconds). */
 const val TEST_LENGTH_MILLIS = 3_000L
 
+/** Extra time the wake lock outlasts each period, so a renewal always runs before the old lock lapses. */
+const val WAKE_LOCK_MARGIN_MILLIS = 10_000L
+
+/** How long "Until I stop it" holds the wake lock before renewing it (60 minutes). */
+const val WAKE_LOCK_PERIOD_MILLIS = 3_600_000L
+
 /** Why an alert is running. */
 enum class AlertKind {
     /** The user pressed Test alert. */
@@ -50,7 +56,7 @@ sealed interface AlertState {
      *
      * @property request What was asked for.
      * @property clock The shared timing of the screen and the light.
-     * @property lightFlashing False when the phone has no usable camera light, so only the screen blinks.
+     * @property lightFlashing False when the phone has no usable camera light or is too hot, so only the screen blinks.
      */
     data class Running(
         val request: AlertRequest,

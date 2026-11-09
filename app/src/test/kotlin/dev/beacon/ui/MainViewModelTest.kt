@@ -3,6 +3,7 @@ package dev.beacon.ui
 import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.alert.AlertController
+import dev.beacon.alert.FakeAlertPlatform
 import dev.beacon.alert.FakeTorchSwitch
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
@@ -46,7 +47,7 @@ class MainViewModelTest {
     @Test fun failedSavesDontCrash() = runTest {
         val vm = MainViewModel(
             SettingsRepository(UnreadableDataStore()),
-            AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper()),
+            AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform()),
         )
         assertEquals(BeaconSettings.DEFAULT, vm.settings.value)
         vm.setPause(Pause.Indefinite)
