@@ -54,7 +54,8 @@ card (the battery row) and section 16 (delivery).
      camera" for it. With only `lightFlashing = false`, the overlay would
      have said "Off while the phone is hot", which isn't why. The
      controller doesn't call `stop()` on a blinker that refused, since it
-     has already ended its run and tried the off; the heat stop still does.
+     has already ended its run and tried the off; the heat stop still does
+     (ruling B5).
      See spec sections 7 and 8.
 2. **The heat listener isn't unregistered on a refusal,** the same as on
    the heat stop. Its callback is already guarded, and `endCurrent`
@@ -81,7 +82,8 @@ card (the battery row) and section 16 (delivery).
      battery usage, then Unrestricted."; and Android 14 and later (34 and
      up) share Android 16's. Android 13 and 14 each changed their wording
      in an update, which `SDK_INT` can't see, so the last wording of each
-     is used. See spec section 9, "The battery steps".
+     is used (ruling B3). See spec section 9, "The battery steps". The B
+     rulings, each with its cost, are listed in PR 4's description.
 4. **No emulator check for the refusal.** The emulator has no camera light
    to take away from Beacon (PR 2's checks), so the refusal is covered by
    unit tests and stays Not tested on devices.
