@@ -343,8 +343,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
     the picker entry, the resume alarm's window, and that a font-size
     change alone doesn't redraw the widget.
   - Section 13: rows for a restart during a timed pause (ruling 4) and for
-    the phone's clock set back with the widget placed (seen on the
-    emulator), and the alarm's window in the "timed pause ends while
-    nothing runs" row.
+    the phone's clock set back by hand while the widget is updating (on
+    the emulator the widget then showed ON while a pause was saved), and
+    the alarm's window in the "timed pause ends while nothing runs" row.
   - Section 16: PR 3 built on `feature/step2-widget`, with links to its
     plan and checks and the three defects they found.
