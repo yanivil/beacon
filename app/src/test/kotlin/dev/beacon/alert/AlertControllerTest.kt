@@ -4,6 +4,10 @@ import android.os.Looper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.BlinkSpeed
 import dev.beacon.settings.FlashColour
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -60,6 +64,20 @@ class AlertControllerTest {
         assertTrue(c.start(testRequest())); assertTrue(c.state.value is AlertState.Running)
         idle(3_000)
         assertEquals(AlertState.Idle, c.state.value)
+    }
+
+    /** A real alert replacing a test goes straight from Running(TEST) to Running(REAL), with no Idle in between. */
+    @Test fun replacingATestNeverShowsIdle() {
+        val c = controller(FakeTorchSwitch())
+        val kinds = mutableListOf<AlertKind?>()
+        // Unconfined, so every value the state takes is seen, not just the last one.
+        val scope = CoroutineScope(Dispatchers.Unconfined)
+        scope.launch { c.state.collect { kinds += (it as? AlertState.Running)?.request?.kind } }
+        c.start(testRequest())
+        c.start(real(60_000L))
+        idle(10)
+        scope.cancel()
+        assertEquals(listOf(null, AlertKind.TEST, AlertKind.REAL), kinds)
     }
 
     /** Pins that a second start while running is dropped and the light runs once. */

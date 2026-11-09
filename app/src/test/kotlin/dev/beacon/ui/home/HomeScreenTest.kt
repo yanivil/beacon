@@ -13,6 +13,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import org.robolectric.Shadows.shadowOf
 import androidx.compose.ui.Modifier
@@ -27,6 +31,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
@@ -49,6 +54,7 @@ import dev.beacon.settings.Pause
 import dev.beacon.setup.SetupItem
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.WithFontScale
+import dev.beacon.ui.formatResumeTime
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.components.TRAILING_ICON_TAG
 import dev.beacon.ui.theme.BeaconTheme
@@ -57,6 +63,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /*
@@ -78,6 +85,12 @@ class HomeScreenTest {
 
     /** The settings Home shows; changing it recomposes the screen. */
     private var settings by mutableStateOf(BeaconSettings.DEFAULT)
+
+    /** The clock Home reads, which a test can move. */
+    private var clockMillis = System.currentTimeMillis()
+
+    /** A lifecycle a test drives by hand, or null to use the host activity's. */
+    private var testLifecycle: HandDrivenLifecycle? = null
 
     /** The setup status Home shows; null means not read yet. */
     private var setup by mutableStateOf<SetupStatus?>(null)
@@ -105,12 +118,16 @@ class HomeScreenTest {
     ) {
         settings = initial
         rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+            val owner = testLifecycle
+            CompositionLocalProvider(
+                LocalLayoutDirection provides direction,
+                *(if (owner != null) arrayOf(LocalLifecycleOwner provides owner) else emptyArray()),
+            ) {
                 BeaconTheme {
                     WithFontScale(fontScale) {
                         // Like the app shell: a scrolling column with the shell's side padding, so nothing is squeezed into the window height.
                         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
-                            HomeScreen(settings, setup, actions)
+                            HomeScreen(settings, setup, actions) { clockMillis }
                         }
                     }
                 }
@@ -273,6 +290,32 @@ class HomeScreenTest {
         rule.onNode(hasText("Battery: No restrictions") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On")).assertExists()
     }
 
+    /**
+     * In right-to-left the setup card mirrors: the name sits at the right edge and the ON/OFF pill is at the
+     * row's left edge, to the left of the name. A wide window keeps the pill beside the text; on a narrow one it wraps underneath.
+     */
+    @Config(qualifiers = "w600dp-h900dp")
+    @Test fun setupCardMirrorsInRightToLeft() {
+        setup = SetupStatus(notificationAccess = false, displayOverApps = true, batteryUnrestricted = true)
+        show(direction = LayoutDirection.Rtl)
+        val row = rule.onNode(hasText("Notification access") and hasState).getBoundsInRoot()
+        val name = rule.onNodeWithText("Notification access", useUnmergedTree = true).getBoundsInRoot()
+        // The first pill is the Notification access row's (rows are in order).
+        val pill = rule.onAllNodesWithTag(SETUP_PILL_TAG, useUnmergedTree = true)[0].getBoundsInRoot()
+        assertTrue("name $name row $row", row.right - name.right < 4.dp)
+        assertTrue("pill $pill vs name $name", pill.right <= name.left)
+        assertTrue("pill $pill vs row $row", pill.left - row.left < 4.dp)
+    }
+
+    /** The merged row speaks its state description once: the pill's ON/OFF text is not also part of the row's text. */
+    @Test fun setupRowDoesNotReadThePillTwice() {
+        setup = SetupStatus(notificationAccess = false, displayOverApps = true, batteryUnrestricted = true)
+        show()
+        val texts = rule.onNode(hasText("Notification access") and hasState).fetchSemanticsNode()
+            .config.getOrNull(SemanticsProperties.Text).orEmpty().map { it.text }
+        assertTrue("row text: $texts", texts.none { it == "ON" || it == "OFF" })
+    }
+
     /** Each button names its row for TalkBack, still containing its visible words, and opens that row. */
     @Test fun openSettingsSpeaksTheRow() {
         setup = SetupStatus(false, false, false)
@@ -318,4 +361,99 @@ class HomeScreenTest {
         val alerts = rule.onNodeWithText("Visual alerts").getUnclippedBoundsInRoot().top
         assertTrue("title $title, card $card, alerts $alerts", title < card && card < alerts)
     }
+
+    /**
+     * The text of Home's resume line for a resume time.
+     *
+     * @param resumeAt when the pause ends, in epoch milliseconds.
+     * @return the line, in the test's 12- or 24-hour format.
+     */
+    private fun resumeLine(resumeAt: Long) =
+        "Back ON by itself at ${formatResumeTime(ApplicationProvider.getApplicationContext(), resumeAt)}."
+
+    /** A timed pause says when alerts come back on by themselves. */
+    @Test fun timedPauseShowsTheResumeLine() {
+        val resumeAt = clockMillis + 3_600_000
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(resumeAt)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        rule.onNodeWithText(resumeLine(resumeAt)).assertExists()
+    }
+
+    /** A pause with no end has no resume line. */
+    @Test fun openPauseHasNoResumeLine() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Indefinite))
+        rule.onNodeWithText("PAUSED").assertExists()
+        rule.onAllNodes(hasText("Back ON", substring = true)).assertCountEquals(0)
+    }
+
+    /** A stored timed pause whose time has passed shows the ON card and no banner. */
+    @Test fun homeShowsOnAfterExpiry() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis - 1_000)))
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+        rule.onNodeWithText("All alerts are paused right now.").assertDoesNotExist()
+    }
+
+    /** The card turns ON by itself when the clock reaches the deadline, with no new settings. */
+    @Test fun cardTurnsOnAtTheDeadline() {
+        // Manual time, so the wait is advanced only by this test.
+        rule.mainClock.autoAdvance = false
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 2_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        clockMillis += 2_000
+        rule.mainClock.advanceTimeBy(2_000)
+        // One more frame draws the recomposition the deadline caused.
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+        rule.onNodeWithText("All alerts are paused right now.").assertDoesNotExist()
+    }
+
+    /** Nothing is cut off at the largest font size with the resume line shown. */
+    @Test fun resumeLineNoOverflowAtLargestFont() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)), fontScale = 2.0f)
+        rule.onNodeWithText("Back ON by itself at", substring = true).assertExists()
+        rule.assertNoTextOverflow()
+    }
+
+    /** Deep sleep stops the effect's timer but not the wall clock: an hour passes, one minute of timer time does. */
+    @Test fun cardTurnsOnAfterSleep() {
+        rule.mainClock.autoAdvance = false
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        clockMillis += 3_600_000
+        rule.mainClock.advanceTimeBy(60_000)
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+    }
+
+    /** Coming back to the front after the deadline turns the card ON at once, with no timer time passing. */
+    @Test fun cardTurnsOnWhenResumedAfterTheDeadline() {
+        rule.mainClock.autoAdvance = false
+        val registry = HandDrivenLifecycle()
+        testLifecycle = registry
+        registry.state = Lifecycle.State.RESUMED
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        registry.state = Lifecycle.State.CREATED
+        clockMillis += 3_600_000
+        registry.state = Lifecycle.State.RESUMED
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+    }
+}
+
+/** A lifecycle owner a test moves between states by hand. */
+private class HandDrivenLifecycle : LifecycleOwner {
+    /** The registry that observers attach to; main-thread checks are off for the test. */
+    private val registry = LifecycleRegistry.createUnsafe(this)
+
+    /** The current state; setting it notifies observers. */
+    var state: Lifecycle.State
+        get() = registry.currentState
+        set(value) { registry.currentState = value }
+
+    override val lifecycle: Lifecycle get() = registry
 }

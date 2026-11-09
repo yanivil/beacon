@@ -4,25 +4,28 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.beacon.R
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
-import dev.beacon.settings.Pause
+import dev.beacon.settings.resumeAtMillis
 import dev.beacon.setup.SetupIntents
 import dev.beacon.setup.SetupItem
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.components.ScreenTitle
+import dev.beacon.ui.formatResumeTime
 
 /*
  * Why Home takes settings and a bundle of actions instead of the view model:
  * the screen is then plain data in, plain callbacks out, so tests drive it
  * with recorded lambdas and the shell decides what each action does.
  *
- * Why "paused" here means any pause: a timed pause is not offered yet (a
- * later task), and the stored deadline is not compared with the clock here,
- * so the card follows the stored value. Any pause shows the PAUSED card.
+ * Why "paused" comes from the clock: a timed pause ends by itself, and the
+ * stored value is only cleaned up a little later. Home asks pausedNow, which
+ * compares the deadline with the clock and turns ON at the resume time, so a
+ * stale stored pause never shows PAUSED.
  */
 
 /**
@@ -50,11 +53,19 @@ data class HomeActions(
  * @param setup which grants are in place, or null before the first check
  *   (no card is shown then, so it cannot flash in and out).
  * @param actions what the screen's controls do.
+ * @param nowEpochMillis the clock, in epoch milliseconds (a parameter so tests can move it).
  */
 @Composable
-fun HomeScreen(settings: BeaconSettings, setup: SetupStatus?, actions: HomeActions) {
-    // Any pause that is stored counts; the 'Back ON by itself' line comes with timed pauses later.
-    val paused = settings.pause != Pause.None
+fun HomeScreen(
+    settings: BeaconSettings,
+    setup: SetupStatus?,
+    actions: HomeActions,
+    nowEpochMillis: () -> Long = System::currentTimeMillis,
+) {
+    val paused = pausedNow(settings.pause, nowEpochMillis)
+    // Only a running timed pause has a resume time to show; an open pause has none.
+    val resumeAt = settings.pause.resumeAtMillis()
+    val resumeTime = if (paused && resumeAt != null) formatResumeTime(LocalContext.current, resumeAt) else null
     Column(verticalArrangement = Arrangement.spacedBy(32.dp)) {
         ScreenTitle(stringResource(R.string.home_title))
         if (setup != null && !setup.complete) {
@@ -62,7 +73,7 @@ fun HomeScreen(settings: BeaconSettings, setup: SetupStatus?, actions: HomeActio
             val xiaomi = remember { SetupIntents.isXiaomi() }
             SetupCard(setup, xiaomi, actions.openSetup)
         }
-        AlertsCard(paused, onPause = actions.pauseAll, onResume = actions.resume)
+        AlertsCard(paused, resumeTime, onPause = actions.pauseAll, onResume = actions.resume)
         AppsSection(settings, paused, actions.toggleApp)
         SummaryCard(settings, actions.openSettings)
     }

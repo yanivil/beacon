@@ -86,7 +86,7 @@ object SettingsCodec {
      * @param prefs the stored preferences.
      * @return the pause; [Pause.None] if the kind is unknown or UNTIL has no deadline.
      */
-    private fun decodePause(prefs: Preferences): Pause = when (prefs[PAUSE_KIND]) {
+    internal fun decodePause(prefs: Preferences): Pause = when (prefs[PAUSE_KIND]) {
         PauseKinds.INDEFINITE -> Pause.Indefinite
         // A timed pause without a deadline can't be honoured; treat as not paused.
         PauseKinds.UNTIL -> prefs[PAUSE_UNTIL]?.let { Pause.Until(it) } ?: Pause.None

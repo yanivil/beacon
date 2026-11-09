@@ -1,6 +1,8 @@
 package dev.beacon.ui
 
 import androidx.test.core.app.ApplicationProvider
+import org.junit.rules.RuleChain
+import dev.beacon.widget.NoWidgetRefreshRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.BeaconApp
 import dev.beacon.alert.AlertKind
@@ -18,11 +20,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
+import android.app.NotificationManager
+import dev.beacon.alert.BeaconListener
+import dev.beacon.alert.ListenerConnection
+import org.robolectric.Shadows.shadowOf
 
 /*
  * Why Robolectric's activity controller and the app's own controller: these
  * rules live in MainActivity's lifecycle callbacks (start ends a real alert,
- * stop ends a test unless the activity is only being recreated), so the tests
+ * except once, for the start right after a recreation for a configuration
+ * change such as a rotation; stop ends a test unless the activity is only
+ * being recreated), so the tests
  * move the real activity between lifecycle states and read the one controller
  * the activity uses. ActivityScenario would do the same, but its idle wait
  * jumps the clock to the alert's own end (or, for an alert with no end, loops
@@ -34,6 +45,9 @@ import org.robolectric.Robolectric
 /** Robolectric tests for how Beacon's main screen starting and stopping ends alerts, on a plain activity. */
 @RunWith(AndroidJUnit4::class)
 class MainActivityAlertTest {
+    /** Skips the widget refresh that starting Beacon's main screen begins. */
+    @get:Rule val noWidgets = NoWidgetRefreshRule()
+
     private val controller = ApplicationProvider.getApplicationContext<BeaconApp>().alertController
 
     /** Ends whatever a test left running, so the next test starts from Idle. */
@@ -61,6 +75,33 @@ class MainActivityAlertTest {
         activity.pause().stop().destroy()
     }
 
+    /** Rotating while Beacon is in front keeps a light-only real alert running on the same clock. */
+    @Test fun rotationKeepsALightOnlyRealAlert() {
+        controller.start(request(AlertKind.REAL))
+        // Opening Beacon ends that alert (see openingBeaconStopsRealAlert).
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
+        // A message arrives with Beacon in front, as when the app is open and the window can't show.
+        controller.start(request(AlertKind.REAL))
+        val startedAt = (controller.state.value as AlertState.Running).clock.startUptimeMillis
+        activity.recreate()
+        val after = controller.state.value
+        assertTrue("still running: $after", after is AlertState.Running)
+        assertEquals(startedAt, (after as AlertState.Running).clock.startUptimeMillis)
+        activity.pause().stop().destroy()
+    }
+
+    /** Resuming Beacon re-binds a listener the system dropped, when access is granted. */
+    @Test fun resumeReconnectsADroppedListener() {
+        val context = ApplicationProvider.getApplicationContext<BeaconApp>()
+        val component = ComponentName(context, BeaconListener::class.java)
+        shadowOf(context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .setNotificationListenerAccessGranted(component, true)
+        ListenerConnection.connected = false
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
+        assertEquals(PackageManager.COMPONENT_ENABLED_STATE_ENABLED, context.packageManager.getComponentEnabledSetting(component))
+        activity.pause().stop().destroy()
+    }
+
     /** A real alert that replaced a test is not ended by the main screen stopping. */
     @Test fun realAlertSurvivesMainScreenStopping() {
         val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
@@ -84,7 +125,10 @@ class MainActivityAlertTest {
 @RunWith(AndroidJUnit4::class)
 class MainActivityRunningTestTest {
     /** Launches MainActivity for each test. */
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    val rule = createAndroidComposeRule<MainActivity>()
+
+    /** Skips the widget refresh that opening Beacon starts, before the activity launches. */
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(rule)
 
     private val controller = ApplicationProvider.getApplicationContext<BeaconApp>().alertController
 

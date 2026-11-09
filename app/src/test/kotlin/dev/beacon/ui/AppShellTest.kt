@@ -1,6 +1,7 @@
 package dev.beacon.ui
 
 import androidx.compose.ui.semantics.Role
+import dev.beacon.widget.NoWidgetRefreshRule
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
@@ -56,7 +57,10 @@ private fun ComposeTestRule.waitForTabs() {
 @Config(qualifiers = "w360dp-h800dp")
 class AppShellTest {
     /** Launches MainActivity for each test. */
-    @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    val rule = createAndroidComposeRule<MainActivity>()
+
+    /** Skips the widget refresh that opening Beacon starts, before the activity launches. */
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(rule)
 
     /** Waits for the settings to load before each test. */
     @Before fun waitForSettings() = rule.waitForTabs()
@@ -160,7 +164,7 @@ class AppShellLargestFontTest {
     val rule = createAndroidComposeRule<MainActivity>()
 
     /** Sets the 200% font scale before the activity launches, and resets it after. */
-    @get:Rule val chain: RuleChain = RuleChain.outerRule(FontScaleRule(2.0f)).around(rule)
+    @get:Rule val chain: RuleChain = RuleChain.outerRule(NoWidgetRefreshRule()).around(FontScaleRule(2.0f)).around(rule)
 
     /** At the largest font the fixed area would take over a third of the window, so the button scrolls with the content. */
     @Test @Config(qualifiers = "w360dp-h640dp") fun testButtonScrollsAtLargestFont() {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The PAUSED widget's background: near-black, 4 dp white outline, 28 dp corners (spec section 10). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF0B0B0D" />
+    <stroke android:width="4dp" android:color="#FFFFFFFF" />
+    <corners android:radius="28dp" />
+</shape>
