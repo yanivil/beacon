@@ -104,8 +104,9 @@ class BeaconListener : NotificationListenerService() {
 
     /**
      * Registers a receiver that, each time the screen turns on, cleans up an ended timed pause
-     * and redraws the widget (a stale widget would otherwise be seen when the phone is picked up).
-     * ACTION_SCREEN_ON can't be declared in the manifest, so it is registered while bound.
+     * and then redraws the widget (a stale widget would otherwise be seen when the phone is picked
+     * up). Nothing is redrawn when there was nothing to clean up. ACTION_SCREEN_ON can't be
+     * declared in the manifest, so it is registered while bound.
      */
     private fun registerScreenOnReceiver() {
         // A second connect without a disconnect must not leave two receivers behind.

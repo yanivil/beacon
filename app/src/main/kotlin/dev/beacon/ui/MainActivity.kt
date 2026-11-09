@@ -74,8 +74,9 @@ class MainActivity : ComponentActivity() {
      * Re-binds the message listener at once if access is granted but the
      * system dropped it. Right after a cold start this can run before the
      * system has bound the listener, which costs one harmless off-and-on.
-     * Also cleans up a timed pause that ended while Beacon was away, and
-     * sets the resume alarm and redraws the widget.
+     * Also cleans up a timed pause that ended while Beacon was away and sets
+     * the resume alarm again; the widget is redrawn only if that changed the
+     * saved pause.
      */
     override fun onResume() {
         super.onResume()
