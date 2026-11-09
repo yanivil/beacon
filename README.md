@@ -52,6 +52,10 @@ contrast, big touch targets and plain wording.
         until Glance drew it afresh, the launcher let it shrink to 3 × 2,
         and at 3 × 2 "PAUSED" broke and the resume time was cut off.
         Nothing in it has run on the test phone yet.
+      - [ ] **App icon:** Beacon's own launcher icon, a black bolt on the
+        design's yellow, built on `feature/app-icon`, open as
+        yanivil/beacon#9. Emulator checks:
+        [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -157,6 +161,29 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
 Not in PR 3: telling the alert when the camera refuses the light, and new
 battery steps for phones other than Xiaomi (both left from PR 2's reviews),
 and every check on the test phone.
+
+## The launcher icon
+
+Beacon's icon is the design's bolt in near-black `#0B0B0D` on the design's
+yellow `#FFD60A`, 13.93:1: the widget's ON card, as an icon. The design has
+no icon of its own; the owner chose this one from three ideas on
+9 November 2026.
+
+- **Adaptive:** `ic_launcher` and `ic_launcher_round` in
+  `app/src/main/res/mipmap-anydpi/`, with vector background, foreground and
+  monochrome layers. Each launcher cuts it to its own shape, and Android 13
+  and later can show it as a themed icon.
+- **Size:** the bolt is 44 dp tall and stays inside the 66 dp safe zone,
+  which no launcher mask clips.
+- **Widget picker:** the widget has no preview image of its own, so the
+  picker shows this icon too.
+- **Checks:** `LauncherIconTest` (8 unit tests, 313 in all) ties the
+  colours to the theme tokens, the path to the design's bolt and the bolt
+  to the safe zone. Lint loses its `MissingApplicationIcon` warning. On the
+  emulator the icon shows on the launcher, on App info and in the widget
+  picker, and as a themed icon:
+  [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
+  It hasn't run on the test phone yet.
 
 ## What Step 1 found
 

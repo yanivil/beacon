@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher icon, foreground layer: the design's bolt (the path of
+     BeaconIcons.Bolt and widget_bolt.xml, filled and stroked 2, round
+     joins) in the design's near-black #0B0B0D (BeaconColors.OnAccent),
+     13.93:1 on the yellow background.
+     Size and place: the 108 dp layer is drawn in dp units. The group scales
+     the 24-unit bolt by 2 and moves it 30 dp, so the bolt's centre (12, 12)
+     lands on the layer's centre (54, 54) and the bolt is 44 dp tall. Its
+     farthest corner, stroke included, is 22 dp from the centre: inside the
+     33 dp radius of the 66 dp safe zone that no launcher mask clips, with
+     room to spare for launchers that zoom the foreground.
+     LauncherIconTest checks the colours, the path and the safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="2"
+        android:scaleY="2"
+        android:translateX="30"
+        android:translateY="30">
+        <path
+            android:fillColor="#FF0B0B0D"
+            android:pathData="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+            android:strokeColor="#FF0B0B0D"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="2" />
+    </group>
+</vector>

@@ -38,11 +38,15 @@
         </intent>
     </queries>
 
+    <!-- The launcher icon: a black bolt on the design's yellow, as an
+         adaptive icon with a monochrome layer (res/mipmap-anydpi). -->
     <application
         android:name=".BeaconApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Beacon">
         <activity

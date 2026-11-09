@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. Launcher icon built on `feature/app-icon` (section 8). |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -610,6 +610,29 @@ This screen is not in the design. It reuses the test overlay's layout and
 - **No countdown.** A real alert lasts a minute or more, so the countdown
   card is left out.
 
+### Launcher icon
+
+The design has no app icon or logo (version read: `1794248815-83ec`). The
+owner chose this one from three ideas on 9 November 2026: the widget's ON
+card, as an icon.
+
+- **Look:** the design's bolt (`M13 2L3 14h9l-1 8 10-12h-9l1-8z`, filled
+  and stroked 2, round joins) in `#0B0B0D` on `#FFD60A`, 13.93:1.
+- **Adaptive icon:** `@mipmap/ic_launcher` and `@mipmap/ic_launcher_round`
+  in `res/mipmap-anydpi/`. Both use the same three vector layers in
+  `res/drawable/`: `ic_launcher_background` (a full 108 dp yellow square),
+  `ic_launcher_foreground` (the bolt) and `ic_launcher_monochrome` (the same
+  bolt, opaque white). minSdk is 29, so there is no `-v26` folder and no
+  bitmap fallback. The manifest sets `android:icon` and `android:roundIcon`.
+- **Size:** the 24-unit bolt is scaled by 2 and moved 30 dp, so it is 44 dp
+  tall and centred on the 108 dp layer. Its farthest corner, stroke
+  included, is 22 dp from the centre: inside the 33 dp radius of the 66 dp
+  safe zone that no launcher mask clips.
+- **Themed icon:** on Android 13 and later, when themed icons are on, the
+  launcher tints the monochrome layer with the wallpaper's colours.
+- **Widget picker:** the widget sets no preview image, so its picker entry
+  shows this icon.
+
 ## 9. Finish setup
 
 ### The card
@@ -842,6 +865,11 @@ recomputes these from the theme tokens and fails below 7:1.
 No text is ever drawn directly on a flash colour. Names sit on black labels,
 because red and blue can't carry dark text at 7:1 (5.54:1 and 5.39:1).
 
+The launcher icon (section 8) uses the `#0B0B0D` on `#FFD60A` pair, 13.93:1.
+It isn't text, so WCAG asks only 3:1 of it (1.4.11), but Beacon holds it to
+7:1 too. `LauncherIconTest` checks it, so the table and its 11-pair test
+stay text only.
+
 ### Type
 
 All sizes are in sp, using Atkinson Hyperlegible Next at 400, 700 and 800.
@@ -1036,6 +1064,10 @@ reaches TalkBack as a subtree change of the live region:
   the key stored before the redraw, and the manifest entry. The widget's
   drawing shows the 24-hour time when the key changes under it, and the
   key follows the 12/24-hour setting and the time zone.
+- The launcher icon: both icons inflate as adaptive icons with a monochrome
+  layer, the manifest names both, the colours are the theme's tokens, the
+  path is the design's bolt, and every corner of the stroked bolt stays
+  inside the 66 dp safe zone.
 
 ### Emulator (Android 16, API 36)
 
@@ -1044,6 +1076,8 @@ reaches TalkBack as a subtree change of the live region:
 - Landscape at the largest font size.
 - A TalkBack pass on every screen.
 - The widget in both states at both font sizes.
+- The launcher icon on the home screen, in App info, in the widget picker
+  and as a themed icon.
 - Installing the emulator and system image needs the owner's OK for any new
   licence.
 
@@ -1100,6 +1134,10 @@ resume time was cut off (D3). PR 3's final review found that, after ruling
 F3, the widget no longer followed a 12/24-hour or time-zone change during
 a timed pause; follow-up R1 fixed it with `TimeChangeReceiver` and
 re-checked it on the emulator.
+
+App icon: built on `feature/app-icon`, a PR of its own beside the three
+above, open as yanivil/beacon#9. Its emulator checks are in
+[`docs/checks/2026-11-app-icon.md`](../checks/2026-11-app-icon.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 
