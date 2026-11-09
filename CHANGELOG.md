@@ -241,24 +241,32 @@ and the project uses [Semantic Versioning](https://semver.org/).
   than Xiaomi, and the docs) and 4 rulings, each with what it costs if
   wrong. The owner's standing instruction of 9 November 2026 stood in for
   a separate plan review.
-- `app/`: Step 2's PR 4 (328 unit tests, 15 new). It adds:
+- `app/`: Step 2's PR 4 (324 unit tests, 11 new). It adds:
   - A refusal report from `TorchBlinker`: an `onRefused` callback that
     runs once, on the torch looper, after the blinker's one attempt to
     leave the light off. The end of an alert and Stop never call it.
   - `lightRefused` on the running alert state, and the test overlay's
     camera line "Off while another app uses the camera" for it.
-  - Battery steps for each Android version on phones other than Xiaomi,
-    chosen by `Build.VERSION.SDK_INT`: four strings for Android 10 and 11,
-    12 and 12L, 13, and 14 and later. Robolectric now also runs the setup
-    card on Android 10, 12 and 13 (`@Config(sdk = …)`), so the first test
-    run downloads those three Android jars (about 420 MB together).
+  - Battery steps for each Android version on phones other than Xiaomi:
+    four strings for Android 10 and 11, 12 and 12L, 13, and 14 and later,
+    chosen by `batteryStepsRes(manufacturer, sdkInt)`, a pure function that
+    plain JUnit checks for every branch and boundary. Android 14 and later's
+    steps name the words of "Allow background usage", not its switch, and
+    say to turn the next page's switch on when it is off. The tests run no
+    other Android version than Robolectric's default, so they download no
+    extra Android jars. (Fix round 0 replaced the first build's
+    `@Config(sdk = 29/31/33)` tests, which downloaded about 420 MB.)
 - `docs/checks/2026-11-step2-pr4.md`, with screenshots in
   `docs/checks/step2-pr4/`: PR 4's emulator checks (AVD `beacon-api36`,
   Android 16). The battery path from App info read with `uiautomator
-  dump`, then followed by the new steps label by label, the row ON on
-  return, and the row at font 2.0. Every changed setting was restored. It
-  also lists what stays not tested: the refusal on any device, the older
-  Android versions' steps, and every phone check.
+  dump`, then followed by the first steps label by label, the row ON on
+  return, and the row at font 2.0. Tapping the "Allow background usage"
+  switch instead of its words made Beacon "Restricted" (O2); fix round 0
+  reworded the steps and followed them word for word from "Optimized" and
+  from "Restricted", with the row ON both times, and again at font 2.0.
+  Every changed setting was restored. It also lists what stays not
+  tested: the refusal on any device, the older Android versions' steps,
+  and every phone check.
 
 ### Changed
 
@@ -450,16 +458,20 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - Section 8: the test overlay's camera line for a refused light.
   - Section 9: the battery row points to a new part, "The battery steps":
     the steps for each Android version, where each wording comes from, its
-    label, and the "Allow background usage" switch that turns background
-    use off (open for the owner).
+    label, and how Android 14 and later's steps steer away from the
+    "Allow background usage" switch and past the next page's switch when
+    it is off. Android 10 to 13's battery pages have no such switch.
   - Section 13: the refused-light case.
-  - Section 15: the new JVM and Robolectric tests, and the emulator check
-    of the battery path.
+  - Section 15: the new JVM and Robolectric tests (no Android version but
+    the default), and the emulator checks of the battery path from
+    "Optimized" and from "Restricted".
   - Section 16: PR 3 and the icon merged, and a PR 4 row and paragraph.
 - `docs/plans/2026-11-09-step2-pr4-carryovers.md`: rulings 1 (the refusal,
   now with its own camera line) and 3 (the battery steps, split as
-  Android's Settings source shows) say how they were amended while
-  building; rulings 2 and 4 weren't.
+  Android's Settings source shows, steered away from the background
+  switch, and tested without other Android versions) say how they were
+  amended while building; rulings 2 and 4 weren't. Task 2's step 3 says
+  why its `@Config(sdk = …)` tests became plain JUnit.
 
 ### Fixed
 
@@ -474,8 +486,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - The battery steps for phones other than Xiaomi said "Tap Battery, then
     Unrestricted.", which stock Android 16 doesn't show (PR 2's O3). They
     now name the labels of the phone's Android version; on Android 14 and
-    later, "Tap App battery usage, then Allow background usage, then
-    Unrestricted.", as read on the emulator.
+    later, "Tap App battery usage. Tap the words Allow background usage,
+    not its switch. If the next page’s switch is off, turn it on. Then tap
+    Unrestricted.", followed word for word on the emulator from
+    "Optimized" and from "Restricted".
 - PR 3's final fixes, in `app/`:
   - A pause change started from Home finishes even if Beacon's screen is
     closed at once, so closing it can't leave the alarm or the widget

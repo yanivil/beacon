@@ -179,15 +179,20 @@ Not in PR 3: every check on the test phone.
 - **Battery steps for other phones:** the "Battery: No restrictions" row
   names the labels the phone's own Android version shows on the way from
   App info to "Unrestricted". On Android 14 and later: "Tap App battery
-  usage, then Allow background usage, then Unrestricted.", as read on the
-  Android 16 emulator. Android 14 and 15 share that wording and Android 10
-  to 13 have their own, all taken from Android's Settings source and not
-  tested. Xiaomi's steps don't change.
-- **Checks:** 328 unit tests (15 new), lint with no errors, and an
-  emulator check of the battery path on Android 16, followed by the new
-  steps label by label, with the row at font 2.0:
+  usage. Tap the words Allow background usage, not its switch. If the next
+  page’s switch is off, turn it on. Then tap Unrestricted." The row's
+  switch would make Beacon "Restricted", so the steps steer away from it,
+  and they also work when background use is already off. Android 14 and 15
+  share that wording and Android 10 to 13 have their own, all taken from
+  Android's Settings source and not tested. Xiaomi's steps don't change.
+- **Checks:** 324 unit tests (11 new), lint with no errors, and emulator
+  checks of the battery path on Android 16: the new steps followed word
+  for word from "Optimized" and from "Restricted", each ending with the
+  Battery row ON, and the row at font 2.0:
   [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
-  The refusal can't be made on the emulator, so it has unit tests only.
+  The choice of steps is a plain function tested in plain JUnit, so the
+  tests need no extra Android versions. The refusal can't be made on the
+  emulator, so it has unit tests only.
 
 Not in PR 4: every check on the test phone, and the older Android
 versions' battery steps on a screen.

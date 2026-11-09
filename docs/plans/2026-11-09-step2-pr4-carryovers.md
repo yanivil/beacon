@@ -84,6 +84,15 @@ card (the battery row) and section 16 (delivery).
      in an update, which `SDK_INT` can't see, so the last wording of each
      is used (ruling B3). See spec section 9, "The battery steps". The B
      rulings, each with its cost, are listed in PR 4's description.
+   - **Amended in fix round 0 (rulings B6 and B7):** on Android 14 and
+     later, "Allow background usage" has a switch that makes Beacon
+     "Restricted" (PR 4's checks, O2). The steps now read "Tap App battery
+     usage. Tap the words Allow background usage, not its switch. If the
+     next page’s switch is off, turn it on. Then tap Unrestricted.", and
+     were followed word for word on the emulator from "Optimized" and from
+     "Restricted". Android 12 and 13's page has three radio buttons and no
+     switch (Settings source), so their steps stay. The choice is now the
+     pure `batteryStepsRes(manufacturer, sdkInt)`.
 4. **No emulator check for the refusal.** The emulator has no camera light
    to take away from Beacon (PR 2's checks), so the refusal is covered by
    unit tests and stays Not tested on devices.
@@ -150,6 +159,12 @@ card (the battery row) and section 16 (delivery).
    check that a non-Xiaomi phone shows the right string.
    - At font 2.0 the row must still wrap without clipping. Use the
      existing largest-font test pattern, if there is one.
+   - **Amended in fix round 0 (ruling B7):** the `@Config(sdk = 29, 31,
+     33)` tests made every fresh machine download three Android jars
+     (about 420 MB). Plain JUnit now checks every branch and boundary of
+     `batteryStepsRes(manufacturer, sdkInt)`, and Robolectric checks the
+     card's text at its default Android version and Android 10's steps at
+     font 2.0.
 
 ## Task 3: docs
 

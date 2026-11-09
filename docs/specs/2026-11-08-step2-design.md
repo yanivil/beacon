@@ -679,13 +679,14 @@ card, as an icon.
 Beacon can only open its App info page for the battery setting (ruling 3
 of PR 4's plan), and stock Android names the way from there to
 "Unrestricted" differently in different versions. So phones other than
-Xiaomi get the steps for their version, chosen by `Build.VERSION.SDK_INT`
-(`batteryStepsRes` in `SetupCard.kt`). Each names the labels in the order
-the person taps them.
+Xiaomi get the steps for their version. `batteryStepsRes(manufacturer,
+sdkInt)` in `SetupCard.kt`, a pure function, chooses them from
+`Build.MANUFACTURER` and `Build.VERSION.SDK_INT`, which Home reads once.
+Each names the labels in the order the person taps them.
 
 | Android (API) | Steps shown | Where the words come from | Label |
 |---|---|---|---|
-| 14 and later (34 and up) | "Tap App battery usage, then Allow background usage, then Unrestricted." | Read on the emulator's screens with `uiautomator dump` (PR 4's checks). Android 14 and 15 from Android's Settings source. | Tested on emulator beacon-api36, Android 16 (Android 14 and 15: Not tested) |
+| 14 and later (34 and up) | "Tap App battery usage. Tap the words Allow background usage, not its switch. If the next page’s switch is off, turn it on. Then tap Unrestricted." | Read on the emulator's screens with `uiautomator dump`, then followed word for word from "Optimized" and from "Restricted" (PR 4's checks). Android 14 and 15 from Android's Settings source. | Tested on emulator beacon-api36, Android 16 (Android 14 and 15: Not tested) |
 | 13 (33) | "Tap App battery usage, then Unrestricted." | Android's Settings source | Not tested |
 | 12 and 12L (31 and 32) | "Tap Battery, then Unrestricted." (the steps PR 2 showed on every other phone) | Android's Settings source | Not tested |
 | 10 and 11 (29 and 30) | "Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done." | Android's Settings source | Not tested |
@@ -707,13 +708,26 @@ the person taps them.
   switches the list to "All apps" before Beacon shows.
 - **"Allow background usage" is two targets** on Android 14 and later: its
   words open the page with "Unrestricted", while the switch at its end
-  turns background use off and makes Beacon "Restricted" (seen on the
-  emulator, PR 4's checks, O2). The Battery row then stays OFF. Whether the
-  steps should say "the words" is open for the owner.
+  turns background use off and makes Beacon "Restricted" (PR 4's checks,
+  O2). So the steps name the words and say "not its switch". When
+  background use is already off, the words still open the next page, but
+  its own "Allow background usage" switch is off and "Optimized" and
+  "Unrestricted" are greyed out until it is turned on; the steps say to
+  turn it on. Following them word for word, from "Optimized" and from
+  "Restricted", the Battery row ended ON both times (PR 4's fix round 0).
+- **Android 12 and 13 have no such switch.** Their battery page lists
+  "Unrestricted", "Optimized" and "Restricted" as three radio buttons
+  (Android's Settings source), so tapping "Unrestricted" works from any of
+  them, and their steps stay as they are. Not tested.
+- **Android 10 and 11 have no switch either.** Their "Background
+  restriction" row, just above "Battery optimization", asks before it
+  restricts anything. Not tested.
 - **Other makers** may name all of these differently; only Xiaomi has its
   own steps.
-- At font 2.0 the longest steps (Android 10's) wrap with nothing cut off
-  (Robolectric), and on the emulator Android 16's do too.
+- At font 2.0 the longest steps (Android 14 and later's, 13 lines on the
+  emulator, taller than the screen, so the page scrolls) wrap with nothing
+  cut off, on the emulator and in Robolectric; so do Android 10's in
+  Robolectric.
 
 ### Not used
 
@@ -1089,8 +1103,9 @@ reaches TalkBack as a subtree change of the live region:
 - `BlinkClock`: the phase at boundaries, and "Until I stop it".
 - Settings mapping: defaults, round trip, unknown and missing values.
 - Contrast: every pair in section 11 is at least 7:1.
-- The battery steps: which string each Android version from 29 to 37
-  gets, Xiaomi or not, with each boundary checked on both sides.
+- The battery steps (`batteryStepsRes`): which string each Android version
+  from 29 to 37 gets, for Xiaomi in any letter case and for four other
+  makers' names, with each boundary checked on both sides.
 
 ### Robolectric Compose tests
 
@@ -1113,9 +1128,10 @@ reaches TalkBack as a subtree change of the live region:
   poll and keeps the screen and the wake lock, and a late report from an
   ended or replaced alert changes nothing. The test overlay's camera line
   for a refusal, also at font 2.0.
-- The setup card's battery steps on Android 10, 12, 13 and 16
-  (`@Config(sdk = …)`, so the card reads the version itself), and
-  Android 10's, the longest, at font 2.0.
+- The setup card's battery steps at Robolectric's default Android version
+  (16), and Android 10's steps drawn by the card at font 2.0. No test starts
+  another Android version, so the tests need only the default version's
+  Android jar.
 - The widget's text measure, with Robolectric's native graphics at the
   emulator's density: the lines kept at 266 × 224 and 360 × 224 dp, fonts
   1.0 and 2.0, ON and timed PAUSED, with nothing taller than the widget and
@@ -1145,7 +1161,8 @@ reaches TalkBack as a subtree change of the live region:
 - The launcher icon on the home screen, in App info, in the widget picker
   and as a themed icon.
 - The setup card's battery path on Android 16, read with `uiautomator dump`
-  and then followed by the card's own steps, label by label (PR 4).
+  and then followed by the card's own steps word for word, from "Optimized"
+  and from "Restricted" (PR 4).
 - Installing the emulator and system image needs the owner's OK for any new
   licence.
 
@@ -1215,9 +1232,11 @@ PR 4: built on `feature/step2-carryovers`, from the plan
 [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](../plans/2026-11-09-step2-pr4-carryovers.md),
 not merged yet. Its emulator checks are in
 [`docs/checks/2026-11-step2-pr4.md`](../checks/2026-11-step2-pr4.md): the
-battery path on stock Android 16, followed by the new steps label by label,
-and the row at font 2.0. The refusal has unit tests only (the plan's
-ruling 4).
+battery path on stock Android 16, and the new steps followed word for word
+from "Optimized" and from "Restricted" (fix round 0, after the first
+wording's "Allow background usage" step could lead to the switch that
+restricts Beacon), with the row at font 2.0. The refusal has unit tests
+only (the plan's ruling 4).
 
 ## 17. Not tested at the end of Step 2 (expected)
 
