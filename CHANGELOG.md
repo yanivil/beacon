@@ -420,3 +420,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `docs/checks/2026-11-step2-pr3.md`); the spec's sections 5, 9, 10, 13,
   15 and 16 describe it, and the plan's ruling 5 records it as an
   amendment of ruling F3.
+- PR 3's two lint errors, in `app/`: `./gradlew :app:lintDebug` now passes
+  (0 errors, 21 warnings). `StaticLayoutMeasure` sets the break strategy
+  with `LineBreaker`'s constant, which has the same value, and the
+  manifest's removal entry for WorkManager's foreground service tells lint
+  to ignore `MissingClass`, because the class is declared only in
+  WorkManager's own manifest.

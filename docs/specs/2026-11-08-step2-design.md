@@ -245,10 +245,11 @@ data class BeaconSettings(
   TIME_SET (also for the 12/24-hour switch), TIMEZONE_CHANGED and
   LOCALE_CHANGED, the receiver stores the widget's key, so a drawing
   session that is still running draws again, and then runs the catch-up
-  above. On the emulator the widget showed the 24-hour time within 3
-  seconds of the switch in Settings, with no screen off and on and Beacon
-  not opened, and moved its time two hours back when the zone changed
-  from Israel to London.
+  above. On the emulator the widget showed the 24-hour time about 3
+  seconds after the switch in Settings, with no screen off and on and
+  Beacon not opened, and moved its time two hours back when the zone
+  changed from Israel to London, each time in a new drawing session. A
+  zone change inside a running session wasn't tried.
 
 ## 6. Message detection
 
@@ -658,7 +659,9 @@ Glance draws the widget through WorkManager, whose own manifest adds
 declares its foreground service, `androidx.work.impl.foreground.SystemForegroundService`.
 Glance only runs short drawing sessions, never a foreground worker or a
 network constraint, so Beacon's manifest removes all four with
-`tools:node="remove"`. The merged manifest's `<uses-permission>` set is then
+`tools:node="remove"`. The service's removal entry also tells lint to ignore
+`MissingClass`, because the class is declared only in WorkManager's own
+manifest. The merged manifest's `<uses-permission>` set is then
 exactly `WAKE_LOCK`, `SYSTEM_ALERT_WINDOW` and the AndroidX signature
 permission above, with no `INTERNET`. PR 3 adds three receivers: the
 widget's `BeaconWidgetReceiver`, exported so the launcher can reach it;
@@ -967,12 +970,12 @@ reaches TalkBack as a subtree change of the live region:
 | Settings unreadable | Defaults are used, and the app stays on them until it is restarted. |
 | Settings can't be saved | The change isn't kept, and the screen keeps showing the saved value. No message in PR 1. |
 | An app's icon can't be drawn | Beacon shows its own glyph for that app. |
-| A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up when the resume alarm fires, at most 10 minutes late while the phone is awake and at Doze's next maintenance window while it sleeps (section 10), or on the next screen-on, or when Beacon comes to the front. The alarm's catch-up and the screen-on catch-up were both seen clearing an ended pause on the emulator, with its clock moved forward. |
+| A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up when the resume alarm fires, at most 10 minutes late while the phone is awake and at Doze's next maintenance window while it sleeps (section 10), or on the next screen-on, or when Beacon comes to the front, or after a time, time-zone or language change. The alarm's catch-up and the screen-on catch-up were both seen clearing an ended pause on the emulator, with its clock moved forward. |
 | The phone restarts | Settings and pause are kept. Android rebinds the listener. With HyperOS Autostart off, it may stay unbound until Beacon is opened. This is Step 1's open risk, and not tested. |
-| The phone restarts during a timed pause | The resume alarm is gone and isn't set again, because there is no `RECEIVE_BOOT_COMPLETED` (PR 3's ruling 4). Alerts still resume on time (clock check), and Home and the widget draw from the clock, so nothing shows the pause wrongly once it has ended. The stored pause is cleaned up, and the widget redrawn, the next time Beacon comes to the front, the screen turns on, or the widget updates. Not tested. |
+| The phone restarts during a timed pause | The resume alarm is gone and isn't set again, because there is no `RECEIVE_BOOT_COMPLETED` (PR 3's ruling 4). Alerts still resume on time (clock check), and Home and the widget draw from the clock, so nothing shows the pause wrongly once it has ended. The stored pause is cleaned up, and the widget redrawn, the next time Beacon comes to the front, the screen turns on, the time, time zone or language changes, or the widget updates. The catch-up run by the first three also sets the alarm again while the pause is still running. Not tested. |
 | The phone's clock is set back, by hand or by automatic time, while the widget is updating | On the emulator the widget showed ON while a 1-hour pause was saved (PR 3's checks, O1). This followed moving the emulator's clock forward and setting it back by hand: one drawing session then ran for 16 minutes with a wake lock, and it was ended by hand with a debug command (`cmd jobscheduler timeout`). WorkManager queued it again about 45 minutes out, and until then the widget didn't redraw; removing the widget and adding it again cleared it. Likely cause, not tried: Glance and WorkManager time their sessions by the wall clock. Alerts and Home read the saved pause, not the widget. On a phone the clock can also be set back by automatic time correcting it. Not tested on the phone, either way. Whether this is a defect is open for the owner. |
-| The font size or the display size changes while Beacon's process isn't running | Nothing tells Beacon, so the launcher shows the widget's old lines at the new size, which can clip, until the widget's next redraw: a pause change, the resume alarm, a widget tap, or a time, time-zone or language change (through `TimeChangeReceiver`). Opening Beacon doesn't repair it. While notification access is on, the bound listener normally keeps Beacon's process running. Not tested. |
-| The language changes while Beacon's process isn't running | LOCALE_CHANGED starts Beacon for `TimeChangeReceiver`, which redraws the widget (follow-up R1). The same was seen on the emulator for a 12/24-hour change; a language change wasn't tried, because Beacon has only English strings. Not tested. |
+| The font size or the display size changes while Beacon's process isn't running | Nothing tells Beacon, so the launcher shows the widget's old lines at the new size, which can clip, until the widget's next redraw: a pause change, the resume alarm, a widget tap, a language change, or a time or time-zone change while a timed pause is running (the last two through `TimeChangeReceiver`). Opening Beacon doesn't repair it. While notification access is on, the bound listener normally keeps Beacon's process running. Not tested. |
+| The language changes while Beacon's process isn't running | LOCALE_CHANGED starts Beacon for `TimeChangeReceiver`, which redraws the widget (follow-up R1). The same was seen on the emulator for a 12/24-hour change; a language change wasn't tried, because Beacon has only English strings. Whether HyperOS lets the broadcast start Beacon with Autostart off isn't known. Not tested. |
 | Another app's notification has a one-time code | Android 15+ may hide the content. Beacon doesn't need content, so no effect is expected. Not tested. |
 
 ## 14. Privacy

@@ -111,6 +111,10 @@ Executors read the spec too.
    updates.
    - Cost if wrong: after a restart, a stale timed pause stays stored until
      then. Nothing shows it wrongly, since every screen checks the clock.
+   - **Amended while building (R1):** a time, time-zone or language
+     change also runs a catch-up (`TimeChangeReceiver`), which cleans up
+     an ended pause, redraws the widget and sets the alarm again for a
+     pause that is still running. See spec section 5.
 5. **Every pause change goes through one `PauseCoordinator`.** That covers
    Home, the widget, the alarm, the app coming to the front and the screen
    turning on.

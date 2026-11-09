@@ -137,8 +137,9 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   changed, redraws the widget. A change that has started finishes even if
   Beacon is closed at once. The alarm is inexact with a 10-minute window,
   so Beacon needs no exact-alarm permission. A pause that has ended is
-  also cleaned up when Beacon comes to the front and when the screen turns
-  on. Alerts never wait for any of this: they check the clock.
+  also cleaned up when Beacon comes to the front, when the screen turns
+  on, and after a time, time-zone or language change. Alerts never wait
+  for any of this: they check the clock.
 - **No new permissions:** the ones Glance's background library would add
   are removed, so Beacon still asks only for "Display over other apps" and
   the wake lock, and still has no internet permission.
@@ -146,10 +147,10 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
   Beacon is in front, a real alert replaces a test without a moment of
   Idle in between, and the blink works out its regions only when the size
   or the bars change.
-- **Checks:** 305 unit tests, and emulator checks of the widget picker,
-  the tap and pause path, auto-resume with the emulator's clock moved
-  forward, the widget at font 1.0 and 2.0 at three sizes, TalkBack and the
-  rotation carry-over. They found three defects, all fixed and re-checked:
+- **Checks:** 305 unit tests, lint with no errors, and emulator checks of
+  the widget picker, the tap and pause path, auto-resume with the
+  emulator's clock moved forward, the widget at font 1.0 and 2.0 at three
+  sizes, TalkBack and the rotation carry-over. They found three defects, all fixed and re-checked:
   the widget stayed clipped after only a font-size change, it could be
   shrunk to 3 × 2, and at 3 × 2 its PAUSED state didn't fit.
 
