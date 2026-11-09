@@ -1,8 +1,5 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -15,33 +12,32 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.beacon.R
 import dev.beacon.alert.AlertState
 import dev.beacon.alert.BlinkClock
 import dev.beacon.alert.TEST_LENGTH_MILLIS
-import dev.beacon.ui.components.BeaconIcons
-import dev.beacon.ui.components.FilledButton
-import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.theme.BeaconColors
 import dev.beacon.ui.theme.BeaconType
 
@@ -50,11 +46,6 @@ import dev.beacon.ui.theme.BeaconType
  * time, so the blink, the countdown and the end all come from its clock and
  * the overlay keeps no timer. Rebuilding the overlay (rotation, a font
  * change) reads the same clock and carries on, instead of starting again.
- *
- * Why the cards are black with a white border: the background flashes any
- * of five colours, white and yellow included. White text on black cards
- * keeps 21:1 over every one of them, and the border marks each card's edge
- * when the background is black.
  *
  * Why the column is at least as tall as the window and also scrolls: at the
  * default font the four parts spread over the window, as in the design; at
@@ -68,12 +59,6 @@ import dev.beacon.ui.theme.BeaconType
  * handler on the root also covers the strips behind the system bars and any
  * cutout, so the guarantee doesn't depend on how the cards are laid out.
  */
-
-/** The width of every card's white border. */
-private val CardBorder = 3.dp
-
-/** The smallest gap between the overlay's four parts. */
-private val MinGap = 16.dp
 
 /** The countdown's first number: the test's length in whole seconds. */
 private val CountdownMax = (TEST_LENGTH_MILLIS / 1_000).toInt()
@@ -94,6 +79,20 @@ internal fun countdownSeconds(clock: BlinkClock, nowUptimeMillis: Long): Int {
 }
 
 /**
+ * The string for the details card's camera row.
+ *
+ * @param hasLight true when the phone has a camera light.
+ * @param lightFlashing true while the light is flashing; false when the heat check has stopped it.
+ * @return "Flashing too", "Off while the phone is hot" (a light that has stopped), or "Not on this phone".
+ */
+@StringRes
+internal fun cameraLineRes(hasLight: Boolean, lightFlashing: Boolean): Int = when {
+    !hasLight -> R.string.test_camera_none
+    lightFlashing -> R.string.test_camera_on
+    else -> R.string.test_camera_hot
+}
+
+/**
  * The 3-second Test alert: the whole window blinks while cards say what real
  * alerts will look like, with a countdown and a Stop button. TalkBack sees
  * it as a pane named "Test alert" and announces its title.
@@ -103,7 +102,7 @@ internal fun countdownSeconds(clock: BlinkClock, nowUptimeMillis: Long): Int {
  * @param speedLabel the blink speed and rate, such as "Medium, 60 a minute".
  * @param lengthLabel how long real alerts last, such as "1 minute".
  * @param hasLight true when the phone has a camera light that flashes too.
- * @param onStop called by the Stop button.
+ * @param onStop called by the Stop button, which also takes keyboard focus when the overlay appears.
  */
 @Composable
 fun TestAlertOverlay(
@@ -115,6 +114,7 @@ fun TestAlertOverlay(
     onStop: () -> Unit,
 ) {
     val paneName = stringResource(R.string.test_label)
+    val stopFocus = remember { FocusRequester() }
     Box(
         Modifier
             .fillMaxSize()
@@ -136,47 +136,22 @@ fun TestAlertOverlay(
                     // height evenly, like the design's CSS "space-between" with a 16 px gap.
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    TitleCard()
+                    TitleCard(label = stringResource(R.string.test_label), title = stringResource(R.string.test_title))
                     Spacer(Modifier.height(MinGap))
                     CountdownCard(seconds, Modifier.align(Alignment.CenterHorizontally))
                     Spacer(Modifier.height(MinGap))
-                    DetailsCard(colourLabel, speedLabel, lengthLabel, hasLight)
+                    DetailsCard(colourLabel, speedLabel, lengthLabel, hasLight, running.lightFlashing)
                     Spacer(Modifier.height(MinGap))
-                    FilledButton(
-                        text = stringResource(R.string.stop),
-                        onClick = onStop,
-                        background = BeaconColors.White,
-                        content = BeaconColors.Black,
-                        icon = BeaconIcons.Stop,
-                        minHeight = 96.dp,
-                        style = BeaconType.Stop,
-                        cornerRadius = 24.dp,
-                        // Black on white: the button's edge shows even while the background flashes white.
-                        border = BorderStroke(4.dp, BeaconColors.Black),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    StopButton(onStop, Modifier.fillMaxWidth().focusRequester(stopFocus))
+                    // Why: blocking focus from entering the shell (see BeaconAppScreen) doesn't move focus
+                    // that is already there, such as a keyboard user's focus on "Test alert". Taking it for
+                    // Stop here makes the overlay own the keyboard from the moment it appears. In touch
+                    // mode Compose refuses focus on a button, so a tap-only user sees no change. Only the
+                    // test overlay does this; the real alert screen is a window of its own.
+                    LaunchedEffect(running.clock) { stopFocus.requestFocus() }
                 }
             }
         }
-    }
-}
-
-/** The top card: "Test alert" and the title, both headings; the title is announced when the overlay opens. */
-@Composable
-private fun TitleCard() {
-    Column(
-        Modifier.fillMaxWidth().overlayCard(radius = 24.dp, horizontal = 20.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        SectionHeading(stringResource(R.string.test_label))
-        BasicText(
-            text = stringResource(R.string.test_title),
-            modifier = Modifier.semantics {
-                heading()
-                liveRegion = LiveRegionMode.Polite
-            },
-            style = BeaconType.OverlayTitle.copy(color = BeaconColors.White),
-        )
     }
 }
 
@@ -196,12 +171,16 @@ private fun CountdownCard(seconds: Int, modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val centred = TextAlign.Center
-        // A bare number, written the same in Hebrew; its words come from the plural below.
-        BasicText(seconds.toString(), style = BeaconType.Countdown.copy(color = BeaconColors.White, textAlign = centred))
-        BasicText(
-            text = pluralStringResource(R.plurals.test_seconds_left, seconds),
-            style = BeaconType.BodyStrong.copy(color = BeaconColors.White, textAlign = centred),
-        )
+        // A new key each second makes new text nodes inside the same live region, so Compose sends
+        // TalkBack a subtree change at every new second, not only when the merged text differs (D4).
+        key(seconds) {
+            // A bare number, written the same in Hebrew; its words come from the plural below.
+            BasicText(seconds.toString(), style = BeaconType.Countdown.copy(color = BeaconColors.White, textAlign = centred))
+            BasicText(
+                text = pluralStringResource(R.plurals.test_seconds_left, seconds),
+                style = BeaconType.BodyStrong.copy(color = BeaconColors.White, textAlign = centred),
+            )
+        }
     }
 }
 
@@ -211,10 +190,11 @@ private fun CountdownCard(seconds: Int, modifier: Modifier) {
  * @param colourLabel the flash colour's name, with the app's name in per-app mode.
  * @param speedLabel the blink speed and rate.
  * @param lengthLabel how long real alerts last.
- * @param hasLight true when the camera light flashes too.
+ * @param hasLight true when the phone has a camera light.
+ * @param lightFlashing false when the heat check has stopped the light.
  */
 @Composable
-private fun DetailsCard(colourLabel: String, speedLabel: String, lengthLabel: String, hasLight: Boolean) {
+private fun DetailsCard(colourLabel: String, speedLabel: String, lengthLabel: String, hasLight: Boolean, lightFlashing: Boolean) {
     Column(
         Modifier.fillMaxWidth().overlayCard(radius = 24.dp, horizontal = 20.dp, vertical = 18.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -223,7 +203,7 @@ private fun DetailsCard(colourLabel: String, speedLabel: String, lengthLabel: St
         DetailRow(stringResource(R.string.test_speed), speedLabel)
         DetailRow(
             stringResource(R.string.test_camera),
-            stringResource(if (hasLight) R.string.test_camera_on else R.string.test_camera_none),
+            stringResource(cameraLineRes(hasLight, lightFlashing)),
         )
         DetailRow(stringResource(R.string.test_real_length), lengthLabel)
     }
@@ -252,20 +232,4 @@ private fun DetailRow(label: String, value: String) {
         )
         BasicText(value, Modifier.alignByBaseline(), style = BeaconType.SmallButton.copy(color = BeaconColors.White))
     }
-}
-
-/**
- * Draws an overlay card: black, with a 3 dp white border and rounded corners.
- *
- * @param radius the corner radius.
- * @param horizontal the design's padding at the start and end.
- * @param vertical the design's padding at the top and bottom.
- * @return this modifier with the card's background, border and padding.
- */
-private fun Modifier.overlayCard(radius: Dp, horizontal: Dp, vertical: Dp): Modifier {
-    val shape = RoundedCornerShape(radius)
-    return background(BeaconColors.Black, shape)
-        .border(CardBorder, BeaconColors.White, shape)
-        // The border is drawn inside the bounds, so the padding grows by its width, as CSS's border-box does.
-        .padding(horizontal = horizontal + CardBorder, vertical = vertical + CardBorder)
 }

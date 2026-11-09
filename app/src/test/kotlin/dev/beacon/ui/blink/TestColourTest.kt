@@ -1,4 +1,4 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.AppSetting

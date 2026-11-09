@@ -1,0 +1,122 @@
+package dev.beacon.ui.home
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.dp
+import dev.beacon.R
+import dev.beacon.setup.SetupItem
+import dev.beacon.setup.SetupStatus
+import dev.beacon.ui.components.OnOffPill
+import dev.beacon.ui.components.OutlineButton
+import dev.beacon.ui.components.SectionHeading
+import dev.beacon.ui.components.TextAndPillPolicy
+import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconType
+import dev.beacon.ui.theme.LocalContentColour
+
+/*
+ * Why a dark card with a thick white border: like the PAUSED card, it must
+ * stand out from the rest of Home by more than colour, because until these
+ * three things are granted Beacon cannot flash at all (spec section 9).
+ *
+ * Why each row is one merged TalkBack item: a person hears "Notification
+ * access, So Beacon knows when a message arrives, Off" in one swipe. The
+ * name and reason are the label, On/Off is the state, and the pill is only a
+ * picture of it (its own semantics are cleared). The button is its own item,
+ * and its spoken label starts with the visible words "Open settings" and then
+ * names the row, so a voice user can say what they see (spec section 11).
+ */
+
+/**
+ * The Finish setup card: a heading, a hint and one row per grant.
+ *
+ * @param status which grants are in place; every row shows its state.
+ * @param xiaomi true on a Xiaomi phone, which changes the battery steps.
+ * @param onOpen called with the row whose "Open settings" button was tapped.
+ */
+@Composable
+fun SetupCard(status: SetupStatus, xiaomi: Boolean, onOpen: (SetupItem) -> Unit) {
+    val shape = RoundedCornerShape(24.dp)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(BeaconColors.Card, shape)
+            .border(4.dp, BeaconColors.White, shape)
+            // The design's 16 / 20 dp padding plus the 4 dp border, which is drawn inside the bounds.
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // Set explicitly: the heading must be white on the dark card whatever the surrounding colour.
+            CompositionLocalProvider(LocalContentColour provides BeaconColors.White) {
+                SectionHeading(stringResource(R.string.setup_heading))
+            }
+            BasicText(
+                stringResource(R.string.setup_hint),
+                style = BeaconType.Body.copy(color = BeaconColors.TextSecondary),
+            )
+        }
+        SetupRow(SetupItem.NOTIFICATIONS, R.string.setup_notifications, R.string.setup_notifications_reason, null, status, onOpen)
+        SetupRow(SetupItem.OVERLAY, R.string.setup_overlay, R.string.setup_overlay_reason, null, status, onOpen)
+        val steps = if (xiaomi) R.string.setup_battery_steps_xiaomi else R.string.setup_battery_steps_other
+        SetupRow(SetupItem.BATTERY, R.string.setup_battery, R.string.setup_battery_reason, steps, status, onOpen)
+    }
+}
+
+/**
+ * One grant: its name, reason, ON/OFF pill and "Open settings" button.
+ *
+ * @param item the grant.
+ * @param nameRes the row's name.
+ * @param reasonRes the plain-words reason.
+ * @param stepsRes the steps line shown under the reason, or null for none.
+ * @param status the current grants, for the pill and the spoken state.
+ * @param onOpen called when the button is tapped.
+ */
+@Composable
+private fun SetupRow(item: SetupItem, nameRes: Int, reasonRes: Int, stepsRes: Int?, status: SetupStatus, onOpen: (SetupItem) -> Unit) {
+    val name = stringResource(nameRes)
+    val on = status.isOn(item)
+    val state = stringResource(if (on) R.string.state_on else R.string.state_off)
+    val openFor = stringResource(R.string.setup_open_for, name)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // The name, reason and pill read as one item with the state; the pill wraps under the text at large fonts.
+        Layout(
+            content = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    BasicText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.White))
+                    BasicText(stringResource(reasonRes), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+                    if (stepsRes != null) {
+                        BasicText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
+                    }
+                }
+                OnOffPill(on = on)
+            },
+            modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { stateDescription = state },
+            measurePolicy = TextAndPillPolicy(hasTile = false),
+        )
+        OutlineButton(
+            text = stringResource(R.string.setup_open),
+            onClick = { onOpen(item) },
+            content = BeaconColors.White,
+            icon = null,
+            minHeight = 64.dp,
+            style = BeaconType.SmallButton,
+            modifier = Modifier.fillMaxWidth().semantics { contentDescription = openFor },
+        )
+    }
+}

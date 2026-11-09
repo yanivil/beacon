@@ -79,7 +79,25 @@
     <string name="test_speed">Speed</string>
     <string name="test_camera">Camera light</string>
     <string name="test_camera_on">Flashing too</string>
+    <string name="test_camera_hot">Off while the phone is hot</string>
     <string name="test_camera_none">Not on this phone</string>
     <string name="test_real_length">Real alerts last</string>
     <string name="stop">Stop</string>
+    <string name="alert_title">New message</string>
+    <string name="alert_window_title">New message: %1$s</string>
+    <!-- Finish setup card on Home -->
+    <string name="setup_heading">Finish setup</string>
+    <string name="setup_hint">Beacon needs these to flash for your messages.</string>
+    <string name="setup_notifications">Notification access</string>
+    <string name="setup_notifications_reason">So Beacon knows when a message arrives.</string>
+    <string name="setup_overlay">Display over other apps</string>
+    <string name="setup_overlay_reason">So the screen can flash over other apps and the lock screen.</string>
+    <string name="setup_battery">Battery: No restrictions</string>
+    <string name="setup_battery_reason">So alerts still arrive while the phone sleeps.</string>
+    <string name="setup_battery_steps_xiaomi">Tap Battery saver, then No restrictions.</string>
+    <string name="setup_battery_steps_other">Tap Battery, then Unrestricted.</string>
+    <string name="setup_open">Open settings</string>
+    <string name="setup_open_for">Open settings for %1$s</string>
+    <string name="state_on">On</string>
+    <string name="state_off">Off</string>
 </resources>

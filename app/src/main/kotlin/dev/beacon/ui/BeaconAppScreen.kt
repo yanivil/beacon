@@ -2,6 +2,7 @@ package dev.beacon.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,12 +25,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.beacon.R
 import dev.beacon.alert.AlertKind
@@ -37,12 +41,13 @@ import dev.beacon.alert.AlertState
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.Pause
+import dev.beacon.setup.SetupIntents
 import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.settings.AlertSettingsScreen
 import dev.beacon.ui.settings.SettingsActions
-import dev.beacon.ui.testalert.TestAlertOverlay
-import dev.beacon.ui.testalert.testColour
+import dev.beacon.ui.blink.TestAlertOverlay
+import dev.beacon.ui.blink.testColour
 import dev.beacon.ui.theme.BeaconColors
 
 /*
@@ -121,7 +126,13 @@ fun BeaconAppScreen(viewModel: MainViewModel) {
                 tabBar = { TabBar(tab, onSelect = { tab = it }) },
                 onTest = { viewModel.startTest(editingApp) },
                 // Hidden from TalkBack while the overlay covers it, so only the overlay can be reached.
-                modifier = if (runningTest != null) Modifier.clearAndSetSemantics {} else Modifier,
+                // Keyboard focus is blocked the same way: the group refuses Tab and arrow keys from
+                // entering it, so focus can't land on a control the overlay is covering.
+                modifier = if (runningTest != null) {
+                    Modifier.clearAndSetSemantics {}.focusProperties { onEnter = { cancelFocusChange() } }.focusGroup()
+                } else {
+                    Modifier
+                },
             ) { trailing ->
                 key(tab) { TabContent(tab, settings, viewModel, editingApp, { editingApp = it }, onOpenSettings = { tab = Tab.SETTINGS }, trailing) }
             }
@@ -205,18 +216,29 @@ private fun TabContent(
             verticalArrangement = Arrangement.spacedBy(if (tab == Tab.HOME) 32.dp else 40.dp),
         ) {
             when (tab) {
-                Tab.HOME -> HomeScreen(
-                    settings,
-                    HomeActions(
-                        pauseAll = { viewModel.setPause(Pause.Indefinite) },
-                        resume = { viewModel.setPause(Pause.None) },
-                        // Read the current value from the settings shown, so a toggle always flips what the user sees.
-                        toggleApp = { source ->
-                            viewModel.setAppEnabled(source, !(settings.apps[source]?.enabled ?: source.defaultEnabled))
-                        },
-                        openSettings = onOpenSettings,
-                    ),
-                )
+                Tab.HOME -> {
+                    val context = LocalContext.current
+                    val setup by viewModel.setup.collectAsStateWithLifecycle()
+                    // Check the grants each time Home comes into view, including on return from Settings.
+                    LifecycleResumeEffect(Unit) {
+                        viewModel.refreshSetup()
+                        onPauseOrDispose {}
+                    }
+                    HomeScreen(
+                        settings,
+                        setup,
+                        HomeActions(
+                            pauseAll = { viewModel.setPause(Pause.Indefinite) },
+                            resume = { viewModel.setPause(Pause.None) },
+                            // Read the current value from the settings shown, so a toggle always flips what the user sees.
+                            toggleApp = { source ->
+                                viewModel.setAppEnabled(source, !(settings.apps[source]?.enabled ?: source.defaultEnabled))
+                            },
+                            openSettings = onOpenSettings,
+                            openSetup = { item -> SetupIntents.open(item, context) },
+                        ),
+                    )
+                }
                 Tab.SETTINGS -> AlertSettingsScreen(
                     settings,
                     editingApp,

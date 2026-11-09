@@ -7,8 +7,10 @@ import android.provider.Telephony
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -20,11 +22,15 @@ import dev.beacon.alert.MessageSource
 import dev.beacon.ui.components.BeaconIcon
 import dev.beacon.ui.components.BeaconIcons
 import dev.beacon.ui.theme.BeaconColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /*
  * Why the real launcher icon first: a senior recognises WhatsApp by its own
  * icon, not by a drawn placeholder. The icon is looked up once per app and
- * kept (remember), because decoding it on every recomposition would be slow.
+ * kept (produceState), on the IO dispatcher: reading and decoding an icon is
+ * disk work that must not hold up the main thread, so the glyph shows until
+ * the icon is ready.
  * When no package of the app is installed (or Android hides it), the design's
  * own glyph is shown instead, so the row never has an empty tile.
  * The icon is decorative: the row's name is its label for TalkBack.
@@ -41,24 +47,28 @@ import dev.beacon.ui.theme.BeaconColors
 fun AppIcon(source: MessageSource) {
     val context = LocalContext.current
     val px = with(LocalDensity.current) { 40.dp.roundToPx() }
-    // Decoded once per app and size, not on every recomposition. Null means: show the glyph.
-    val bitmap = remember(source, px) {
-        loadLauncherIcon(context, source)?.let { drawable ->
-            // A drawable with no intrinsic size (a plain colour, some adaptive icons) is no usable icon.
-            if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
-                null
-            } else {
-                try {
-                    drawable.toBitmap(px, px).asImageBitmap()
-                } catch (_: IllegalArgumentException) {
-                    // An odd drawable must never crash Home: fall back to the glyph.
+    // Decoded off the main thread, once per app and size, not on every recomposition.
+    // Null means: show the glyph (while loading, and for good if there is no usable icon).
+    val bitmap by produceState<ImageBitmap?>(null, source, px) {
+        value = withContext(Dispatchers.IO) {
+            loadLauncherIcon(context, source)?.let { drawable ->
+                // A drawable with no intrinsic size (a plain colour, some adaptive icons) is no usable icon.
+                if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
                     null
+                } else {
+                    try {
+                        drawable.toBitmap(px, px).asImageBitmap()
+                    } catch (_: IllegalArgumentException) {
+                        // An odd drawable must never crash Home: fall back to the glyph.
+                        null
+                    }
                 }
             }
         }
     }
-    if (bitmap != null) {
-        Image(bitmap = bitmap, contentDescription = null, modifier = Modifier.size(40.dp))
+    val icon = bitmap
+    if (icon != null) {
+        Image(bitmap = icon, contentDescription = null, modifier = Modifier.size(40.dp))
     } else {
         BeaconIcon(glyphFor(source), BeaconColors.White, 30.dp, Modifier.testTag("glyph_${source.name}"))
     }

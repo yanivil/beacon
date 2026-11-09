@@ -3,6 +3,11 @@
 
     <!-- No INTERNET permission on purpose: Beacon never talks to a network. -->
 
+    <!-- Keeps the CPU awake while an alert blinks (always with a timeout), and
+         lets the alert window open over other apps. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <!-- Package visibility (Android 11+): lets the app load the icons of the
          messaging apps it flashes for, and find the default SMS app. -->
     <queries>
@@ -31,5 +36,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- The real alert window: over other apps and the lock screen, own task,
+             not in recents. No configChanges: rotation recreates it and it
+             redraws from the controller's clock. -->
+        <activity
+            android:name=".alert.AlertActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Beacon"
+            android:turnScreenOn="true" />
+        <!-- Receives message notifications. Only the system can bind it. -->
+        <service
+            android:name=".alert.BeaconListener"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

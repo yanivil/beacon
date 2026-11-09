@@ -51,7 +51,7 @@ internal const val APP_ROW_ICON_TAG = "app_row_icon"
 internal const val APP_ROW_NAME_TAG = "app_row_name"
 
 /** The gap between the tile, the text and the pill, and above a wrapped pill. */
-private val RowGap = 12.dp
+internal val RowGap = 12.dp
 
 /**
  * One app's row on Home, such as "Texts (SMS) / Yellow flash / ON".
@@ -112,45 +112,55 @@ fun AppSwitchRow(
 }
 
 /**
- * Lays out the row's three parts: tile, text and pill, in that order.
+ * Lays out the row's parts: an optional tile, then the text and the pill.
  *
  * The tile and the pill keep their own sizes. The text gets the width
  * between them, unless that is narrower than its longest word (its minimum
  * intrinsic width): then the pill wraps to a second line at the end side and
  * the text gets the width beside the tile. Everything is centred vertically,
- * and placeRelative mirrors the row in right-to-left.
+ * and placeRelative mirrors the row in right-to-left. Shared with the
+ * Finish setup rows, which have no tile.
+ *
+ * @param hasTile true when the first child is a tile (three children), false
+ *   when the row is only text and pill (two children).
+ * @return the measure policy.
  */
-private val AppRowMeasurePolicy = MeasurePolicy { measurables, constraints ->
-    val (tileMeasurable, textMeasurable, pillMeasurable) = measurables
+internal fun TextAndPillPolicy(hasTile: Boolean) = MeasurePolicy { measurables, constraints ->
     val gap = RowGap.roundToPx()
     val loose = constraints.copy(minWidth = 0, minHeight = 0)
-    val tile = tileMeasurable.measure(loose)
-    val pill = pillMeasurable.measure(loose)
+    val tile = if (hasTile) measurables[0].measure(loose) else null
+    val textMeasurable = measurables[if (hasTile) 1 else 0]
+    val pill = measurables[if (hasTile) 2 else 1].measure(loose)
+    // Without a tile there is no tile gap either.
+    val tileSpace = if (tile != null) tile.width + gap else 0
     val width = if (constraints.hasBoundedWidth) {
         constraints.maxWidth
     } else {
         // Fallback for an unbounded parent: as wide as the text on one line.
-        tile.width + gap + textMeasurable.maxIntrinsicWidth(Constraints.Infinity) + gap + pill.width
+        tileSpace + textMeasurable.maxIntrinsicWidth(Constraints.Infinity) + gap + pill.width
     }
-    val besidePill = width - tile.width - gap - pill.width - gap
+    val besidePill = width - tileSpace - pill.width - gap
     val wrap = besidePill < textMeasurable.minIntrinsicWidth(Constraints.Infinity)
     // If a word is too long even beside the tile alone, it breaks there: the last resort.
-    val textWidth = (if (wrap) width - tile.width - gap else besidePill).coerceAtLeast(0)
+    val textWidth = (if (wrap) width - tileSpace else besidePill).coerceAtLeast(0)
     // The row's height limit is passed on, so text that cannot fit reports an overflow.
     val text = textMeasurable.measure(
         Constraints(minWidth = textWidth, maxWidth = textWidth, maxHeight = constraints.maxHeight),
     )
-    val lineHeight = maxOf(tile.height, text.height, if (wrap) 0 else pill.height)
+    val lineHeight = maxOf(tile?.height ?: 0, text.height, if (wrap) 0 else pill.height)
     val contentHeight = if (wrap) lineHeight + gap + pill.height else lineHeight
     val height = constraints.constrainHeight(contentHeight)
     val top = (height - contentHeight) / 2
     layout(width, height) {
-        tile.placeRelative(0, top + (lineHeight - tile.height) / 2)
-        text.placeRelative(tile.width + gap, top + (lineHeight - text.height) / 2)
+        tile?.placeRelative(0, top + (lineHeight - tile.height) / 2)
+        text.placeRelative(tileSpace, top + (lineHeight - text.height) / 2)
         val pillTop = if (wrap) top + lineHeight + gap else top + (lineHeight - pill.height) / 2
         pill.placeRelative(width - pill.width, pillTop)
     }
 }
+
+/** The app row's policy: tile, text and pill. */
+private val AppRowMeasurePolicy = TextAndPillPolicy(hasTile = true)
 
 /**
  * The line under the app name, with an optional colour swatch before it.

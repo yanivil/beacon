@@ -20,8 +20,11 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
-import dev.beacon.ui.testalert.testColour
+import dev.beacon.setup.SetupChecker
+import dev.beacon.setup.SetupStatus
+import dev.beacon.ui.blink.testColour
 import java.io.IOException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -54,16 +57,35 @@ import kotlinx.coroutines.launch
  *
  * @param repo the saved settings.
  * @param alerts the one alert controller.
+ * @param checkSetup reads which Finish setup grants are in place (a function so tests can fake it).
  */
-class MainViewModel(private val repo: SettingsRepository, private val alerts: AlertController) : ViewModel() {
+class MainViewModel(
+    private val repo: SettingsRepository,
+    private val alerts: AlertController,
+    private val checkSetup: () -> SetupStatus,
+) : ViewModel() {
     /** The saved settings, or null until the first read; read eagerly so they are ready as soon as possible. */
     val settings: StateFlow<BeaconSettings?> = repo.settings.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    private val _setup = MutableStateFlow<SetupStatus?>(null)
+
+    /** The Finish setup grants as last checked; null until the first [refreshSetup], so no card flashes up unchecked. */
+    val setup: StateFlow<SetupStatus?> = _setup
 
     /** What the alert controller is doing now. */
     val alertState: StateFlow<AlertState> = alerts.state
 
     /** Whether this phone has a usable camera light. */
     val hasLight: Boolean = alerts.hasLight
+
+    /**
+     * Checks the Finish setup grants again and publishes the result. Called
+     * each time Home comes into view, such as on return from Settings; the
+     * checks are quick system calls, so they run on the calling thread.
+     */
+    fun refreshSetup() {
+        _setup.value = checkSetup()
+    }
 
     /**
      * Saves the pause state.
@@ -154,9 +176,14 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
         alerts.start(AlertRequest(AlertKind.TEST, colour, s.speed, TEST_LENGTH_MILLIS, source = null))
     }
 
-    /** Stops the Test alert at once and leaves the camera light off. Safe to call when nothing runs. */
+    /**
+     * Stops the Test alert at once and leaves the camera light off. Safe to
+     * call when nothing runs. It stops only a test: a real alert that has just
+     * replaced the test (a message arrived under the overlay) keeps running
+     * when Stop or Back is pressed a moment later.
+     */
     fun stopTest() {
-        alerts.stop()
+        alerts.stopIf(AlertKind.TEST)
     }
 
     /**
@@ -184,7 +211,7 @@ class MainViewModel(private val repo: SettingsRepository, private val alerts: Al
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = checkNotNull(this[APPLICATION_KEY]) as BeaconApp
-                MainViewModel(app.settingsRepository, app.alertController)
+                MainViewModel(app.settingsRepository, app.alertController, SetupChecker(app)::check)
             }
         }
     }

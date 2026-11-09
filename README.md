@@ -33,7 +33,16 @@ contrast, big touch targets and plain wording.
         Five of the six defects they found are fixed and re-checked on the
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
         run on the test phone yet.
-      - [ ] **PR 2:** the alert engine. **PR 3:** the widget.
+      - [ ] **PR 2:** the alert engine, built on
+        `feature/step2-alert-engine`, open as yanivil/beacon#7. Plan:
+        [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
+        Emulator checks:
+        [`docs/checks/2026-11-step2-pr2.md`](docs/checks/2026-11-step2-pr2.md).
+        They found two defects, both fixed and re-checked on the emulator:
+        an alert that started while the screen was off ended at once, and
+        Android's one-time "Viewing full screen" panel covered the first
+        alert. Nothing in it has run on the test phone yet.
+      - [ ] **PR 3:** the widget.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -65,6 +74,39 @@ is not part of Beacon.
 
 Not in PR 1: noticing messages, the real alert screen and the "Finish setup"
 card (PR 2), and the widget (PR 3).
+
+## What PR 2 delivers
+
+- **Noticing messages:** a notification listener that reads only a
+  notification's structure (its app, key, kind and times), never a title,
+  a name or message text.
+- **The message rules:** Beacon flashes for a new SMS, WhatsApp or Telegram
+  message, and not for ongoing notifications such as WhatsApp's backup,
+  group summaries, repeated updates of the same message, the person's own
+  replies, paused alerts or an app switched OFF. A message waits for the
+  saved settings, so it is never judged with the defaults.
+- **Real alerts:** the alert controller now runs them. A real message
+  replaces a running test, and a message during an alert never starts a
+  second one. It keeps the phone's processor awake with a wake lock that
+  always has a timeout, stops the camera light when the phone gets too hot,
+  and releases the wake lock only after the light is off.
+- **The alert screen:** "New message" and the app's name over the blinking
+  colour, with a big Stop button that TalkBack focuses first. It opens over
+  other apps and the lock screen, also when the screen is off. The system
+  bars stay visible on black strips while it flashes, so their icons stay
+  readable. It never shows who sent the message or what it says.
+- **Endings:** Stop, Back, Home, the power button, the timer, or opening
+  Beacon (the way to end a light-only alert).
+- **The "Finish setup" card:** on Home while notification access, "Display
+  over other apps" or the battery exemption is missing. Each row says ON or
+  OFF and has an "Open settings" button for its page.
+- **Checks:** 222 unit tests, and emulator checks of the setup card, real
+  SMS alerts, every ending, the false-alert cases, the largest font,
+  TalkBack and the keyboard. They found two defects, both fixed and
+  re-checked: an alert that started with the screen off ended at once, and
+  hiding the system bars brought up Android's "Viewing full screen" panel.
+
+Not in PR 2: the widget, the timed pause and its Home line (PR 3).
 
 ## What Step 1 found
 

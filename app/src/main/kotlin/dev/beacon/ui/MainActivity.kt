@@ -7,6 +7,9 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.beacon.BeaconApp
+import dev.beacon.alert.AlertKind
+import dev.beacon.alert.ListenerConnection
 import dev.beacon.ui.theme.BeaconTheme
 
 /*
@@ -17,6 +20,12 @@ import dev.beacon.ui.theme.BeaconTheme
  * buttons on it (about 1.2:1). The dark style asks for light icons and buttons
  * on a transparent bar, so the page and the tab bar's own #141418 show behind
  * them, and it turns off the system's contrast scrim.
+ *
+ * Why the alert rules live in onStart, onResume and onStop: opening Beacon is
+ * how a person ends a light-only real alert (no alert window exists to tap),
+ * and a test must never outlive the screen that shows it. Rotation stops and
+ * recreates the activity too, but the test is meant to carry on through it, so
+ * onStop skips a stop caused by a configuration change.
  */
 
 /**
@@ -40,6 +49,39 @@ class MainActivity : ComponentActivity() {
             // Scoped to this activity, so it outlives rotation and font-size changes.
             val viewModel: MainViewModel = viewModel(factory = MainViewModel.Factory)
             BeaconTheme { BeaconAppScreen(viewModel) }
+        }
+    }
+
+    /**
+     * Ends a real alert: opening Beacon is how a light-only alert is stopped.
+     * A test is left alone.
+     */
+    override fun onStart() {
+        super.onStart()
+        (application as BeaconApp).alertController.stopIf(AlertKind.REAL)
+    }
+
+    /**
+     * Re-binds the message listener at once if access is granted but the
+     * system dropped it. Right after a cold start this can run before the
+     * system has bound the listener, which costs one harmless off-and-on.
+     */
+    override fun onResume() {
+        super.onResume()
+        ListenerConnection.reconnectIfDropped(this)
+    }
+
+    /**
+     * Ends a running test when Beacon's main screen goes away (Home, another
+     * app, the screen turning off), but not when the activity is only being
+     * recreated for rotation or a font change, so the countdown carries on.
+     * A real alert is left running.
+     */
+    override fun onStop() {
+        super.onStop()
+        // Rotation stops the old activity before the new one starts; the test must survive it.
+        if (!isChangingConfigurations) {
+            (application as BeaconApp).alertController.stopIf(AlertKind.TEST)
         }
     }
 }
