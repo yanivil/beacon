@@ -27,11 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.beacon.R
 import dev.beacon.alert.AlertKind
@@ -39,6 +41,7 @@ import dev.beacon.alert.AlertState
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.Pause
+import dev.beacon.setup.SetupIntents
 import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.settings.AlertSettingsScreen
@@ -213,18 +216,29 @@ private fun TabContent(
             verticalArrangement = Arrangement.spacedBy(if (tab == Tab.HOME) 32.dp else 40.dp),
         ) {
             when (tab) {
-                Tab.HOME -> HomeScreen(
-                    settings,
-                    HomeActions(
-                        pauseAll = { viewModel.setPause(Pause.Indefinite) },
-                        resume = { viewModel.setPause(Pause.None) },
-                        // Read the current value from the settings shown, so a toggle always flips what the user sees.
-                        toggleApp = { source ->
-                            viewModel.setAppEnabled(source, !(settings.apps[source]?.enabled ?: source.defaultEnabled))
-                        },
-                        openSettings = onOpenSettings,
-                    ),
-                )
+                Tab.HOME -> {
+                    val context = LocalContext.current
+                    val setup by viewModel.setup.collectAsStateWithLifecycle()
+                    // Check the grants each time Home comes into view, including on return from Settings.
+                    LifecycleResumeEffect(Unit) {
+                        viewModel.refreshSetup()
+                        onPauseOrDispose {}
+                    }
+                    HomeScreen(
+                        settings,
+                        setup,
+                        HomeActions(
+                            pauseAll = { viewModel.setPause(Pause.Indefinite) },
+                            resume = { viewModel.setPause(Pause.None) },
+                            // Read the current value from the settings shown, so a toggle always flips what the user sees.
+                            toggleApp = { source ->
+                                viewModel.setAppEnabled(source, !(settings.apps[source]?.enabled ?: source.defaultEnabled))
+                            },
+                            openSettings = onOpenSettings,
+                            openSetup = { item -> SetupIntents.open(item, context) },
+                        ),
+                    )
+                }
                 Tab.SETTINGS -> AlertSettingsScreen(
                     settings,
                     editingApp,

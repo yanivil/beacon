@@ -22,14 +22,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -40,6 +46,8 @@ import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.ColourMode
 import dev.beacon.settings.Pause
+import dev.beacon.setup.SetupItem
+import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.components.TRAILING_ICON_TAG
@@ -71,12 +79,16 @@ class HomeScreenTest {
     /** The settings Home shows; changing it recomposes the screen. */
     private var settings by mutableStateOf(BeaconSettings.DEFAULT)
 
+    /** The setup status Home shows; null means not read yet. */
+    private var setup by mutableStateOf<SetupStatus?>(null)
+
     /** Actions that only record their own names (and the app, for a toggle). */
     private val actions = HomeActions(
         pauseAll = { calls += "pauseAll" },
         resume = { calls += "resume" },
         toggleApp = { calls += "toggle:${it.name}" },
         openSettings = { calls += "openSettings" },
+        openSetup = { calls += "openSetup:${it.name}" },
     )
 
     /**
@@ -98,7 +110,7 @@ class HomeScreenTest {
                     WithFontScale(fontScale) {
                         // Like the app shell: a scrolling column with the shell's side padding, so nothing is squeezed into the window height.
                         Column(Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
-                            HomeScreen(settings, actions)
+                            HomeScreen(settings, setup, actions)
                         }
                     }
                 }
@@ -199,6 +211,8 @@ class HomeScreenTest {
         val resources = ApplicationProvider.getApplicationContext<Context>().resources
         install("com.whatsapp", BitmapDrawable(resources, Bitmap.createBitmap(48, 48, Bitmap.Config.ARGB_8888)))
         show()
+        // The icon is loaded off the main thread, so the glyph shows until it is ready.
+        rule.waitUntil(5_000) { rule.onAllNodesWithTag("glyph_WHATSAPP", useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }
         rule.onNodeWithTag("glyph_WHATSAPP", useUnmergedTree = true).assertDoesNotExist()
         rule.onNodeWithTag("glyph_TELEGRAM", useUnmergedTree = true).assertExists()
     }
@@ -229,5 +243,79 @@ class HomeScreenTest {
         val chevron = rule.onNodeWithTag(TRAILING_ICON_TAG, useUnmergedTree = true).getBoundsInRoot()
         val text = rule.onNodeWithText("Change settings", useUnmergedTree = true).getBoundsInRoot()
         assertTrue("chevron ${chevron.right} vs text ${text.left}", chevron.right <= text.left)
+    }
+
+    /** Matches a node that carries a state description (a setup row's merged item). */
+    private val hasState = SemanticsMatcher.keyIsDefined(SemanticsProperties.StateDescription)
+
+    /** All three grants are in place: no card. */
+    @Test fun setupCardHiddenWhenComplete() {
+        setup = SetupStatus(true, true, true)
+        show()
+        rule.onNodeWithText("Finish setup").assertDoesNotExist()
+    }
+
+    /** Before the first check there is no card either. */
+    @Test fun setupCardHiddenUntilChecked() {
+        show()
+        rule.onNodeWithText("Finish setup").assertDoesNotExist()
+    }
+
+    /** One grant missing shows the whole card: a heading, three rows, each with its state. */
+    @Test fun setupCardShowsAllRowsWhenOneIsOff() {
+        setup = SetupStatus(notificationAccess = false, displayOverApps = true, batteryUnrestricted = true)
+        show()
+        rule.onNodeWithText("Finish setup").assert(isHeading())
+        rule.onNodeWithText("Beacon needs these to flash for your messages.").assertExists()
+        rule.onAllNodes(hasState).assertCountEquals(3)
+        rule.onNode(hasText("Notification access") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Off")).assertExists()
+        rule.onNode(hasText("Display over other apps") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On")).assertExists()
+        rule.onNode(hasText("Battery: No restrictions") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On")).assertExists()
+    }
+
+    /** Each button names its row for TalkBack, still containing its visible words, and opens that row. */
+    @Test fun openSettingsSpeaksTheRow() {
+        setup = SetupStatus(false, false, false)
+        show()
+        rule.onNodeWithContentDescription("Open settings for Display over other apps").performScrollTo().performClick()
+        assertEquals(listOf("openSetup:OVERLAY"), calls)
+        rule.onNodeWithContentDescription("Open settings for Notification access").performScrollTo().performClick()
+        rule.onNodeWithContentDescription("Open settings for Battery: No restrictions").performScrollTo().performClick()
+        assertEquals(listOf("openSetup:OVERLAY", "openSetup:NOTIFICATIONS", "openSetup:BATTERY"), calls)
+    }
+
+    /** The battery steps follow the maker. */
+    @Test fun batteryStepsFollowTheMaker() {
+        var xiaomi by mutableStateOf(true)
+        rule.setContent {
+            BeaconTheme {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    SetupCard(SetupStatus(false, false, false), xiaomi, onOpen = {})
+                }
+            }
+        }
+        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertExists()
+        rule.onNodeWithText("Tap Battery, then Unrestricted.").assertDoesNotExist()
+        xiaomi = false
+        rule.onNodeWithText("Tap Battery, then Unrestricted.").assertExists()
+        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
+    }
+
+    /** Nothing is cut off at the largest font size with the card shown. */
+    @Test fun setupCardNoOverflowAtLargestFont() {
+        setup = SetupStatus(false, false, false)
+        show(fontScale = 2.0f)
+        rule.assertNoTextOverflow()
+    }
+
+    /** The card sits between the title and the alerts card. */
+    @Test fun setupCardIsAboveTheAlertsCard() {
+        setup = SetupStatus(false, true, true)
+        show()
+        // Positions in the scrolled column: read through the column, which keeps every item at its place.
+        val title = rule.onNodeWithText("Beacon").getUnclippedBoundsInRoot().top
+        val card = rule.onNodeWithText("Finish setup").getUnclippedBoundsInRoot().top
+        val alerts = rule.onNodeWithText("Visual alerts").getUnclippedBoundsInRoot().top
+        assertTrue("title $title, card $card, alerts $alerts", title < card && card < alerts)
     }
 }

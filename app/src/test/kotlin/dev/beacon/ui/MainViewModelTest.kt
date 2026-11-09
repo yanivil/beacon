@@ -17,6 +17,7 @@ import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
 import dev.beacon.settings.UnreadableDataStore
+import dev.beacon.setup.SetupStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -52,6 +53,7 @@ class MainViewModelTest {
         val vm = MainViewModel(
             SettingsRepository(UnreadableDataStore()),
             AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform()),
+            { NO_SETUP },
         )
         assertEquals(BeaconSettings.DEFAULT, vm.settings.value)
         vm.setPause(Pause.Indefinite)
@@ -69,11 +71,26 @@ class MainViewModelTest {
     /** Stop on the test overlay never ends a real alert that has just replaced the test. */
     @Test fun stopTestLeavesRealAlertRunning() = runTest {
         val controller = AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform())
-        val vm = MainViewModel(SettingsRepository(UnreadableDataStore()), controller)
+        val vm = MainViewModel(SettingsRepository(UnreadableDataStore()), controller) { NO_SETUP }
         controller.start(AlertRequest(AlertKind.REAL, FlashColour.RED, BlinkSpeed.MEDIUM, 60_000L, MessageSource.SMS))
         vm.stopTest()
         val state = controller.state.value
         assertTrue("real alert still running: $state", state is AlertState.Running && state.request.kind == AlertKind.REAL)
         controller.stop()
+    }
+
+    /** The setup status is unknown (null) until the first refresh, then equals what the check returns. */
+    @Test fun refreshSetupPublishesStatus() = runTest {
+        val status = SetupStatus(notificationAccess = true, displayOverApps = false, batteryUnrestricted = true)
+        val controller = AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform())
+        val vm = MainViewModel(SettingsRepository(UnreadableDataStore()), controller) { status }
+        assertEquals(null, vm.setup.value)
+        vm.refreshSetup()
+        assertEquals(status, vm.setup.value)
+    }
+
+    private companion object {
+        /** A status for tests that do not look at the setup. */
+        val NO_SETUP = SetupStatus(false, false, false)
     }
 }
