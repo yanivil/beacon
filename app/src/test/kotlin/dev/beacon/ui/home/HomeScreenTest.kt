@@ -13,6 +13,10 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import org.robolectric.Shadows.shadowOf
 import androidx.compose.ui.Modifier
@@ -83,6 +87,9 @@ class HomeScreenTest {
     /** The clock Home reads, which a test can move. */
     private var clockMillis = System.currentTimeMillis()
 
+    /** A lifecycle a test drives by hand, or null to use the host activity's. */
+    private var testLifecycle: HandDrivenLifecycle? = null
+
     /** The setup status Home shows; null means not read yet. */
     private var setup by mutableStateOf<SetupStatus?>(null)
 
@@ -109,7 +116,11 @@ class HomeScreenTest {
     ) {
         settings = initial
         rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+            val owner = testLifecycle
+            CompositionLocalProvider(
+                LocalLayoutDirection provides direction,
+                *(if (owner != null) arrayOf(LocalLifecycleOwner provides owner) else emptyArray()),
+            ) {
                 BeaconTheme {
                     WithFontScale(fontScale) {
                         // Like the app shell: a scrolling column with the shell's side padding, so nothing is squeezed into the window height.
@@ -371,4 +382,45 @@ class HomeScreenTest {
         rule.onNodeWithText("Back ON by itself at", substring = true).assertExists()
         rule.assertNoTextOverflow()
     }
+
+    /** Deep sleep stops the effect's timer but not the wall clock: an hour passes, one minute of timer time does. */
+    @Test fun cardTurnsOnAfterSleep() {
+        rule.mainClock.autoAdvance = false
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        clockMillis += 3_600_000
+        rule.mainClock.advanceTimeBy(60_000)
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+    }
+
+    /** Coming back to the front after the deadline turns the card ON at once, with no timer time passing. */
+    @Test fun cardTurnsOnWhenResumedAfterTheDeadline() {
+        rule.mainClock.autoAdvance = false
+        val registry = HandDrivenLifecycle()
+        testLifecycle = registry
+        registry.state = Lifecycle.State.RESUMED
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(clockMillis + 3_600_000)))
+        rule.onNodeWithText("PAUSED").assertExists()
+        registry.state = Lifecycle.State.CREATED
+        clockMillis += 3_600_000
+        registry.state = Lifecycle.State.RESUMED
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithText("ON").assertExists()
+        rule.onNodeWithText("PAUSED").assertDoesNotExist()
+    }
+}
+
+/** A lifecycle owner a test moves between states by hand. */
+private class HandDrivenLifecycle : LifecycleOwner {
+    /** The registry that observers attach to; main-thread checks are off for the test. */
+    private val registry = LifecycleRegistry.createUnsafe(this)
+
+    /** The current state; setting it notifies observers. */
+    var state: Lifecycle.State
+        get() = registry.currentState
+        set(value) { registry.currentState = value }
+
+    override val lifecycle: Lifecycle get() = registry
 }
