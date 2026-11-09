@@ -48,10 +48,19 @@ card (the battery row) and section 16 (delivery).
    `onTooHot`).
    - Cost if wrong: none for alerts. The screen blink and the wake lock are
      untouched.
+   - **Amended while building (PR 4's ruling B1):** the running state also
+     gets `lightRefused`, set by a refusal and not by the heat stop, and the
+     test overlay's camera line says "Off while another app uses the
+     camera" for it. With only `lightFlashing = false`, the overlay would
+     have said "Off while the phone is hot", which isn't why. The
+     controller doesn't call `stop()` on a blinker that refused, since it
+     has already ended its run and tried the off; the heat stop still does.
+     See spec sections 7 and 8.
 2. **The heat listener isn't unregistered on a refusal,** the same as on
    the heat stop. Its callback is already guarded, and `endCurrent`
    unregisters it.
    - Cost if wrong: one idle listener until the alert ends.
+   - Not amended.
 3. **The battery steps follow the page Beacon opens** (App info,
    `ACTION_APPLICATION_DETAILS_SETTINGS`).
    - The wording for stock Android is taken from the emulator's own
@@ -62,9 +71,22 @@ card (the battery row) and section 16 (delivery).
    - Xiaomi's text doesn't change.
    - Cost if wrong: on an untested Android version, a step label that
      doesn't match the screen.
+   - **Amended while building (PR 4's ruling B2):** the older wordings
+     come from Android's own Settings source (AOSP, at each version's
+     tagged releases), since no emulator here runs Android 10 to 15. They
+     split the versions differently from the guess above: Android 10 and
+     11 (API 29 and 30) go through "Advanced", "Battery" and the "Battery
+     optimization" list; Android 12 and 12L (31 and 32) keep "Tap Battery,
+     then Unrestricted."; Android 13 (33) has its own wording, "Tap App
+     battery usage, then Unrestricted."; and Android 14 and later (34 and
+     up) share Android 16's. Android 13 and 14 each changed their wording
+     in an update, which `SDK_INT` can't see, so the last wording of each
+     is used. See spec section 9, "The battery steps".
 4. **No emulator check for the refusal.** The emulator has no camera light
    to take away from Beacon (PR 2's checks), so the refusal is covered by
    unit tests and stays Not tested on devices.
+   - Not amended. The new camera line is covered by a Robolectric test,
+     not seen on the emulator.
 
 ## Task 1: the refusal reaches the controller
 
