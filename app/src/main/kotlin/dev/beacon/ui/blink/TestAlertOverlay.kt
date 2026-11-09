@@ -1,4 +1,4 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

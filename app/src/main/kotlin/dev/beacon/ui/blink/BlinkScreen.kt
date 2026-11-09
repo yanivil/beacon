@@ -1,4 +1,4 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
 import android.os.SystemClock
 import androidx.compose.foundation.layout.Box

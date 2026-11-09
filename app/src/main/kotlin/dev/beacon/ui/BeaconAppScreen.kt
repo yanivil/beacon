@@ -41,8 +41,8 @@ import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.settings.AlertSettingsScreen
 import dev.beacon.ui.settings.SettingsActions
-import dev.beacon.ui.testalert.TestAlertOverlay
-import dev.beacon.ui.testalert.testColour
+import dev.beacon.ui.blink.TestAlertOverlay
+import dev.beacon.ui.blink.testColour
 import dev.beacon.ui.theme.BeaconColors
 
 /*

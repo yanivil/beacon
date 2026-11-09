@@ -1,4 +1,4 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
 import android.os.Looper
 import androidx.compose.ui.geometry.Offset

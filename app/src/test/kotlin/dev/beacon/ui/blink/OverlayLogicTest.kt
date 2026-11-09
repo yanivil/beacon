@@ -1,4 +1,4 @@
-package dev.beacon.ui.testalert
+package dev.beacon.ui.blink
 
 import androidx.compose.ui.graphics.Color
 import dev.beacon.alert.BlinkClock
