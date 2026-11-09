@@ -49,4 +49,11 @@ class AndroidAlertPlatformTest {
         assertEquals(AlertActivity::class.java.name, intent.component?.className)
         assertTrue(intent.flags and Intent.FLAG_ACTIVITY_NEW_TASK != 0)
     }
+
+    /** Pins that Robolectric's refusal of the thermal listener is reported as false, not thrown. */
+    @Test fun refusedHeatWatchReturnsFalse() {
+        // Robolectric 4.17 has no thermal service, so addThermalStatusListener fails.
+        assertFalse(platform.watchHeat {})
+        platform.stopWatchingHeat()
+    }
 }

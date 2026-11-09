@@ -20,6 +20,9 @@ const val WAKE_LOCK_MARGIN_MILLIS = 10_000L
 /** How long "Until I stop it" holds the wake lock before renewing it (60 minutes). */
 const val WAKE_LOCK_PERIOD_MILLIS = 3_600_000L
 
+/** How often the controller checks the heat itself, in milliseconds (30 seconds), when the system refused the heat listener. */
+const val HEAT_POLL_MILLIS = 30_000L
+
 /** Why an alert is running. */
 enum class AlertKind {
     /** The user pressed Test alert. */

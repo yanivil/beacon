@@ -8,10 +8,15 @@ package dev.beacon.alert
 /**
  * An [AlertPlatform] that records calls instead of touching the phone.
  *
- * @param tooHot What [isTooHot] answers.
+ * @param tooHot What [isTooHot] answers; a test may change it while an alert runs.
  * @param canShow What [canShowOverOtherApps] answers.
+ * @param watchAccepted What [watchHeat] returns; false plays a system that refuses the listener.
  */
-class FakeAlertPlatform(private val tooHot: Boolean = false, private val canShow: Boolean = false) : AlertPlatform {
+class FakeAlertPlatform(
+    var tooHot: Boolean = false,
+    private val canShow: Boolean = false,
+    private val watchAccepted: Boolean = true,
+) : AlertPlatform {
     private val locks = mutableListOf<Long>()
     private var heatCallback: (() -> Unit)? = null
 
@@ -25,6 +30,10 @@ class FakeAlertPlatform(private val tooHot: Boolean = false, private val canShow
     /** True while a heat watch is registered. */
     val watching: Boolean get() = heatCallback != null
 
+    /** How many times [isTooHot] was asked. */
+    var heatChecks = 0
+        private set
+
     /** How many times [showAlertScreen] was called. */
     var screensShown = 0
         private set
@@ -37,8 +46,8 @@ class FakeAlertPlatform(private val tooHot: Boolean = false, private val canShow
 
     override fun holdWakeLock(timeoutMillis: Long) { locks += timeoutMillis; released = false }
     override fun releaseWakeLock() { released = true }
-    override fun isTooHot() = tooHot
-    override fun watchHeat(onTooHot: () -> Unit) { heatCallback = onTooHot }
+    override fun isTooHot(): Boolean { heatChecks++; return tooHot }
+    override fun watchHeat(onTooHot: () -> Unit): Boolean { heatCallback = onTooHot; return watchAccepted }
     override fun stopWatchingHeat() { heatCallback = null }
     override fun canShowOverOtherApps() = canShow
     override fun showAlertScreen() { screensShown++ }

@@ -7,6 +7,7 @@ import dev.beacon.settings.FlashColour
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import android.os.HandlerThread
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -20,10 +21,14 @@ class AlertControllerTest {
      *
      * @param fake The pretend camera light.
      * @param platform The pretend phone services.
+     * @param torchLooper The looper that switches the light; the main looper unless a test needs its own.
      * @return A controller whose timing one looper idle drives.
      */
-    private fun controller(fake: FakeTorchSwitch, platform: FakeAlertPlatform = FakeAlertPlatform()) =
-        AlertController(fake, Looper.getMainLooper(), Looper.getMainLooper(), platform)
+    private fun controller(
+        fake: FakeTorchSwitch,
+        platform: FakeAlertPlatform = FakeAlertPlatform(),
+        torchLooper: Looper = Looper.getMainLooper(),
+    ) = AlertController(fake, torchLooper, Looper.getMainLooper(), platform)
 
     /**
      * Builds a real WhatsApp request in Green at Medium.
@@ -175,5 +180,50 @@ class AlertControllerTest {
         val late = p.captureHeatCallback()
         c.stop(); c.start(real(60_000)); late()
         assertTrue((c.state.value as AlertState.Running).lightFlashing)
+    }
+
+    /** Pins that the wake lock is released only after the torch looper has run the light's off. */
+    @Test fun wakeLockReleasedBehindTheOff() {
+        val thread = HandlerThread("test-torch").apply { start() }
+        val torchLooper = thread.looper
+        val fake = FakeTorchSwitch(); val p = FakeAlertPlatform(); val c = controller(fake, p, torchLooper)
+        c.start(real(60_000)); shadowOf(torchLooper).idle()
+        c.stop()
+        assertFalse(p.released)
+        shadowOf(torchLooper).idle()
+        assertFalse(p.released)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue(p.released); assertFalse(fake.events.last().second)
+        thread.quit()
+    }
+
+    /** Pins that a test's pending release does not free the lock of the real alert that replaced it. */
+    @Test fun replacedTestsPendingReleaseIsNoOp() {
+        val thread = HandlerThread("test-torch").apply { start() }
+        val torchLooper = thread.looper
+        val p = FakeAlertPlatform(); val c = controller(FakeTorchSwitch(), p, torchLooper)
+        c.start(testRequest()); shadowOf(torchLooper).idle()
+        assertTrue(c.start(real(60_000)))
+        shadowOf(torchLooper).idle(); shadowOf(Looper.getMainLooper()).idle()
+        assertFalse(p.released)
+        thread.quit()
+    }
+
+    /** Pins that a refused heat listener falls back to polling, which stops the light when it gets hot. */
+    @Test fun refusedListenerPollsTheHeat() {
+        val fake = FakeTorchSwitch(); val p = FakeAlertPlatform(watchAccepted = false); val c = controller(fake, p)
+        c.start(real(null)); idle(200)
+        p.tooHot = true; idle(30_000)
+        val r = c.state.value as AlertState.Running
+        assertFalse(r.lightFlashing); assertFalse(fake.events.last().second)
+    }
+
+    /** Pins that stop cancels the heat poll. */
+    @Test fun stopEndsHeatPoll() {
+        val p = FakeAlertPlatform(watchAccepted = false); val c = controller(FakeTorchSwitch(), p)
+        c.start(real(null)); idle(100)
+        val checks = p.heatChecks
+        c.stop(); idle(60_000)
+        assertEquals(checks, p.heatChecks)
     }
 }

@@ -40,8 +40,10 @@ interface AlertPlatform {
      * Starts listening to the heat; replaces an earlier listener.
      *
      * @param onTooHot Called on the main thread each time the status is SEVERE or worse.
+     * @return True when the listener is registered; false when the system refused it, in which
+     *   case [onTooHot] is never called and the caller must check [isTooHot] itself.
      */
-    fun watchHeat(onTooHot: () -> Unit)
+    fun watchHeat(onTooHot: () -> Unit): Boolean
 
     /** Stops listening to the heat. Safe to call when not listening. */
     fun stopWatchingHeat()
@@ -97,8 +99,9 @@ class AndroidAlertPlatform(context: Context) : AlertPlatform {
      * Listens to thermal status on the main thread.
      *
      * @param onTooHot Called when the status is SEVERE or worse.
+     * @return True when registered; false when the system refused the listener.
      */
-    override fun watchHeat(onTooHot: () -> Unit) {
+    override fun watchHeat(onTooHot: () -> Unit): Boolean {
         stopWatchingHeat()
         val listener = PowerManager.OnThermalStatusChangedListener { status ->
             if (status >= PowerManager.THERMAL_STATUS_SEVERE) onTooHot()
@@ -106,9 +109,11 @@ class AndroidAlertPlatform(context: Context) : AlertPlatform {
         try {
             powerManager.addThermalStatusListener(app.mainExecutor, listener)
             heatListener = listener
+            return true
         } catch (e: RuntimeException) {
-            // The system refused the listener (the thermal service can be missing or down).
-            // The alert must still run, so it goes on without a heat watch.
+            // Robolectric refuses the listener (no thermal service), and a real phone might too.
+            // The alert must still run, so tell the caller, which then polls the heat itself.
+            return false
         }
     }
 
