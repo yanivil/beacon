@@ -100,4 +100,13 @@
     <string name="setup_open_for">Open settings for %1$s</string>
     <string name="state_on">On</string>
     <string name="state_off">Off</string>
+
+    <!-- Home-screen widget -->
+    <string name="widget_tap_pause">Tap to pause for 1 hour</string>
+    <string name="widget_tap_resume">Tap to turn ON now</string>
+    <string name="widget_back_on_at">Back ON by itself at %1$s</string>
+    <string name="widget_label_on">Visual alerts are ON. Tap to pause for 1 hour.</string>
+    <string name="widget_label_paused_until">Visual alerts are PAUSED until %1$s. Tap to turn them back on now.</string>
+    <string name="widget_label_paused">Visual alerts are PAUSED. Tap to turn them back on now.</string>
+    <string name="widget_description">Shows whether visual alerts are ON. One tap pauses them for 1 hour.</string>
 </resources>
