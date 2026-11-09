@@ -42,9 +42,28 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
      * Saves the pause state.
      *
      * @param pause the new pause.
+     * @throws IOException if the settings file can't be read or written.
      */
     suspend fun setPause(pause: Pause) {
+        updatePause { pause }
+    }
+
+    /**
+     * Changes the pause based on the stored one, in a single atomic edit.
+     *
+     * Reading and writing happen in the same edit, so two quick callers (for
+     * example two widget taps) never both act on the same old value.
+     *
+     * @param transform maps the stored pause to the new one; it may run more than once, so keep it free of side effects.
+     * @return the pause that was written.
+     * @throws IOException if the settings file can't be read or written.
+     */
+    suspend fun updatePause(transform: (Pause) -> Pause): Pause {
+        var result: Pause = Pause.None
         dataStore.edit { p ->
+            // Same codec as `settings`, so the transform sees exactly what readers see.
+            val pause = transform(SettingsCodec.decodePause(p))
+            result = pause
             when (pause) {
                 // No deadline to keep, so remove the stale one.
                 Pause.None -> { p[SettingsCodec.PAUSE_KIND] = PauseKinds.NONE; p.remove(SettingsCodec.PAUSE_UNTIL) }
@@ -53,6 +72,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 is Pause.Until -> { p[SettingsCodec.PAUSE_KIND] = PauseKinds.UNTIL; p[SettingsCodec.PAUSE_UNTIL] = pause.epochMillis }
             }
         }
+        return result
     }
 
     /**

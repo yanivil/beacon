@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.emptyPreferences
 import dev.beacon.alert.MessageSource
 import java.io.File
+import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -71,6 +72,26 @@ class SettingsRepositoryTest {
         assertEquals(Pause.Indefinite, repo.settings.first().pause)
         repo.setPause(Pause.None)
         assertEquals(Pause.None, repo.settings.first().pause)
+    }
+
+    /** updatePause stores the new pause and returns it. */
+    @Test fun updatePauseWritesAndReturns() = runTest {
+        val repo = repoIn(tmp, backgroundScope)
+        assertEquals(Pause.Until(9), repo.updatePause { Pause.Until(9) })
+        assertEquals(Pause.Until(9), repo.settings.first().pause)
+    }
+
+    /** The transform receives the pause that is stored, not a default. */
+    @Test fun updatePauseSeesTheStoredValue() = runTest {
+        val repo = repoIn(tmp, backgroundScope)
+        repo.setPause(Pause.Indefinite)
+        assertEquals(Pause.None, repo.updatePause { if (it == Pause.Indefinite) Pause.None else it })
+    }
+
+    /** A store that can't be read makes updatePause fail, rather than write over unknown data. */
+    @Test(expected = IOException::class) fun updatePauseFailsOnUnreadableStore() = runTest {
+        SettingsRepository(UnreadableDataStore()).updatePause { Pause.None }
+        Unit
     }
 
     /** Stepping the custom length does not change which duration is chosen. */
