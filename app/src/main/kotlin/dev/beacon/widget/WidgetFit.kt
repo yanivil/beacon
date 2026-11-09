@@ -1,15 +1,18 @@
 package dev.beacon.widget
 
-import kotlin.math.ceil
-import kotlin.math.max
-
 /*
- * Why an estimate: Glance cannot measure text, but the widget must never clip
- * its words. So the fit is worked out beforehand from fixed constants: 0.55 em
- * per character, 1.2 line height, 16 dp padding, 4 dp gaps, and an icon as
- * wide as its text plus 8 dp. Lines are dropped in a fixed order (tap hint,
- * title, then the decorative icon). The state word and the resume time are
- * never dropped: the widget's spoken label carries every line anyway.
+ * Why a fit worked out beforehand: a widget can't scroll, and Glance can't
+ * ask how tall a line will be drawn. So the lines are measured first, with
+ * the widget's real size and the user's font size, and only the lines that
+ * fit are drawn. The measuring is passed in: the widget measures the text
+ * with StaticLayout as the launcher's TextView will lay it out (ruling F5),
+ * and the pure tests pass a simple estimate.
+ *
+ * Lines are dropped in a fixed order (ruling F4, which amends ruling 7):
+ * the tap hint, the title, the decorative state icon, then the resume time.
+ * The state word is never dropped, and stays even if it alone doesn't fit.
+ * A dropped resume time is still spoken: the widget's one spoken label
+ * carries every line.
  */
 
 /** The widget's lines, in the order they are shown. */
@@ -33,20 +36,34 @@ data class LineSpec(val line: WidgetLine, val text: String, val textSp: Float, v
  */
 data class WidgetFit(val lines: Set<WidgetLine>, val stateIcon: Boolean)
 
-/** Padding on each side of the widget, in dp. */
-private const val PADDING_DP = 16f
+/** How the fit sizes text: sp to dp at the user's font size, and the height a line is drawn at. */
+interface LineMeasure {
+    /**
+     * Converts a text size to dp at the user's font size.
+     *
+     * @param sp the text size in sp.
+     * @return the size in dp; the state icon is drawn this tall and this wide.
+     */
+    fun spToDp(sp: Float): Float
 
-/** Gap between lines, in dp. */
-private const val GAP_DP = 4f
+    /**
+     * Measures how tall a line is drawn when its text wraps to a width.
+     *
+     * @param spec the line.
+     * @param widthDp the width its text may take, in dp; may be zero or less when an icon takes it all.
+     * @return the height in dp, every wrapped row included.
+     */
+    fun heightDp(spec: LineSpec, widthDp: Float): Float
+}
 
-/** Estimated glyph width as a fraction of the text size. */
-private const val CHAR_WIDTH_EM = 0.55f
+/** Padding on each side of the widget, in dp; WidgetContent pads by the same. */
+internal const val WIDGET_PADDING_DP = 16f
 
-/** Line height as a multiple of the text size. */
-private const val LINE_HEIGHT = 1.2f
+/** Gap between lines, in dp; WidgetContent draws the same gap. */
+internal const val LINE_GAP_DP = 4f
 
-/** Space between an icon and its text, in dp. */
-private const val ICON_GAP_DP = 8f
+/** Space between the state icon and its word, in dp; WidgetContent draws the same space. */
+internal const val ICON_GAP_DP = 8f
 
 /**
  * Chooses the lines that fit in the widget.
@@ -54,34 +71,34 @@ private const val ICON_GAP_DP = 8f
  * @param lines every line wanted, in display order.
  * @param widthDp the widget's width in dp.
  * @param heightDp the widget's height in dp.
- * @param spToDp converts sp to dp at the user's font size.
+ * @param measure sizes each line's text.
  * @return the kept lines and whether the state icon stays.
  */
-fun fitLines(lines: List<LineSpec>, widthDp: Float, heightDp: Float, spToDp: (Float) -> Float): WidgetFit {
-    val innerW = widthDp - 2 * PADDING_DP
-    val innerH = heightDp - 2 * PADDING_DP
+fun fitLines(lines: List<LineSpec>, widthDp: Float, heightDp: Float, measure: LineMeasure): WidgetFit {
+    val innerW = widthDp - 2 * WIDGET_PADDING_DP
+    val innerH = heightDp - 2 * WIDGET_PADDING_DP
     val kept = lines.map { it.line }.toMutableSet()
     var icon = true
 
     /** Height of one line, with its text wrapped to the width left after its icon. */
     fun height(spec: LineSpec): Float {
-        val size = spToDp(spec.textSp)
-        val iconW = if (spec.hasIcon && icon) size + ICON_GAP_DP else 0f
-        val textW = spec.text.length * CHAR_WIDTH_EM * size
-        val rows = max(1, ceil(textW / (innerW - iconW)).toInt())
-        return rows * size * LINE_HEIGHT
+        // The icon is as wide as the text is tall (a square), plus the gap before the word.
+        val iconW = if (spec.hasIcon && icon) measure.spToDp(spec.textSp) + ICON_GAP_DP else 0f
+        return measure.heightDp(spec, innerW - iconW)
     }
 
     /** Height of everything still kept, with the gaps between. */
     fun total(): Float =
-        lines.filter { it.line in kept }.sumOf { height(it).toDouble() }.toFloat() + GAP_DP * (kept.size - 1)
+        lines.filter { it.line in kept }.sumOf { height(it).toDouble() }.toFloat() + LINE_GAP_DP * (kept.size - 1)
 
     while (total() > innerH) {
         when {
             WidgetLine.TAP_HINT in kept -> kept.remove(WidgetLine.TAP_HINT)
             WidgetLine.TITLE in kept -> kept.remove(WidgetLine.TITLE)
             icon -> icon = false
-            // STATE and RESUME_TIME stay even if they still do not fit.
+            // Drawn only: the spoken label still names the resume time.
+            WidgetLine.RESUME_TIME in kept -> kept.remove(WidgetLine.RESUME_TIME)
+            // The state word alone: it stays even if it still doesn't fit.
             else -> break
         }
     }

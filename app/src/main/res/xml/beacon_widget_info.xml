@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- The widget's entry in the launcher's picker.
-     4 x 2 cells by default; it can grow but never shrink below that, since
-     the 52 sp "PAUSED", its icon and the resume line need all of 4 x 2
-     (ruling 6). No periodic updates: the coordinator refreshes it after
-     every pause change, and the resume alarm at a pause's end. Glance draws
-     the content; its own loading layout shows until then. -->
+     4 x 2 cells by default. It can't shrink below 250 x 110 dp, but Android
+     takes that floor in dp, not cells, so a launcher with wide columns
+     allows 3 x 2 (PR 3's D2). A higher floor would force 5 cells on a
+     5-column grid, so the fit keeps the smaller sizes unclipped instead: it
+     drops lines in a fixed order (rulings F4 and F5, which amend ruling 6).
+     On Android 10 and 11 the default size comes from minWidth and
+     minHeight, not the target cells, so it may open at 3 x 2. No periodic
+     updates: the coordinator refreshes it after every pause change, and
+     the resume alarm at a pause's end. Glance draws the content; its own
+     loading layout shows until then. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/widget_description"
     android:initialLayout="@layout/glance_default_loading_layout"

@@ -35,30 +35,26 @@ import dev.beacon.ui.theme.BeaconColors
  * Why one composable that fits itself: the widget has to stay readable at the
  * largest font size, so it builds the lines from strings.xml, asks fitLines
  * which ones fit in the size the launcher gave, and draws only those. The
- * whole widget is one tap target with one spoken label; the icon is
- * decorative. Only two text pairs exist: #0B0B0D on #FFD60A (ON) and
- * #FFFFFF on #0B0B0D (PAUSED), both well above 7:1 (spec sections 10, 11).
+ * padding and the gaps it draws are the ones fitLines allows for (the shared
+ * constants in WidgetFit.kt). The whole widget is one tap target with one
+ * spoken label; the icon is decorative. Only two text pairs exist: #0B0B0D
+ * on #FFD60A (ON) and #FFFFFF on #0B0B0D (PAUSED), both well above 7:1
+ * (spec sections 10, 11).
  */
-
-/** Gap between lines, in dp (the same 4 dp fitLines allows for). */
-private const val LINE_GAP_DP = 4
-
-/** Space between the state icon and its word, in dp (the same 8 dp fitLines allows for). */
-private const val ICON_GAP_DP = 8
 
 /**
  * Draws the widget.
  *
  * @param state ON or PAUSED.
  * @param resumeTime the formatted resume time of a timed pause; null otherwise.
- * @param spToDp converts sp to dp at the user's font size, for the fit.
- * @param modifier the modifier for the root; Task 3 passes the tap action here.
+ * @param measure sizes the text at the user's font size, for the fit and the icon.
+ * @param modifier the modifier for the root, which is the widget's one tap target: the widget passes its tap action here.
  */
 @Composable
 fun WidgetContent(
     state: WidgetState,
     resumeTime: String?,
-    spToDp: (Float) -> Float,
+    measure: LineMeasure,
     modifier: GlanceModifier = GlanceModifier,
 ) {
     val context = LocalContext.current
@@ -66,33 +62,15 @@ fun WidgetContent(
     val textColour = if (on) BeaconColors.OnAccent else BeaconColors.Text
     val colour = ColorProvider(textColour)
 
-    val stateWord = context.getString(if (on) R.string.alerts_on else R.string.alerts_paused)
-    val stateSp = if (on) 64f else 52f
-    // Only a timed pause has a resume line; an open-ended pause has no time to name.
-    val resumeText = if (state is WidgetState.Paused && resumeTime != null) {
-        context.getString(R.string.widget_back_on_at, resumeTime)
-    } else {
-        null
-    }
-    val specs = listOfNotNull(
-        LineSpec(WidgetLine.TITLE, context.getString(R.string.alerts_heading), 28f, false),
-        LineSpec(WidgetLine.STATE, stateWord, stateSp, true),
-        resumeText?.let { LineSpec(WidgetLine.RESUME_TIME, it, 22f, false) },
-        LineSpec(
-            WidgetLine.TAP_HINT,
-            context.getString(if (on) R.string.widget_tap_pause else R.string.widget_tap_resume),
-            22f,
-            false,
-        ),
-    )
+    val specs = widgetLines(context, state, resumeTime)
     val size = LocalSize.current
-    val fit = fitLines(specs, size.width.value, size.height.value, spToDp)
+    val fit = fitLines(specs, size.width.value, size.height.value, measure)
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(ImageProvider(if (on) R.drawable.widget_on_bg else R.drawable.widget_paused_bg))
-            .padding(16.dp)
+            .padding(WIDGET_PADDING_DP.dp)
             .semantics { contentDescription = spokenLabel(context, state, resumeTime) },
         contentAlignment = Alignment.Center,
     ) {
@@ -101,13 +79,43 @@ fun WidgetContent(
             specs.filter { it.line in fit.lines }.forEachIndexed { index, spec ->
                 if (index > 0) Spacer(GlanceModifier.height(LINE_GAP_DP.dp))
                 if (spec.line == WidgetLine.STATE) {
-                    StateRow(spec, fit.stateIcon, on, colour, spToDp(spec.textSp))
+                    StateRow(spec, fit.stateIcon, on, colour, measure.spToDp(spec.textSp))
                 } else {
                     Text(spec.text, style = lineStyle(spec.textSp, spec.line == WidgetLine.TITLE, colour))
                 }
             }
         }
     }
+}
+
+/**
+ * Builds every line the widget wants, in display order, with its words from strings.xml and its text size.
+ *
+ * @param context supplies the strings.
+ * @param state ON or PAUSED.
+ * @param resumeTime the formatted resume time of a timed pause; null otherwise.
+ * @return the lines, before the fit leaves any out.
+ */
+internal fun widgetLines(context: Context, state: WidgetState, resumeTime: String?): List<LineSpec> {
+    val on = state is WidgetState.On
+    val stateWord = context.getString(if (on) R.string.alerts_on else R.string.alerts_paused)
+    // Only a timed pause has a resume line; an open-ended pause has no time to name.
+    val resumeText = if (state is WidgetState.Paused && resumeTime != null) {
+        context.getString(R.string.widget_back_on_at, resumeTime)
+    } else {
+        null
+    }
+    return listOfNotNull(
+        LineSpec(WidgetLine.TITLE, context.getString(R.string.alerts_heading), 28f, false),
+        LineSpec(WidgetLine.STATE, stateWord, if (on) 64f else 52f, true),
+        resumeText?.let { LineSpec(WidgetLine.RESUME_TIME, it, 22f, false) },
+        LineSpec(
+            WidgetLine.TAP_HINT,
+            context.getString(if (on) R.string.widget_tap_pause else R.string.widget_tap_resume),
+            22f,
+            false,
+        ),
+    )
 }
 
 /**

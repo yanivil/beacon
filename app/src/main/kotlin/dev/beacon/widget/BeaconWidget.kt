@@ -2,8 +2,6 @@ package dev.beacon.widget
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import android.util.DisplayMetrics
-import android.util.TypedValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.glance.GlanceId
@@ -54,22 +52,12 @@ class BeaconWidget : GlanceAppWidget() {
             WidgetContent(
                 state = state,
                 resumeTime = resumeTime,
-                spToDp = { sp -> scaledSpToDp(context.resources.displayMetrics, sp) },
+                measure = StaticLayoutMeasure(context.resources.displayMetrics),
                 modifier = GlanceModifier.clickable(actionRunCallback<TogglePauseAction>()),
             )
         }
     }
 }
-
-/**
- * Converts a text size to dp at the phone's current font size.
- *
- * @param metrics the display metrics, read at each call so a font-size change is seen.
- * @param sp the text size in sp.
- * @return the size in dp. On Android 14 and later, applyDimension includes the non-linear font scaling.
- */
-private fun scaledSpToDp(metrics: DisplayMetrics, sp: Float): Float =
-    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, metrics) / metrics.density
 
 /** Android's entry point for the widget: the launcher's update requests arrive here. */
 class BeaconWidgetReceiver : GlanceAppWidgetReceiver() {
