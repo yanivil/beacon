@@ -79,7 +79,7 @@ class MainViewModel(
     val alertState: StateFlow<AlertState> = alerts.state
 
     /** Whether this phone has a usable camera light. */
-    val hasLight: Boolean = alerts.hasLight
+    val hasLight: Boolean get() = alerts.hasLight
 
     /**
      * Checks the Finish setup grants again and publishes the result. Called

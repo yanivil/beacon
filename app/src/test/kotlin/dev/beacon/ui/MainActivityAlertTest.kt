@@ -20,6 +20,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
+import android.app.NotificationManager
+import dev.beacon.alert.BeaconListener
+import dev.beacon.alert.ListenerConnection
+import org.robolectric.Shadows.shadowOf
 
 /*
  * Why Robolectric's activity controller and the app's own controller: these
@@ -63,6 +70,31 @@ class MainActivityAlertTest {
         assertTrue(controller.state.value is AlertState.Running)
         val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
         assertEquals(AlertState.Idle, controller.state.value)
+        activity.pause().stop().destroy()
+    }
+
+    /** Rotating while Beacon is in front keeps a light-only real alert running on the same clock. */
+    @Test fun rotationKeepsALightOnlyRealAlert() {
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
+        // Started with Beacon in front, as when a message arrives while the app is open and the window can't show.
+        controller.start(request(AlertKind.REAL))
+        val startedAt = (controller.state.value as AlertState.Running).clock.startUptimeMillis
+        activity.recreate()
+        val after = controller.state.value
+        assertTrue("still running: $after", after is AlertState.Running)
+        assertEquals(startedAt, (after as AlertState.Running).clock.startUptimeMillis)
+        activity.pause().stop().destroy()
+    }
+
+    /** Resuming Beacon re-binds a listener the system dropped, when access is granted. */
+    @Test fun resumeReconnectsADroppedListener() {
+        val context = ApplicationProvider.getApplicationContext<BeaconApp>()
+        val component = ComponentName(context, BeaconListener::class.java)
+        shadowOf(context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+            .setNotificationListenerAccessGranted(component, true)
+        ListenerConnection.connected = false
+        val activity = Robolectric.buildActivity(MainActivity::class.java).setup()
+        assertEquals(PackageManager.COMPONENT_ENABLED_STATE_ENABLED, context.packageManager.getComponentEnabledSetting(component))
         activity.pause().stop().destroy()
     }
 

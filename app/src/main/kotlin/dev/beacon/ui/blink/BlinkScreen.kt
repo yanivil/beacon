@@ -14,7 +14,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -110,17 +110,25 @@ fun BlinkScreen(clock: BlinkClock, colour: FlashColour, content: @Composable (no
     Box(
         Modifier
             .fillMaxSize()
-            // Read while drawing, so a flip only redraws the background, not the cards.
-            .drawBehind {
+            // The regions are worked out in the cache, which is rebuilt only when the size or the bars change.
+            // The phase is read in the draw block, so a flip only redraws the background, not the cards.
+            .drawWithCache {
                 val regions = blinkRegions(
                     size,
                     left = bars.getLeft(this, layoutDirection).toFloat(),
                     top = bars.getTop(this).toFloat(),
                     right = bars.getRight(this, layoutDirection).toFloat(),
                     bottom = bars.getBottom(this).toFloat(),
-                    phaseColour = blinkColour(clock, colour, now.longValue),
+                    // Placeholder: the real phase colour is only known per frame, below.
+                    phaseColour = Color.Unspecified,
                 )
-                regions.forEach { (rect, regionColour) -> drawRect(regionColour, rect.topLeft, rect.size) }
+                onDrawBehind {
+                    val phaseColour = blinkColour(clock, colour, now.longValue)
+                    regions.forEach { (rect, regionColour) ->
+                        // The first region is the black base; the others take the current phase's colour.
+                        drawRect(if (regionColour == Color.Unspecified) phaseColour else regionColour, rect.topLeft, rect.size)
+                    }
+                }
             },
     ) {
         Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars.union(WindowInsets.displayCutout))) { content(readNow) }

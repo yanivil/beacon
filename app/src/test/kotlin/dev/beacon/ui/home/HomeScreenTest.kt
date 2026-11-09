@@ -31,6 +31,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
@@ -62,6 +63,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 /*
@@ -286,6 +288,31 @@ class HomeScreenTest {
         rule.onNode(hasText("Notification access") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Off")).assertExists()
         rule.onNode(hasText("Display over other apps") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On")).assertExists()
         rule.onNode(hasText("Battery: No restrictions") and SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "On")).assertExists()
+    }
+
+    /**
+     * In right-to-left the setup card mirrors: the name sits at the right edge, and the room the ON/OFF pill
+     * takes (at least 100 dp, its own semantics are cleared so it can't be found directly) is on the left.
+     * A wide window keeps the pill beside the text; on a narrow one it wraps underneath.
+     */
+    @Config(qualifiers = "w600dp-h900dp")
+    @Test fun setupCardMirrorsInRightToLeft() {
+        setup = SetupStatus(notificationAccess = false, displayOverApps = true, batteryUnrestricted = true)
+        show(direction = LayoutDirection.Rtl)
+        val row = rule.onNode(hasText("Notification access") and hasState).getBoundsInRoot()
+        val name = rule.onNodeWithText("Notification access", useUnmergedTree = true).getBoundsInRoot()
+        val reason = rule.onNodeWithText("So Beacon knows when a message arrives.", useUnmergedTree = true).getBoundsInRoot()
+        assertTrue("name $name row $row reason $reason", row.right - name.right < 4.dp)
+        assertTrue("name $name row $row reason $reason", reason.left - row.left >= 100.dp)
+    }
+
+    /** The merged row speaks its state description once: the pill's ON/OFF text is not also part of the row's text. */
+    @Test fun setupRowDoesNotReadThePillTwice() {
+        setup = SetupStatus(notificationAccess = false, displayOverApps = true, batteryUnrestricted = true)
+        show()
+        val texts = rule.onNode(hasText("Notification access") and hasState).fetchSemanticsNode()
+            .config.getOrNull(SemanticsProperties.Text).orEmpty().map { it.text }
+        assertTrue("row text: $texts", texts.none { it == "ON" || it == "OFF" })
     }
 
     /** Each button names its row for TalkBack, still containing its visible words, and opens that row. */

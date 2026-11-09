@@ -3,7 +3,13 @@ package dev.beacon.alert
 import android.app.NotificationManager
 import org.junit.Rule
 import dev.beacon.widget.NoWidgetRefreshRule
+import android.app.Notification
 import android.content.ComponentName
+import android.os.Process
+import android.service.notification.StatusBarNotification
+import androidx.core.app.NotificationCompat
+import androidx.core.app.Person
+import dev.beacon.alert.AlertState
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -94,5 +100,37 @@ class BeaconListenerTest {
         listener.onListenerDisconnected()
         controller.destroy()
         assertEquals(0, screenOnReceivers())
+    }
+
+    /** A WhatsApp message from another person, posted to the listener, starts a real WhatsApp alert. */
+    @Test fun postedNotificationStartsAnAlert() {
+        val app = context as BeaconApp
+        // The watcher waits for the saved settings; load them first so the decision runs at once.
+        app.settingsState
+        idleMainUntil { app.settingsState.value != null }
+        val me = Person.Builder().setName("Me").setKey("me").build()
+        val ann = Person.Builder().setName("Ann").setKey("ann").build()
+        val now = System.currentTimeMillis()
+        val notification: Notification = NotificationCompat.Builder(context, "c")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setStyle(NotificationCompat.MessagingStyle(me).addMessage("hello", now, ann))
+            .setWhen(now).setCategory(NotificationCompat.CATEGORY_MESSAGE).build()
+        // The only public constructor on API 29+ is the one with a score; it is deprecated but still works.
+        @Suppress("DEPRECATION")
+        val sbn = StatusBarNotification(
+            "com.whatsapp", "com.whatsapp", 1, null, 10_000, 0, 0, notification, Process.myUserHandle(), now,
+        )
+        val listener = Robolectric.buildService(BeaconListener::class.java).create().get()
+        try {
+            listener.onNotificationPosted(sbn)
+            idleMainUntil { app.alertController.state.value is AlertState.Running }
+            val state = app.alertController.state.value
+            assertTrue("running: $state", state is AlertState.Running)
+            state as AlertState.Running
+            assertEquals(AlertKind.REAL, state.request.kind)
+            assertEquals(MessageSource.WHATSAPP, state.request.source)
+        } finally {
+            app.alertController.stop()
+        }
     }
 }

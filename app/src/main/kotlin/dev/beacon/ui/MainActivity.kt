@@ -56,11 +56,18 @@ class MainActivity : ComponentActivity() {
 
     /**
      * Ends a real alert: opening Beacon is how a light-only alert is stopped.
-     * A test is left alone.
+     * A test is left alone. Coming back from a rotation or font change is not
+     * "opening" Beacon: Beacon never left the front, so a light-only alert
+     * that started meanwhile keeps running.
      */
     override fun onStart() {
         super.onStart()
-        (application as BeaconApp).alertController.stopIf(AlertKind.REAL)
+        if (recreating) {
+            // Skip once, then clear: the next start is a real opening again.
+            recreating = false
+        } else {
+            (application as BeaconApp).alertController.stopIf(AlertKind.REAL)
+        }
     }
 
     /**
@@ -93,8 +100,18 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         // Rotation stops the old activity before the new one starts; the test must survive it.
+        // The flag outlives this instance (it is static) so the new instance's onStart can read it.
+        recreating = isChangingConfigurations
         if (!isChangingConfigurations) {
             (application as BeaconApp).alertController.stopIf(AlertKind.TEST)
         }
+    }
+
+    private companion object {
+        /**
+         * True from a stop caused by a configuration change (rotation, font size) until the next start,
+         * which reads and clears it. Static because the stop and the start belong to two different instances.
+         */
+        var recreating = false
     }
 }
