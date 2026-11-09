@@ -92,6 +92,22 @@
         <receiver
             android:name=".widget.ResumeReceiver"
             android:exported="false" />
+        <!-- Redraws the widget after a 12/24-hour, time-zone or language
+             change (follow-up R1). All three actions are on Android's list
+             of implicit broadcasts that a manifest receiver still gets on
+             Android 8 and later. TIME_SET is also what Settings sends when
+             the 12/24-hour switch changes. Not exported: a receiver that
+             isn't exported still gets system broadcasts, and nothing else
+             can reach it. None of the three needs a permission. -->
+        <receiver
+            android:name=".widget.TimeChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
         <!-- WorkManager's foreground service; Beacon runs no foreground
              service (ruling 2). -->
         <service
