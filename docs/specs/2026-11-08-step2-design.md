@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause); its emulator checks found defects D1 to D3, not fixed yet. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -206,10 +206,26 @@ data class BeaconSettings(
 
 - **Alert check:** an alert checks `isPausedAt(now)`. `Until(t)` counts as
   paused only while `now < t`. So alerts come back on time even if nothing
-  else runs.
-- **Clean-up:** when Beacon notices an expired `Until`, it writes `None`.
+  else runs. A widget tap checks the same way: a tap on an `Until` that
+  has already passed pauses for another hour.
+- **One place for changes:** every pause change goes through
+  `PauseCoordinator`: Home's buttons, the widget's tap, the resume alarm,
+  Beacon coming to the front and the screen turning on. Each change ends
+  the same way: save the pause, set the resume alarm for a timed pause or
+  cancel it for any other, then redraw the widget. A lock keeps the alarm
+  in the order of the saves.
+- **Atomic update:** `SettingsRepository.updatePause(transform)` reads the
+  stored pause and writes the new one in a single DataStore edit, so a
+  widget tap is decided against the very pause it replaces. Two quick taps
+  give a 1-hour pause and then ON, never 2 hours (checked on the emulator
+  with taps 41 ms apart).
+- **Clean-up:** an expired `Until` is written back as `None` by the
+  coordinator's catch-up, which runs when the resume alarm fires, when
+  Beacon comes to the front and when the screen turns on (while the
+  listener is bound).
 - **Display:** the resume time is shown as HH:MM in the phone's 12- or
-  24-hour format.
+  24-hour format ("5:29 PM", or "17:50" with the 24-hour setting, on the
+  emulator).
 
 ## 6. Message detection
 
@@ -601,6 +617,9 @@ This screen is not in the design. It reuses the test overlay's layout and
 - `POST_NOTIFICATIONS` (Beacon posts no notifications of its own).
 - `USE_FULL_SCREEN_INTENT`, foreground services, and the SMS, call-log or
   camera permissions.
+- `RECEIVE_BOOT_COMPLETED` and the exact-alarm permissions
+  (`SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`): the resume alarm is inexact
+  and isn't set again after a restart (section 13).
 
 Beacon itself asks only for `SYSTEM_ALERT_WINDOW` and `WAKE_LOCK`. The
 listener service is protected by `BIND_NOTIFICATION_LISTENER_SERVICE`. The
@@ -609,6 +628,20 @@ AndroidX core 1.18's own manifest declares and uses it, so that
 `ContextCompat.registerReceiver` can keep a receiver private on Android
 versions before 13. Its protection level is signature, so it grants nothing
 to other apps and the person is never asked for it.
+
+Glance draws the widget through WorkManager, whose own manifest adds
+`FOREGROUND_SERVICE`, `RECEIVE_BOOT_COMPLETED` and `ACCESS_NETWORK_STATE` and
+declares its foreground service, `androidx.work.impl.foreground.SystemForegroundService`.
+Glance only runs short drawing sessions, never a foreground worker or a
+network constraint, so Beacon's manifest removes all four with
+`tools:node="remove"`. The merged manifest's `<uses-permission>` set is then
+exactly `WAKE_LOCK`, `SYSTEM_ALERT_WINDOW` and the AndroidX signature
+permission above, with no `INTERNET`. PR 3 adds two receivers: the widget's
+`BeaconWidgetReceiver`, exported so the launcher can reach it, and
+`ResumeReceiver`, not exported, which only the resume alarm's explicit
+pending intent reaches. Building the unit tests prints four "tagged to
+remove … but no other declaration present" warnings, because that merge
+runs without the library manifests; the app's own merge prints none.
 
 ## 10. The widget
 
@@ -624,28 +657,79 @@ be resized.
 | Tap | Pause for 1 hour | Turn ON now |
 | Spoken label | "Visual alerts are ON. Tap to pause for 1 hour." | "Visual alerts are PAUSED until HH:MM. Tap to turn them back on now." For an open-ended pause from the app: "Visual alerts are PAUSED. Tap to turn them back on now." |
 
-The text is `#0B0B0D` on yellow and `#FFFFFF` on black. The icons are
-decorative. The whole widget is one tap target.
+The text is `#0B0B0D` on yellow and `#FFFFFF` on black, in the system font.
+The icons are decorative. The whole widget is one tap target.
+
+### Size and the picker entry
+
+- **Size:** 4 × 2 cells by default (`targetCellWidth` 4, `targetCellHeight`
+  2). `minWidth` and `minResizeWidth` are 250 dp, `minHeight` and
+  `minResizeHeight` 110 dp, so it is meant to grow but never shrink below
+  4 × 2: at 4 × 2 the 52 sp "PAUSED", its icon and the resume line already
+  need all the room. `updatePeriodMillis` is 0: there are no periodic
+  updates.
+- **Seen on the emulator** (Pixel Launcher, Pixel 7 profile, from
+  `dumpsys appwidget --proto`): 4 × 2 is 360 × 224 dp in portrait and
+  624 × 135 dp in landscape; 4 × 3 is 360 × 344 dp. That launcher also
+  accepts 3 × 2, 266 × 224 dp, because three of its columns are wider than
+  250 dp (PR 3's D2, open). Real cell sizes differ per launcher and phone.
+- **Picker entry:** the widget receiver's label, "Beacon", and the
+  description "Shows whether visual alerts are ON. One tap pauses them for
+  1 hour." There is no custom preview image, so the picker shows Beacon's
+  app icon.
 
 ### When lines don't fit
 
 A widget can't scroll. When the widget's size and the font scale leave too
 little room, lines are left out in this order: the tap hint first, then the
-"Visual alerts" title. The state word and the resume time are always kept.
+"Visual alerts" title, then the decorative state icon, before "PAUSED" would
+wrap. The state word and the resume time are always kept, even when they
+don't fit on their own; the spoken label always carries every line.
 
-Fit is estimated from the widget's size and each line's scaled text size. On
-Android 14 and later that includes the system's non-linear font scaling.
-Real fit is checked on the emulator and phone (section 13).
+Fit is estimated before drawing, because Glance can't measure text. It uses
+the widget's size, each line's scaled text size and fixed constants:
+
+| Constant | Value |
+|---|---|
+| Glyph width | 0.55 em per character |
+| Line height | 1.2 times the text size |
+| Padding | 16 dp on each side |
+| Gap between lines | 4 dp |
+| State icon | as wide as its text size, plus 8 dp before the word |
+
+A line wraps onto as many rows as its estimated width needs. On Android 14
+and later the scaled text size includes the system's non-linear font
+scaling. On the emulator at 4 × 2 and font 2.0, ON keeps the title and the
+bolt with "ON", and the timed PAUSED state keeps the pause icon with
+"PAUSED" and the resume line on two lines; nothing is cut. The 0.55 em
+estimate is too small for the bold capitals of "PAUSED" (about 0.62 em
+measured), which shows at 3 × 2: "PAUSED" breaks and the resume line is cut
+off (PR 3's D3, open). Real fit on the phone is not tested yet (section 15).
+
+The fit is worked out each time Glance draws the widget. A change of the
+system font size alone doesn't make Glance draw it, so until the next
+drawing the launcher shows the old lines at the new size, which can clip.
+On the emulator a refresh that reached a drawing session still running
+(Glance keeps one open for about 45 seconds after an update) didn't
+re-fit it either; the first refresh after that session ended did (PR 3's
+D1, open).
 
 ### Keeping it current
 
-- **After a change:** `WidgetRefresher` updates the widget after every pause
-  change, from the app or from the widget.
-- **At the resume time:** an inexact alarm (`setAndAllowWhileIdle`) is set
-  for the end of a timed pause, so no exact-alarm permission is needed. An
-  inexact alarm can fire late.
-- **Screen on:** the listener also refreshes the widget when the screen
-  turns on, and the widget is only seen while the screen is on.
+- **After a change:** the `PauseCoordinator` redraws the widget through
+  `WidgetRefresher` after every pause change, from the app or from the
+  widget (section 5).
+- **At the resume time:** an inexact alarm (`setAndAllowWhileIdle`,
+  `RTC_WAKEUP`) is set for the end of a timed pause, so no exact-alarm
+  permission is needed. Its receiver runs the coordinator's catch-up, which
+  writes `None` and redraws the widget. An inexact alarm can fire late:
+  Android allows up to 75% of its delay, so 45 minutes for a 1-hour pause
+  (`window=+44m59s995ms` on the emulator).
+- **Screen on and Beacon in front:** while the listener is bound, it runs
+  the same catch-up when the screen turns on, and the widget is only seen
+  while the screen is on. `MainActivity` runs it each time Beacon comes to
+  the front. On the emulator the screen-on catch-up cleared an ended pause
+  0.15 seconds after the screen came on, before the alarm had fired.
 - **Alerts don't wait for the widget.** They check the clock themselves
   (section 5), so they come back on time even if the widget lags.
 
@@ -793,8 +877,10 @@ reaches TalkBack as a subtree change of the live region:
 | Settings unreadable | Defaults are used, and the app stays on them until it is restarted. |
 | Settings can't be saved | The change isn't kept, and the screen keeps showing the saved value. No message in PR 1. |
 | An app's icon can't be drawn | Beacon shows its own glyph for that app. |
-| A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up within the alarm window, or on the next screen-on. |
+| A timed pause ends while nothing runs | Alerts resume on time (clock check). The widget catches up when the resume alarm fires, which may be up to 45 minutes late for a 1-hour pause (section 10), or on the next screen-on, or when Beacon comes to the front. Both catch-ups were seen on the emulator with its clock moved forward. |
 | The phone restarts | Settings and pause are kept. Android rebinds the listener. With HyperOS Autostart off, it may stay unbound until Beacon is opened. This is Step 1's open risk, and not tested. |
+| The phone restarts during a timed pause | The resume alarm is gone and isn't set again, because there is no `RECEIVE_BOOT_COMPLETED` (PR 3's ruling 4). Alerts still resume on time (clock check), and Home and the widget draw from the clock, so nothing shows the pause wrongly once it has ended. The stored pause is cleaned up, and the widget redrawn, the next time Beacon comes to the front, the screen turns on, or the widget updates. Not tested. |
+| The phone's clock is set back with the widget placed | Glance and WorkManager time their drawing work by the wall clock. On the emulator, after its clock had been moved forward and back, one drawing session ran for 16 minutes with a wake lock. Once it was stopped, WorkManager queued it again for 45 minutes later, by the moved clock's time, and the widget didn't redraw until it was removed and added again (PR 3's checks, O1). Alerts and Home don't depend on it. Not tested on the phone. |
 | Another app's notification has a one-time code | Android 15+ may hide the content. Beacon doesn't need content, so no effect is expected. Not tested. |
 
 ## 14. Privacy
@@ -892,6 +978,15 @@ found two defects, both fixed and re-checked on the emulator: Android's
 one-time "Viewing full screen" panel covered the first alert and the first
 test (D1), and an alert that started while the screen was off ended at
 once (D2).
+
+PR 3: built on `feature/step2-widget`, from the plan
+[`docs/plans/2026-11-09-step2-pr3-widget.md`](../plans/2026-11-09-step2-pr3-widget.md),
+not merged yet. Its emulator checks are in
+[`docs/checks/2026-11-step2-pr3.md`](../checks/2026-11-step2-pr3.md). They
+found three defects, not fixed yet: after only a font-size change the widget
+can stay clipped until Glance draws it afresh (D1); the launcher lets the
+widget shrink to 3 × 2 (D2); and at 3 × 2 "PAUSED" breaks and the resume
+time is cut off (D3).
 
 ## 17. Not tested at the end of Step 2 (expected)
 
