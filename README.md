@@ -34,7 +34,7 @@ contrast, big touch targets and plain wording.
         emulator; the sixth needs TalkBack on the phone. Nothing in it has
         run on the test phone yet.
       - [ ] **PR 2:** the alert engine, built on
-        `feature/step2-alert-engine`, awaiting review. Plan:
+        `feature/step2-alert-engine`, open as yanivil/beacon#7. Plan:
         [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr2.md`](docs/checks/2026-11-step2-pr2.md).

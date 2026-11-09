@@ -196,7 +196,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - Step 2 marked in progress, with PR 0 open as yanivil/beacon#5 and PR 1
     open as yanivil/beacon#6. It now describes the `app/` module, how to
     build, test and install the app, and what PR 1 delivers.
-  - PR 2 built on `feature/step2-alert-engine` and awaiting review, with
+  - PR 2 built on `feature/step2-alert-engine` and open as yanivil/beacon#7, with
     links to its plan and its emulator checks and the two defects they
     found and that are fixed, and a "What PR 2 delivers" section.
 - `docs/feasibility.md`:
