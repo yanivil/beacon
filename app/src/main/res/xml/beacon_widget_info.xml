@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's entry in the launcher's picker.
+     4 x 2 cells by default; it can grow but never shrink below that, since
+     the 52 sp "PAUSED", its icon and the resume line need all of 4 x 2
+     (ruling 6). No periodic updates: the coordinator refreshes it after
+     every pause change, and the resume alarm at a pause's end. Glance draws
+     the content; its own loading layout shows until then. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minWidth="250dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="250dp"
+    android:minResizeHeight="110dp"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellWidth="4"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

@@ -12,6 +12,9 @@ import dev.beacon.alert.CameraTorchSwitch
 import dev.beacon.alert.MessageWatcher
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.SettingsRepository
+import dev.beacon.widget.AndroidResumeAlarm
+import dev.beacon.widget.PauseCoordinator
+import dev.beacon.widget.WidgetRefresher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -55,6 +58,11 @@ class BeaconApp : Application() {
     /** The saved settings as a state; null until the first load finishes, so nothing decides with defaults. */
     val settingsState: StateFlow<BeaconSettings?> by lazy {
         settingsRepository.settings.stateIn(appScope, SharingStarted.Eagerly, null)
+    }
+
+    /** The one place every pause change goes through: it saves, sets the resume alarm and refreshes the widget. */
+    val pauseCoordinator: PauseCoordinator by lazy {
+        PauseCoordinator(settingsRepository, AndroidResumeAlarm(this), refreshWidgets = { WidgetRefresher.refresh(this) })
     }
 
     /** Applies the message rules with the saved settings; used by the notification listener. */
