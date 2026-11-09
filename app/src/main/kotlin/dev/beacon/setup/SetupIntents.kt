@@ -43,7 +43,7 @@ object SetupIntents {
             }
         SetupItem.OVERLAY ->
             Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, packageUri(context))
-        // Beacon's App info page; the person taps Battery from there (steps are shown under the button).
+        // Beacon's App info page; the person goes on from there by the steps the row shows above the button.
         SetupItem.BATTERY -> appInfo(context)
     }
 

@@ -327,7 +327,7 @@ class HomeScreenTest {
         assertEquals(listOf("openSetup:OVERLAY", "openSetup:NOTIFICATIONS", "openSetup:BATTERY"), calls)
     }
 
-    /** The battery steps follow the maker. */
+    /** The battery steps follow the maker; on this Android 16 test phone the other steps are Android 14 and later's. */
     @Test fun batteryStepsFollowTheMaker() {
         var xiaomi by mutableStateOf(true)
         rule.setContent {
@@ -337,10 +337,11 @@ class HomeScreenTest {
                 }
             }
         }
+        val other = "Tap App battery usage, then Allow background usage, then Unrestricted."
         rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertExists()
-        rule.onNodeWithText("Tap Battery, then Unrestricted.").assertDoesNotExist()
+        rule.onNodeWithText(other).assertDoesNotExist()
         xiaomi = false
-        rule.onNodeWithText("Tap Battery, then Unrestricted.").assertExists()
+        rule.onNodeWithText(other).assertExists()
         rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
     }
 

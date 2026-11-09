@@ -97,7 +97,15 @@
     <string name="setup_battery">Battery: No restrictions</string>
     <string name="setup_battery_reason">So alerts still arrive while the phone sleeps.</string>
     <string name="setup_battery_steps_xiaomi">Tap Battery saver, then No restrictions.</string>
-    <string name="setup_battery_steps_other">Tap Battery, then Unrestricted.</string>
+    <!-- Other phones: the labels on Beacon's App info page, in the order they are tapped, by Android version. -->
+    <!-- Android 10 and 11 (API 29 and 30). -->
+    <string name="setup_battery_steps_api29">Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done.</string>
+    <!-- Android 12 and 12L (API 31 and 32). -->
+    <string name="setup_battery_steps_api31">Tap Battery, then Unrestricted.</string>
+    <!-- Android 13 (API 33). -->
+    <string name="setup_battery_steps_api33">Tap App battery usage, then Unrestricted.</string>
+    <!-- Android 14 and later (API 34 and up); read on the Android 16 emulator. -->
+    <string name="setup_battery_steps_api34">Tap App battery usage, then Allow background usage, then Unrestricted.</string>
     <string name="setup_open">Open settings</string>
     <string name="setup_open_for">Open settings for %1$s</string>
     <string name="state_on">On</string>

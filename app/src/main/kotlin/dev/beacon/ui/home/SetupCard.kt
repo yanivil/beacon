@@ -1,5 +1,7 @@
 package dev.beacon.ui.home
 
+import android.os.Build
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,13 @@ import dev.beacon.ui.theme.BeaconType
 import dev.beacon.ui.theme.LocalContentColour
 
 /*
+ * Why the battery steps depend on the Android version: Beacon can only open
+ * its App info page for this grant, and stock Android names the way from
+ * there to "Unrestricted" differently in different versions (spec section 9).
+ * Steps that name labels the person can't find are worse than none, so the
+ * card names the ones their version shows. Where one version changed its
+ * wording in an update (Android 13 and 14), the card uses the last one.
+ *
  * Why a dark card with a thick white border: like the PAUSED card, it must
  * stand out from the rest of Home by more than colour, because until these
  * three things are granted Beacon cannot flash at all (spec section 9).
@@ -49,7 +58,7 @@ internal const val SETUP_PILL_TAG = "setup_pill"
  * The Finish setup card: a heading, a hint and one row per grant.
  *
  * @param status which grants are in place; every row shows its state.
- * @param xiaomi true on a Xiaomi phone, which changes the battery steps.
+ * @param xiaomi true on a Xiaomi phone, which has its own battery steps; other phones get their Android version's.
  * @param onOpen called with the row whose "Open settings" button was tapped.
  */
 @Composable
@@ -76,9 +85,33 @@ fun SetupCard(status: SetupStatus, xiaomi: Boolean, onOpen: (SetupItem) -> Unit)
         }
         SetupRow(SetupItem.NOTIFICATIONS, R.string.setup_notifications, R.string.setup_notifications_reason, null, status, onOpen)
         SetupRow(SetupItem.OVERLAY, R.string.setup_overlay, R.string.setup_overlay_reason, null, status, onOpen)
-        val steps = if (xiaomi) R.string.setup_battery_steps_xiaomi else R.string.setup_battery_steps_other
+        val steps = batteryStepsRes(xiaomi, Build.VERSION.SDK_INT)
         SetupRow(SetupItem.BATTERY, R.string.setup_battery, R.string.setup_battery_reason, steps, status, onOpen)
     }
+}
+
+/**
+ * The battery row's steps: the labels on Beacon's App info page, in the order the person taps them.
+ *
+ * Xiaomi phones keep their own wording on every version. Other phones get the wording of stock
+ * Android's Settings for their version: Android 16's was read on the emulator, the older ones come
+ * from Android's own Settings source and have not been seen on a screen.
+ *
+ * @param xiaomi true on a Xiaomi phone.
+ * @param sdkInt the phone's Android version, as `Build.VERSION.SDK_INT`.
+ * @return the steps string.
+ */
+@StringRes
+internal fun batteryStepsRes(xiaomi: Boolean, sdkInt: Int): Int = when {
+    xiaomi -> R.string.setup_battery_steps_xiaomi
+    // Android 10 and 11: Battery (under Advanced) has no Unrestricted choice, only the Battery optimization list.
+    sdkInt <= Build.VERSION_CODES.R -> R.string.setup_battery_steps_api29
+    // Android 12 and 12L: the Battery page has Unrestricted on it.
+    sdkInt <= Build.VERSION_CODES.S_V2 -> R.string.setup_battery_steps_api31
+    // Android 13: an early update renamed the row App battery usage; its page still has Unrestricted on it.
+    sdkInt == Build.VERSION_CODES.TIRAMISU -> R.string.setup_battery_steps_api33
+    // Android 14 (from a 2024 update) and later, and any newer version: Unrestricted is behind Allow background usage.
+    else -> R.string.setup_battery_steps_api34
 }
 
 /**
