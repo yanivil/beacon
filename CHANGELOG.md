@@ -216,7 +216,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   no drawing session when nothing changed, and none for a rotation. The
   file also lists what stays not tested until the phone is connected.
 - `app/`: Beacon's launcher icon, a black bolt on the design's yellow
-  (230 unit tests). The owner chose it from three ideas. It adds:
+  (313 unit tests). The owner chose it from three ideas. It adds:
   - An adaptive icon, `@mipmap/ic_launcher` and `@mipmap/ic_launcher_round`
     in `res/mipmap-anydpi/`, with vector background, foreground and
     monochrome layers in `res/drawable/`. The manifest now sets
@@ -228,11 +228,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
     `BeaconColors.Accent` and `OnAccent` at 13.93:1; the path is the
     design's bolt; and every corner of the stroked bolt stays inside the
     66 dp safe zone.
-- `docs/checks/2026-11-app-icon.md`: the icon's unit-test and lint
-  results, and its emulator checks (AVD `beacon-api36`, Android 16) on the
-  home screen, in App info, in the widget picker and as a themed icon. The
-  emulator checks are Not tested yet: the emulator was busy with PR 3's
-  checks.
+- `docs/checks/2026-11-app-icon.md`, with screenshots in
+  `docs/checks/app-icon/`: the icon's unit-test and lint results, and its
+  emulator checks (AVD `beacon-api36`, Android 16). The icon shows on the
+  launcher's app list and home screen, on App info, in the widget picker's
+  list and in its opened entry, and, with Themed icons on, as a themed
+  bolt on the home screen. Themed icons were switched off again
+  afterwards.
 
 ### Changed
 

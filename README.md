@@ -176,12 +176,13 @@ no icon of its own; the owner chose this one from three ideas on
   which no launcher mask clips.
 - **Widget picker:** the widget has no preview image of its own, so the
   picker shows this icon too.
-- **Checks:** `LauncherIconTest` (8 unit tests, 230 in all) ties the
+- **Checks:** `LauncherIconTest` (8 unit tests, 313 in all) ties the
   colours to the theme tokens, the path to the design's bolt and the bolt
-  to the safe zone. The emulator checks (launcher, App info, widget picker
-  and themed icons) are Not tested yet, because the emulator is busy with
-  PR 3's checks:
+  to the safe zone. Lint loses its `MissingApplicationIcon` warning. On the
+  emulator the icon shows on the launcher, on App info and in the widget
+  picker, and as a themed icon:
   [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
+  It hasn't run on the test phone yet.
 
 ## What Step 1 found
 
