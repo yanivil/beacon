@@ -13,15 +13,19 @@ import kotlinx.coroutines.withContext
 /*
  * Why one coordinator (ruling 5): a pause change has three parts, the stored
  * pause, the resume alarm and the widget, and they must agree. Home, the
- * widget, the alarm, Beacon coming to the front and the screen turning on
- * all change the pause, so they all come through here, and each change ends
- * the same way: save, set or cancel the alarm for the saved pause, and
- * refresh the widget if the saved pause changed.
+ * widget, the alarm, Beacon coming to the front, the screen turning on and
+ * a time, time-zone or language change all change the pause, so they all
+ * come through here, and each change ends the same way: save, set or
+ * cancel the alarm for the saved pause, and refresh the widget if the saved
+ * pause changed.
  *
- * A started change always finishes (ruling F1): Home's buttons run in the
- * screen's scope, which is cancelled the moment the person leaves Beacon.
- * Stopping half-way would leave the saved pause, the alarm and the widget
- * disagreeing until the next catch-up, so the change runs as non-cancellable.
+ * Closing Beacon can't stop a started change half-way (ruling F1): Home's
+ * buttons run in the screen's scope, which is cancelled the moment the
+ * person leaves Beacon, and stopping there would leave the alarm or the
+ * widget behind the saved pause. So the change runs as non-cancellable.
+ * That covers the caller being cancelled, not Beacon's process being
+ * killed during a change: then the widget refresh can be lost, and a later
+ * catch-up doesn't repair it while the pause stays the same.
  *
  * The widget is refreshed only when the saved pause changed (ruling F3): a
  * refresh starts a Glance session of about 45 seconds under a wake lock, and
