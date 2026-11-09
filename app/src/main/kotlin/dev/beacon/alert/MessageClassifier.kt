@@ -66,6 +66,11 @@ class HandledRecord {
     fun remove(key: String) {
         times.remove(key)
     }
+
+    /** Forgets every key, so a fresh listener connection starts from what is showing then. */
+    fun clear() {
+        times.clear()
+    }
 }
 
 /** Applies the message-detection rules (spec section 6). */

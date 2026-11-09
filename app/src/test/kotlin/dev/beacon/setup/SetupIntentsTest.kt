@@ -2,6 +2,8 @@ package dev.beacon.setup
 
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.IntentFilter
 import android.provider.Settings
@@ -83,5 +85,31 @@ class SetupIntentsTest {
         shadowOf(app).checkActivities(true)
         SetupIntents.open(SetupItem.BATTERY, app)
         assertNull(shadowOf(app).nextStartedActivity)
+    }
+
+    /** A page that throws SecurityException (as some HyperOS pages do) falls back to App info. */
+    @Test fun refusedPageFallsBackToAppInfo() {
+        val started = mutableListOf<Intent>()
+        val refusing = object : ContextWrapper(app) {
+            override fun startActivity(intent: Intent) {
+                // Only the first page is refused; App info is let through.
+                if (started.isEmpty()) {
+                    started += intent
+                    throw SecurityException("refused")
+                }
+                started += intent
+            }
+        }
+        SetupIntents.open(SetupItem.OVERLAY, refusing)
+        assertEquals(2, started.size)
+        assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, started[1].action)
+    }
+
+    /** When every start throws, opening absorbs it and does not crash. */
+    @Test fun everyStartThrowingDoesNotCrash() {
+        val refusing: Context = object : ContextWrapper(app) {
+            override fun startActivity(intent: Intent) = throw SecurityException("refused")
+        }
+        SetupIntents.open(SetupItem.OVERLAY, refusing)
     }
 }

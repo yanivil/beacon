@@ -1,7 +1,6 @@
 package dev.beacon.setup
 
 import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -70,17 +69,19 @@ object SetupIntents {
     fun isXiaomi(manufacturer: String = Build.MANUFACTURER): Boolean = manufacturer.equals("xiaomi", ignoreCase = true)
 
     /**
-     * Starts an intent, absorbing a missing page.
+     * Starts an intent, absorbing a missing or refused page.
      *
      * @param context where to start it from.
      * @param intent what to start.
-     * @return true if it started, false if no activity handles it.
+     * @return true if it started, false if no activity handles it or the phone refused it.
      */
     private fun tryStart(context: Context, intent: Intent): Boolean = try {
         // A non-activity context (such as the application) can only start a page in a new task.
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         true
-    } catch (_: ActivityNotFoundException) {
+    } catch (_: RuntimeException) {
+        // ActivityNotFoundException, plus SecurityException (some HyperOS settings pages) and
+        // IllegalStateException: a setup tap must never crash Beacon, so all fall back.
         false
     }
 

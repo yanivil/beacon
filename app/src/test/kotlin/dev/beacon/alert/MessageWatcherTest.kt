@@ -50,6 +50,8 @@ class MessageWatcherTest {
         assertEquals(AlertState.Idle, controller.state.value)
         settings.value = BeaconSettings.DEFAULT.copy(pause = Pause.Indefinite)
         assertEquals(AlertState.Idle, controller.state.value)
+        // The waiting post resumed inline and was judged against the saved pause, not dropped.
+        assertEquals(listOf<Decision>(Decision.Ignore(IgnoreReason.PAUSED)), logged)
         settings.value = BeaconSettings.DEFAULT.copy(pause = Pause.None)
         watcher.onPosted(facts(key = "k2", time = 2_000))
         assertTrue(controller.state.value is AlertState.Running)
@@ -110,5 +112,15 @@ class MessageWatcherTest {
             listOf(Decision.Alert(MessageSource.SMS), Decision.Ignore(IgnoreReason.ALREADY_HANDLED)),
             logged,
         )
+    }
+
+    /** Pins that a reconnect forgets what was handled before, so a re-posted key alerts again. */
+    @Test fun reconnectClearsTheHandledRecord() {
+        watcher.onPosted(facts())
+        assertTrue(controller.state.value is AlertState.Running)
+        controller.stop(); idle(10)
+        watcher.onConnected(emptyList())
+        watcher.onPosted(facts())
+        assertTrue(controller.state.value is AlertState.Running)
     }
 }

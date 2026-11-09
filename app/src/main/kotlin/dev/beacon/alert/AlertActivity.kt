@@ -71,7 +71,9 @@ class AlertActivity : ComponentActivity() {
             return
         }
         // The window title is what TalkBack reads when the window opens.
-        title = getString(R.string.alert_window_title, getString(running.request.source!!.nameRes))
+        // A real alert always has a source; the empty fallback only avoids a crash.
+        val sourceName = running.request.source?.let { getString(it.nameRes) }.orEmpty()
+        title = getString(R.string.alert_window_title, sourceName)
 
         // Back ends the alert rather than hiding it behind the lock screen or another app.
         onBackPressedDispatcher.addCallback(

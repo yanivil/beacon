@@ -43,6 +43,9 @@ class MessageWatcher(
      * @param showing the facts of every active notification.
      */
     fun onConnected(showing: List<NotificationFacts>) {
+        // Keys removed while the listener was disconnected were never forgotten, and priming
+        // must not lower a newer record: start clean, then prime from what is showing now.
+        seen.clear()
         val sms = defaultSmsPackage()
         showing.forEach { MessageClassifier.prime(it, sms, seen) }
     }
