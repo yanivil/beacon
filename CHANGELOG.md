@@ -580,4 +580,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
     the row's words would have changed every switch's (lint's
     `PrivateResource`). They are now `setup_state_on` and
     `setup_state_off`, and a new test reads each app switch's "On" and
-    "Off" through TalkBack's node info.
+    "Off" through TalkBack's node info. On a phone set to another
+    language, the setup row now says "On" and "Off" in English, like the
+    rest of Beacon, where it used to borrow Compose's translation. The app
+    switches keep Compose's translations.

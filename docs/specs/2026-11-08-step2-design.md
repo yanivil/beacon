@@ -1008,7 +1008,8 @@ is on screen.
 The app rows' "On" and "Off" are Compose's own words (its private
 `state_on` and `state_off`, with its translations). The setup status has
 strings of its own, `setup_state_on` and `setup_state_off`, so changing
-its words can't change what the switches say (section 12).
+its words can't change what the switches say (section 12). Like the rest
+of Beacon's text, they are English until Beacon is translated.
 
 **The widget has no role.** Glance 1.2 can't give a widget's views a role,
 so TalkBack doesn't say "Button" for it; on the emulator it says
@@ -1055,9 +1056,12 @@ reaches TalkBack as a subtree change of the live region:
   plurals for minutes, seconds and the blink speeds' line ("30 blinks a
   minute"). This covers spoken labels, widget text and the app name.
   Kotlin code holds no visible text.
-- **Names:** no Beacon string takes the name of a library's resource
-  (lint's `PrivateResource`). A string with the same name would replace
-  the library's English text, and nothing would show it.
+- **Names:** no Beacon string takes the name of a library's resource.
+  A string with the same name would replace the library's English text,
+  and nothing at run time would show it; lint's `PrivateResource` flags it
+  only when the library marks its resource private. The lint clean-up
+  checked all of Beacon's names against the libraries' and found none
+  shared.
 - **Direction:** the manifest sets `supportsRtl="true"`. Layouts use start
   and end only.
 - **Icons:** icons that point, such as the chevron, are mirrored for
@@ -1263,8 +1267,10 @@ It deals with lint's ten warnings about Beacon's own code and resources:
 - four shared composables take `modifier` as their first optional
   parameter;
 - three warnings are ignored where they stand, each with its reason
-  (sections 5 and 10), and `compileSdk` and `targetSdk` stay at 36, as
-  `CLAUDE.md` says.
+  (sections 5 and 10).
+
+Also, `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says. So
+lint's two reminders that 37 exists are silenced on those two lines.
 
 Lint then reports 0 errors and 8 warnings, all about newer versions of
 Gradle and the libraries, for the owner to decide on.

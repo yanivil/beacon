@@ -40,13 +40,20 @@ The other ten are about newer versions:
   - The old names were the same as Compose's private `state_on` and
     `state_off`, which TalkBack reads for every switch. So Beacon's strings
     replaced Compose's English text, with the same words. Compose's
-    translations still applied: `main`'s APK holds 86 language values
-    under that name besides Beacon's English one.
-  - Nothing sounded different, but a change to the setup row's words would
-    have changed every switch's.
-  - Cost if wrong: none. The English text is the same, and the app rows'
-    "On" and "Off" now come from Compose itself; a new test reads them
-    through TalkBack's node info.
+    translations still applied: `main`'s APK holds 85 translated values
+    under that name besides the default.
+  - Nothing sounded different in English, but a change to the setup row's
+    words would have changed every switch's.
+  - One change outside English: on a phone set to another language, the
+    setup row borrowed Compose's translation under the old names (in
+    Hebrew, "מצב פעיל"). Under its own names it says "On" and "Off" in
+    English, like the rest of Beacon, which has no translations yet
+    (spec section 12). The app switches keep Compose's translations.
+  - Cost if wrong: none in English. The app rows' "On" and "Off" now come
+    from Compose itself, and a new test reads them through TalkBack's node
+    info. A translation of Beacon has to translate `setup_state_on` and
+    `setup_state_off` too. That happens anyway, since they are in
+    `strings.xml`.
 - **L3. `modifier` is the first optional parameter** of the four shared
   composables, as Compose's guidelines ask. The KDoc follows the new order.
   - Every swapped parameter has a different type from `Modifier`, so a call
@@ -88,7 +95,8 @@ The other ten are about newer versions:
 | Check | Result |
 |---|---|
 | `./gradlew :app:testDebugUnitTest` | Passes: 327 tests, 0 failures. That is the 324 on `main`, plus 3 new ones: `everySpeedShowsItsRate` and `speedRateIsAPlural` in `AlertSettingsScreenTest`, and `appSwitchesSpeakOnAndOff` in `HomeScreenTest`. |
-| The new tests can fail | `speedRateIsAPlural` didn't compile before `speed_rate` became a plural. In `appSwitchesSpeakOnAndOff`, a `state_on` string of "Yes" planted in `strings.xml` failed with `expected:<[On]> but was:<[Yes]>`, and the file was then restored. |
+| The new tests can fail | `speedRateIsAPlural` didn't compile before `speed_rate` became a plural. In `appSwitchesSpeakOnAndOff`, a `state_on` string of "Yes" planted in `strings.xml` failed with `expected:<[On]> but was:<[Yes]>`, and the file was then restored. `everySpeedShowsItsRate` and `appSwitchesSpeakOnAndOff` would also pass on `main`, since the English words didn't change: they pin those words, and lint's `PrivateResource` is what stops a string taking a library's name again. |
+| No shared names | None of Beacon's 105 string and plural names is among the 35 in the libraries' default `values.xml` files (from `mergeDebugResources/merger.xml`), so no other Beacon string replaces a library's. |
 | `./gradlew :app:lintDebug` | Passes: 0 errors, 8 warnings, all of them the version warnings of ruling L7. |
 | Merged manifest | The same as `main`'s apart from the new comment. `tools:ignore` doesn't reach it. |
 | Compiled APK | `aapt2 dump xmltree` of `AndroidManifest.xml` and `res/xml/beacon_widget_info.xml` matches the APK built from `main` (PR 4's build, pulled from the emulator). The only differences are line numbers and resource ids, which moved with the two new strings. |
@@ -117,5 +125,7 @@ was left on Home, with `/sdcard/ui.xml` removed.
 - **TalkBack reading "On" and "Off" on a device:** covered by the unit test
   through the node info TalkBack gets, but not heard on the emulator or the
   phone.
+- **The setup row in another system language** (ruling L2): it now says
+  "On" and "Off" in English. Not run on a device set to another language.
 - **Backup on Android 10 and 11** (ruling L4): no such device was used.
 - **Everything on the test phone** (Redmi 15C 5G).

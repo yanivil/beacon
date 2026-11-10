@@ -185,7 +185,9 @@ class HomeScreenTest {
     @Test fun appSwitchesSpeakOnAndOff() {
         show()
         val rows = rule.onAllNodes(isToggleable())
+        // SMS and WhatsApp are on by default, Telegram off.
         assertEquals("On", accessibilityNodeInfo(rows[0].fetchSemanticsNode()).stateDescription?.toString())
+        assertEquals("On", accessibilityNodeInfo(rows[1].fetchSemanticsNode()).stateDescription?.toString())
         assertEquals("Off", accessibilityNodeInfo(rows[2].fetchSemanticsNode()).stateDescription?.toString())
     }
 

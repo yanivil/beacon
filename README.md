@@ -239,14 +239,18 @@ and hears in English doesn't change.
   words, which TalkBack reads for every switch, with the same words, so
   nothing sounded different. But any later change to the setup row's words
   would have changed every switch too. They now have names of their own
-  (`setup_state_on`, `setup_state_off`).
+  (`setup_state_on`, `setup_state_off`). On a phone set to another
+  language, the setup row now says "On" and "Off" in English, like the
+  rest of Beacon, where it used to borrow Compose's translation. The app
+  switches keep Compose's translations.
 - **Code order:** four shared composables take `modifier` as their first
   optional parameter, as Compose's guidelines ask.
 - **Kept on purpose, with the reason beside each:**
   - The widget's target cell size, which only Android 12 and later read.
   - Backup: there are no separate rules for Android 10 and 11, because
     `allowBackup="false"` already turns backup off there.
-  - `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says.
+  - `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says, so
+    lint's two reminders that 37 exists are silenced on those two lines.
 - **Left for the owner:** 8 warnings about newer versions of Gradle, the
   Compose BOM and test libraries, Lifecycle, Core KTX and the Kotlin
   Compose plugin.
