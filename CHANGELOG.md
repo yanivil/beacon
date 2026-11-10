@@ -269,6 +269,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
   Every changed setting was restored. It also lists what stays not
   tested: the refusal on any device, the older Android versions' steps,
   and every phone check.
+- `docs/checks/2026-11-lint-cleanup.md`, with a screenshot in
+  `docs/checks/lint-cleanup/`: the lint clean-up's rulings L1 to L7, each
+  with what it costs if wrong, and its checks. It has 327 unit tests (3
+  new), and lint at 0 errors and 8 warnings. The merged manifest and the
+  compiled manifest and widget file match `main`'s. On the emulator (AVD
+  `beacon-api36`, Android 16) the speed lines read as before. It also lists
+  what stays not tested: TalkBack on a device, backup on Android 10 and
+  11, and every phone check.
 
 ### Changed
 
@@ -475,6 +483,32 @@ and the project uses [Semantic Versioning](https://semver.org/).
   amended while building; rulings 2 and 4 weren't. Task 2's step 3 says
   why its `@Config(sdk = …)` tests became plain JUnit.
 
+- The lint clean-up, in `app/` (no change anyone sees or hears in
+  English):
+  - `AdaptiveGrid`, `FilledButton`, `OutlineButton` and `OptionButton`
+    take `modifier` as their first optional parameter (lint's
+    `ModifierParameter`). Their KDoc follows the new order.
+  - The manifest's `<application>` ignores lint's `DataExtractionRules`
+    and `beacon_widget_info.xml` ignores `UnusedAttribute`, each with its
+    reason in a comment. The compiled files don't change.
+  - `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says. Lint's
+    two reminders that 37 exists are silenced on those lines only.
+  - Lint now reports 0 errors and 8 warnings, all about newer versions of
+    Gradle and the libraries, left for the owner.
+- `README.md`: PR 4 marked merged (yanivil/beacon#10, on 9 November
+  2026). The lint clean-up built on `fix/lint-warnings`, with a link to
+  its checks and a "The lint clean-up" section. "Building" gains the lint
+  command and what it should report.
+- `docs/specs/2026-11-08-step2-design.md`, for the lint clean-up:
+  - Status: PR 4 merged; the lint clean-up built.
+  - Section 5: why backup needs no rules of its own on Android 10 and 11.
+  - Section 10: only Android 12 and later read the widget's target cells.
+  - Section 11: the app rows' "On" and "Off" are Compose's own words, and
+    the setup status has its own strings.
+  - Section 12: the blink speeds' line is a plural, and no Beacon string
+    takes a library resource's name.
+  - Section 16: PR 4 merged, and a paragraph for the lint clean-up.
+
 ### Fixed
 
 - PR 2's carry-overs, in `app/` (Step 2's PR 4):
@@ -536,3 +570,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
   manifest's removal entry for WorkManager's foreground service tells lint
   to ignore `MissingClass`, because the class is declared only in
   WorkManager's own manifest.
+- The lint clean-up, in `app/`:
+  - The speed line ("30 blinks a minute") was a plain string with a number
+    in it, so a translation couldn't change its words with the number. It
+    is now a plural, with "one" and "other" (lint's `PluralsCandidate`).
+  - The setup row's "On" and "Off" strings had the names of Compose's
+    private `state_on` and `state_off`. That replaced the English words
+    TalkBack reads for every switch, with the same words, so a change to
+    the row's words would have changed every switch's (lint's
+    `PrivateResource`). They are now `setup_state_on` and
+    `setup_state_off`, and a new test reads each app switch's "On" and
+    "Off" through TalkBack's node info.

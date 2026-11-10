@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 built on `feature/step2-carryovers`: PR 2's last two carry-overs, the camera light's refusal reported to the alert controller (section 7) and the battery steps for each Android version (section 9). |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up built on `fix/lint-warnings` (sections 5, 10, 11, 12 and 16). |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -194,7 +194,11 @@ data class BeaconSettings(
 - **Access:** all reads and writes go through `SettingsRepository`. It
   exposes `settings: Flow<BeaconSettings>` and one function per change.
 - **Backup:** Android backup is turned off (`allowBackup="false"`, and data
-  extraction rules exclude everything), so nothing leaves the phone.
+  extraction rules exclude everything), so nothing leaves the phone. On
+  Android 10 and 11, `allowBackup="false"` alone stops every backup and
+  transfer, so there are no `fullBackupContent` rules for them. Lint's
+  `DataExtractionRules` warning, which asks for them, is ignored on the
+  `<application>` element for that reason.
 
 ### Pause
 
@@ -790,7 +794,10 @@ The icons are decorative. The whole widget is one tap target.
 - **Size:** 4 × 2 cells by default (`targetCellWidth` 4, `targetCellHeight`
   2). `minWidth` and `minResizeWidth` are 250 dp, `minHeight` and
   `minResizeHeight` 110 dp. `updatePeriodMillis` is 0: there are no
-  periodic updates.
+  periodic updates. Only Android 12 and later read the target cells;
+  Android 10 and 11 size the widget from `minWidth` and `minHeight`.
+  Lint's `UnusedAttribute` warning about this is ignored in
+  `beacon_widget_info.xml`.
 - **The minimum is in dp, not cells.** Android takes a widget's minimum
   size in dp, and each launcher turns it into cells with its own cell
   size. So 250 × 110 dp can't promise 4 × 2: a launcher whose columns are
@@ -998,6 +1005,11 @@ Headings are marked as headings for TalkBack.
 Spoken labels always contain the visible text, so voice control matches what
 is on screen.
 
+The app rows' "On" and "Off" are Compose's own words (its private
+`state_on` and `state_off`, with its translations). The setup status has
+strings of its own, `setup_state_on` and `setup_state_off`, so changing
+its words can't change what the switches say (section 12).
+
 **The widget has no role.** Glance 1.2 can't give a widget's views a role,
 so TalkBack doesn't say "Button" for it; on the emulator it says
 "Double-tap to activate" after the label. The label starts with the state
@@ -1040,8 +1052,12 @@ reaches TalkBack as a subtree change of the live region:
 ## 12. Strings and right-to-left
 
 - **Strings:** all user-facing text is in `res/values/strings.xml`, with
-  plurals for minutes and seconds. This covers spoken labels, widget text
-  and the app name. Kotlin code holds no visible text.
+  plurals for minutes, seconds and the blink speeds' line ("30 blinks a
+  minute"). This covers spoken labels, widget text and the app name.
+  Kotlin code holds no visible text.
+- **Names:** no Beacon string takes the name of a library's resource
+  (lint's `PrivateResource`). A string with the same name would replace
+  the library's English text, and nothing would show it.
 - **Direction:** the manifest sets `supportsRtl="true"`. Layouts use start
   and end only.
 - **Icons:** icons that point, such as the chevron, are mirrored for
@@ -1230,13 +1246,28 @@ above. Its emulator checks are in
 
 PR 4: built on `feature/step2-carryovers`, from the plan
 [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](../plans/2026-11-09-step2-pr4-carryovers.md),
-not merged yet. Its emulator checks are in
+and merged as yanivil/beacon#10 on 9 November 2026. Its emulator checks are in
 [`docs/checks/2026-11-step2-pr4.md`](../checks/2026-11-step2-pr4.md): the
 battery path on stock Android 16, and the new steps followed word for word
 from "Optimized" and from "Restricted" (fix round 0, after the first
 wording's "Allow background usage" step could lead to the switch that
 restricts Beacon), with the row at font 2.0. The refusal has unit tests
 only (the plan's ruling 4).
+
+Lint clean-up: built on `fix/lint-warnings`, a PR of its own after PR 4,
+with no plan of its own: its rulings are in its PR and its checks file,
+[`docs/checks/2026-11-lint-cleanup.md`](../checks/2026-11-lint-cleanup.md).
+It deals with lint's ten warnings about Beacon's own code and resources:
+- the speed line becomes a plural (section 12);
+- the setup status gets strings of its own (sections 11 and 12);
+- four shared composables take `modifier` as their first optional
+  parameter;
+- three warnings are ignored where they stand, each with its reason
+  (sections 5 and 10), and `compileSdk` and `targetSdk` stay at 36, as
+  `CLAUDE.md` says.
+
+Lint then reports 0 errors and 8 warnings, all about newer versions of
+Gradle and the libraries, for the owner to decide on.
 
 ## 17. Not tested at the end of Step 2 (expected)
 
