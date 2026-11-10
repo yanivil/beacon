@@ -7,11 +7,16 @@ plugins {
 
 android {
     namespace = "dev.beacon"
+    // CLAUDE.md fixes compileSdk and targetSdk at 36, so lint's reminders that
+    // 37 exists (GradleDependency here, OldTargetApi below) are silenced for
+    // these two lines only. Raise both when the owner changes that rule.
+    //noinspection GradleDependency
     compileSdk = 36
 
     defaultConfig {
         applicationId = "dev.beacon"
         minSdk = 29
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"

@@ -64,9 +64,9 @@ internal const val LEADING_ICON_TAG = "button_leading_icon"
  * @param icon an optional decorative icon before the text, or null.
  * @param minHeight the design's height; never less than 64 dp is used.
  * @param style the text style, such as BeaconType.Button.
+ * @param modifier the modifier for the button.
  * @param cornerRadius the corner radius (18 dp by default; 20 for Test alert, 24 for Stop).
  * @param border an optional border, such as Stop's 4 dp black one.
- * @param modifier the modifier for the button.
  * @param enabled false to ignore taps and have TalkBack say "Disabled".
  * @param secondaryText optional text after [text], in Sub (20 sp, 700) and
  *   the same colour, such as "(3 sec)"; it is part of the spoken label.
@@ -80,9 +80,9 @@ fun FilledButton(
     icon: ImageVector?,
     minHeight: Dp,
     style: TextStyle,
+    modifier: Modifier = Modifier,
     cornerRadius: Dp = 18.dp,
     border: BorderStroke? = null,
-    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     secondaryText: String? = null,
 ) {
@@ -105,8 +105,8 @@ fun FilledButton(
  * @param icon an optional decorative icon before the text, or null.
  * @param minHeight the design's height; never less than 64 dp is used.
  * @param style the text style, such as BeaconType.SmallButton.
- * @param cornerRadius the corner radius (18 dp by default).
  * @param modifier the modifier for the button.
+ * @param cornerRadius the corner radius (18 dp by default).
  * @param enabled false to grey the button out, dash its border, ignore taps and have TalkBack say "Disabled".
  * @param trailingIcon an optional decorative icon after the text, in the same
  *   colour, or null; an auto-mirrored icon such as the chevron flips in
@@ -120,8 +120,8 @@ fun OutlineButton(
     icon: ImageVector?,
     minHeight: Dp,
     style: TextStyle,
-    cornerRadius: Dp = 18.dp,
     modifier: Modifier = Modifier,
+    cornerRadius: Dp = 18.dp,
     enabled: Boolean = true,
     trailingIcon: ImageVector? = null,
 ) {

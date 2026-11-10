@@ -138,7 +138,7 @@ internal fun batteryStepsRes(manufacturer: String, sdkInt: Int): Int = when {
 private fun SetupRow(item: SetupItem, nameRes: Int, reasonRes: Int, stepsRes: Int?, status: SetupStatus, onOpen: (SetupItem) -> Unit) {
     val name = stringResource(nameRes)
     val on = status.isOn(item)
-    val state = stringResource(if (on) R.string.state_on else R.string.state_off)
+    val state = stringResource(if (on) R.string.setup_state_on else R.string.setup_state_off)
     val openFor = stringResource(R.string.setup_open_for, name)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         // The name, reason and pill read as one item with the state; the pill wraps under the text at large fonts.

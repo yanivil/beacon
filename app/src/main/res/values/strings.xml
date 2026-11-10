@@ -47,7 +47,11 @@
     <string name="speed_slow">Slow</string>
     <string name="speed_medium">Medium</string>
     <string name="speed_fast">Fast</string>
-    <string name="speed_rate">%1$d blinks a minute</string>
+    <!-- A plural, so a translation can change its words with the number. The presets are 30, 60 and 90. -->
+    <plurals name="speed_rate">
+        <item quantity="one">%1$d blink a minute</item>
+        <item quantity="other">%1$d blinks a minute</item>
+    </plurals>
     <string name="speed_fast_note">Highest safe speed</string>
     <string name="speed_summary">%1$s, %2$d a minute</string>
     <string name="colour_heading">Screen flash color</string>
@@ -110,8 +114,12 @@
     <string name="setup_battery_steps_api34">Tap App battery usage. Tap the words Allow background usage, not its switch. If the next page’s switch is off, turn it on. Then tap Unrestricted.</string>
     <string name="setup_open">Open settings</string>
     <string name="setup_open_for">Open settings for %1$s</string>
-    <string name="state_on">On</string>
-    <string name="state_off">Off</string>
+    <!-- The setup row's spoken state. Named setup_state_*: Compose's own private state_on and
+         state_off are what TalkBack reads for every switch, and a string of the same name here
+         would replace their English text, so changing the row's words would change every
+         switch's (lint's PrivateResource). Compose's translations would still apply. -->
+    <string name="setup_state_on">On</string>
+    <string name="setup_state_off">Off</string>
 
     <!-- Home-screen widget -->
     <string name="widget_tap_pause">Tap to pause for 1 hour</string>
