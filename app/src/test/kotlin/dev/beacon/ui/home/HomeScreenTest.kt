@@ -57,6 +57,7 @@ import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.formatResumeTime
 import dev.beacon.ui.assertNoTextOverflow
+import dev.beacon.ui.accessibilityNodeInfo
 import dev.beacon.ui.components.TRAILING_ICON_TAG
 import dev.beacon.ui.theme.BeaconTheme
 import org.junit.Assert.assertEquals
@@ -173,6 +174,21 @@ class HomeScreenTest {
         rows[0].assertTextContains("Texts (SMS)", substring = true).assertIsOn()
         rows[1].assertTextContains("WhatsApp messages", substring = true).assertIsOn()
         rows[2].assertTextContains("Telegram", substring = true).assertIsOff().assertTextContains("No flash", substring = true)
+    }
+
+    /**
+     * TalkBack hears each app switch's state as "On" or "Off", through the real node info. The words are
+     * Compose's own (its private state_on and state_off); the setup row has its own strings, so Beacon
+     * no longer replaces Compose's. A tall window, because Compose gives no node info for a row off screen.
+     */
+    @Config(qualifiers = "w411dp-h2400dp")
+    @Test fun appSwitchesSpeakOnAndOff() {
+        show()
+        val rows = rule.onAllNodes(isToggleable())
+        // SMS and WhatsApp are on by default, Telegram off.
+        assertEquals("On", accessibilityNodeInfo(rows[0].fetchSemanticsNode()).stateDescription?.toString())
+        assertEquals("On", accessibilityNodeInfo(rows[1].fetchSemanticsNode()).stateDescription?.toString())
+        assertEquals("Off", accessibilityNodeInfo(rows[2].fetchSemanticsNode()).stateDescription?.toString())
     }
 
     /** Tapping a row toggles that app. */

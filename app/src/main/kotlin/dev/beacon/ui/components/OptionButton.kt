@@ -44,9 +44,9 @@ import dev.beacon.ui.theme.BeaconType
  * @param selected true when this is the chosen option.
  * @param onSelect called when the option is tapped.
  * @param minHeight the design's height; never less than 64 dp is used.
+ * @param modifier the modifier for the option.
  * @param stacked true for the duration grid's layout (circle on top, text
  *   below); false for a row with the circle on the start side.
- * @param modifier the modifier for the option.
  * @param sub the lines under the label, such as "90 blinks a minute", in 20 sp.
  * @param labelStyle the label's text style; 28 sp by default, 24 sp for the colour-mode options.
  */
@@ -56,8 +56,8 @@ fun OptionButton(
     selected: Boolean,
     onSelect: () -> Unit,
     minHeight: Dp,
-    stacked: Boolean = false,
     modifier: Modifier = Modifier,
+    stacked: Boolean = false,
     sub: List<String> = emptyList(),
     labelStyle: TextStyle = BeaconType.OptionLabel,
 ) {

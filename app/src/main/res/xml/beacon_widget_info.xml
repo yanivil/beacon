@@ -9,8 +9,15 @@
      minHeight, not the target cells, so it may open at 3 x 2. No periodic
      updates: the coordinator refreshes it after every pause change, and
      the resume alarm at a pause's end. Glance draws the content; its own
-     loading layout shows until then. -->
+     loading layout shows until then.
+     Lint's UnusedAttribute is ignored here: targetCellWidth and
+     targetCellHeight are only read from Android 12 (API 31), and Android 10
+     and 11 fall back to minWidth and minHeight, as described above. The
+     ignore covers this whole element, so lint won't warn about any other
+     newer attribute added here later: check each one by hand. -->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedAttribute"
     android:description="@string/widget_description"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:minWidth="250dp"

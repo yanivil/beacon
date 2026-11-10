@@ -229,6 +229,30 @@ class AlertSettingsScreenTest {
         assertEquals(BlinkSpeed.FAST, last.speed)
     }
 
+    /** Each speed shows its own rate line: 30, 60 and 90 blinks a minute. */
+    @Test fun everySpeedShowsItsRate() {
+        show()
+        rule.onNode(hasRole(Role.RadioButton) and hasText("Slow", substring = true))
+            .assertTextContains("30 blinks a minute", substring = true)
+        rule.onNode(hasRole(Role.RadioButton) and hasText("Medium", substring = true))
+            .assertTextContains("60 blinks a minute", substring = true)
+        rule.onNode(hasRole(Role.RadioButton) and hasText("Fast", substring = true))
+            .assertTextContains("90 blinks a minute", substring = true)
+    }
+
+    /**
+     * The rate line is a plural, so a translation can change its words with the number (lint's
+     * PluralsCandidate). The presets are all "other" in English; "one" is checked so its grammar is right too.
+     */
+    @Test fun speedRateIsAPlural() {
+        val res = ApplicationProvider.getApplicationContext<Context>().resources
+        assertEquals("1 blink a minute", res.getQuantityString(dev.beacon.R.plurals.speed_rate, 1, 1))
+        BlinkSpeed.entries.forEach { speed ->
+            val n = speed.blinksPerMinute
+            assertEquals("$n blinks a minute", res.getQuantityString(dev.beacon.R.plurals.speed_rate, n, n))
+        }
+    }
+
     /** In same-colour mode there is exactly one swatch grid. */
     @Test fun sameColourShowsOneSwatchGrid() {
         show()

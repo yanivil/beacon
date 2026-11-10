@@ -47,17 +47,17 @@ fun gridColumns(maxWidth: Dp, fontScale: Float): Int = if (maxWidth.value / font
  * cannot answer them.
  *
  * @param count how many items there are.
- * @param spansFullRow true for an item that takes a whole row of its own,
- *   such as the White swatch.
  * @param modifier the modifier for the grid; any padding in it is taken off
  *   the width before the columns are chosen.
+ * @param spansFullRow true for an item that takes a whole row of its own,
+ *   such as the White swatch.
  * @param item draws the item at the given index.
  */
 @Composable
 fun AdaptiveGrid(
     count: Int,
-    spansFullRow: (Int) -> Boolean = { false },
     modifier: Modifier = Modifier,
+    spansFullRow: (Int) -> Boolean = { false },
     item: @Composable (Int) -> Unit,
 ) {
     BoxWithConstraints(modifier) {

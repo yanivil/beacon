@@ -7,6 +7,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.beacon.R
@@ -43,7 +44,8 @@ fun SpeedSection(settings: BeaconSettings, actions: SettingsActions) {
                     minHeight = 96.dp,
                     modifier = Modifier.fillMaxWidth(),
                     sub = buildList {
-                        add(stringResource(R.string.speed_rate, speed.blinksPerMinute))
+                        // A plural (lint's PluralsCandidate): the count picks the form, then fills it.
+                        add(pluralStringResource(R.plurals.speed_rate, speed.blinksPerMinute, speed.blinksPerMinute))
                         // Fast is the highest safe speed; say so in words.
                         if (speed == BlinkSpeed.FAST) add(stringResource(R.string.speed_fast_note))
                     },

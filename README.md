@@ -56,12 +56,16 @@ contrast, big touch targets and plain wording.
         design's yellow, merged as yanivil/beacon#9 on 9 November 2026.
         Emulator checks:
         [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
-      - [ ] **PR 4:** PR 2's last two carry-overs, built on
-        `feature/step2-carryovers` and not merged yet. Plan:
+      - [x] **PR 4:** PR 2's last two carry-overs, merged as
+        yanivil/beacon#10 on 9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](docs/plans/2026-11-09-step2-pr4-carryovers.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
         Nothing in it has run on the test phone yet.
+      - [ ] **Lint clean-up:** lint's ten warnings about Beacon's own code
+        and resources, built on `fix/lint-warnings` and not merged yet.
+        Checks:
+        [`docs/checks/2026-11-lint-cleanup.md`](docs/checks/2026-11-lint-cleanup.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -222,6 +226,35 @@ no icon of its own; the owner chose this one from three ideas on
   [`docs/checks/2026-11-app-icon.md`](docs/checks/2026-11-app-icon.md).
   It hasn't run on the test phone yet.
 
+## The lint clean-up
+
+Lint had 0 errors and 20 warnings after PR 4. Ten were about Beacon's own
+code and resources, and this clean-up deals with all ten. What a person sees
+and hears in English doesn't change.
+
+- **Speed line:** "30 blinks a minute" is now a plural, so a translation
+  can change its words with the number.
+- **Spoken On and Off:** the setup row's own "On" and "Off" strings had the
+  same names as Compose's private ones. That replaced Compose's English
+  words, which TalkBack reads for every switch, with the same words, so
+  nothing sounded different. But any later change to the setup row's words
+  would have changed every switch too. They now have names of their own
+  (`setup_state_on`, `setup_state_off`). On a phone set to another
+  language, the setup row now says "On" and "Off" in English, like the
+  rest of Beacon, where it used to borrow Compose's translation. The app
+  switches keep Compose's translations.
+- **Code order:** four shared composables take `modifier` as their first
+  optional parameter, as Compose's guidelines ask.
+- **Kept on purpose, with the reason beside each:**
+  - The widget's target cell size, which only Android 12 and later read.
+  - Backup: there are no separate rules for Android 10 and 11, because
+    `allowBackup="false"` already turns backup off there.
+  - `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says, so
+    lint's two reminders that 37 exists are silenced on those two lines.
+- **Left for the owner:** 8 warnings about newer versions of Gradle, the
+  Compose BOM and test libraries, Lifecycle, Core KTX and the Kotlin
+  Compose plugin.
+
 ## What Step 1 found
 
 On the test phone, Beacon works if the person grants three things:
@@ -295,6 +328,14 @@ Run the unit tests:
 
 ```bash
 ./gradlew :app:testDebugUnitTest
+```
+
+Check the code with lint. The report goes to `app/build/reports/`. It
+should show no errors, and its only warnings should be about newer
+dependency versions, which the owner decides on:
+
+```bash
+./gradlew :app:lintDebug
 ```
 
 Install it on one device or emulator, named by its serial (see
