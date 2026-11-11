@@ -8,6 +8,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- The repository is public since 11 November 2026, with private
+  vulnerability reporting, secret scanning and push protection, Dependabot
+  alerts and security updates, approval for outside contributors'
+  workflows, and the "Protect main" ruleset (no deletion, no force push, a
+  pull request for every change). `docs/checks/2026-11-public-repo-audit.md`
+  records each setting.
 - `SECURITY.md`, for a public repository: how to report a security or
   privacy problem privately, and what Beacon reads and keeps. A Security
   section in `README.md` points to it.
