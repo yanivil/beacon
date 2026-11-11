@@ -1,7 +1,16 @@
 # Version catalog: the single place where dependency versions live.
 [versions]
 agp = "9.5.1"
-kotlin = "2.2.10"
+# The Compose compiler plugin's version, which is also the Kotlin version:
+# AGP 9.5.1's built-in Kotlin is 2.2.10, and Gradle takes the higher of the
+# two, so the compiler and this plugin always match. It also sets the
+# kotlin-stdlib the app ships.
+kotlin = "2.4.21"
+# Compose, lifecycle and core stay at these versions on purpose. Compose 1.12
+# (BOM 2026.09.00), lifecycle 2.11 and core 1.19 need compileSdk 37 (their
+# AAR metadata says minCompileSdk=37), and CLAUDE.md fixes compileSdk at 36.
+# Lint's 6 newer-version warnings on these lines stay until the owner
+# decides about compileSdk 37.
 composeBom = "2026.06.01"
 composeUi = "1.11.4"
 activityCompose = "1.13.0"
