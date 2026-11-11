@@ -150,7 +150,7 @@ formats. No new software. They live in
 |---|---|---|
 | App icon | 512 × 512, 32-bit PNG | The launcher icon: the black bolt on the design's yellow. |
 | Feature graphic | 1024 × 500, JPEG (Play takes JPEG or a 24-bit PNG; neither has transparency) | "Beacon" and the bolt on the yellow, with one short line such as "See every message", in the app's colours. |
-| Phone screenshots | 4 or 5, JPEG, no transparency; each side 320 to 3,840 pixels, the long side at most twice the short one | From the emulator at the default text size, in English: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the widget. The emulator's 1080 × 2400 screens are cropped to 1080 × 2160 to fit the 2:1 limit. |
+| Phone screenshots | 5, JPEG, no transparency, **9:16** (Play Console asks for 16:9 or 9:16, each side 320 to 3,840 pixels; at least 4 of at least 1,080 pixels on each side for promotion) | From the emulator at the default text size, in English, with its screen set to 1080 × 1920: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the home screen with only the widget (the launcher's app suggestions turned off, so no other app's icon shows). |
 
 The screenshots come from the emulator, so they contain no personal data.
 Contrast and text sizes are the app's own, which already meet the project's
