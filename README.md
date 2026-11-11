@@ -114,7 +114,8 @@ contrast, big touch targets and plain wording.
       - [x] **The widget's pause on battery:** the owner's second cable-out
         check, that evening. Alerts came back on time after a 1-hour pause,
         and the widget came back to ON when an alert lit the screen; the
-        widget's own alarm never fired. Checks:
+        widget's own alarm never fired. A message during a second pause,
+        with the phone locked, didn't flash. Checks:
         [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
@@ -536,6 +537,11 @@ from the phone's own records. Nothing in the code changed.
   widget back at the end of a pause, but that alarm never got its turn.
   When the alert lit up the screen, Beacon switched the widget back to ON
   itself, within a second, and cancelled the alarm.
+- **A message during a pause:** later that evening, with a second pause
+  on and the phone locked and asleep, a WhatsApp message didn't flash, and
+  Beacon's log gives the pause as the reason. An earlier message, sent with
+  the phone unlocked, didn't flash either, but because the phone was in
+  use.
 - **Seen once:** the first alert's light came on about 4 seconds after the
   message reached WhatsApp. The likely cause is the phone going to sleep
   just as Beacon asked to keep it awake.
@@ -544,8 +550,8 @@ from the phone's own records. Nothing in the code changed.
 
 ### Still not tested
 
-- A message during the pause, and the widget showing PAUSED during the hour
-  (the phone checks saw PAUSED after a tap).
+- The widget showing PAUSED during a pause (the phone checks saw PAUSED
+  after a tap).
 - The widget's alarm firing while the phone sleeps, and the widget coming
   back to ON when no message wakes the screen.
 - A plain SMS from the phone network: the messages to the SMS app may have

@@ -3,9 +3,11 @@
 This page records the owner's second cable-out check on the test phone, on
 11 November 2026. One tap on the widget set a 1-hour pause just before the
 phone came off the cable. The phone then lay locked on battery, mostly in
-Doze's deep idle, and then messages came. The
-page records how alerts and the widget came back on after the pause (spec
-section 1, "Done means" 4). Nothing in the code changed.
+Doze's deep idle, and then messages came. The page records how alerts and
+the widget came back on after the pause (spec section 1, "Done means" 4).
+Later that evening a second pause showed a message being held back during
+a pause ([below](#a-message-during-a-pause-later-that-evening)). Nothing in
+the code changed.
 
 Results are labelled **"Tested on Redmi 15C 5G, Android 16"** or **"Not
 tested"**.
@@ -121,12 +123,49 @@ running, the widget wasn't redrawn: Android logged widget redraws only at
 - **The SMS alert's 3.2 seconds** all came before Beacon decided, with no
   wake-lock wait. Its cause wasn't looked at.
 
+## A message during a pause, later that evening
+
+The owner set a second 1-hour pause and sent messages during it: first
+with the phone unlocked, then with it locked. They reported that the
+message didn't flash. The evidence comes from the same records. The battery
+history starts again at 21:06:47, when the phone came off the cable once
+more; this time its clock and the log agree to within a tenth of a second.
+
+| Time | Event |
+|---|---|
+| 21:04:59.7 | The phone was unlocked with its password. |
+| 21:05:00.810 | The widget was tapped. Beacon's settings file was written at 21:05:00.825 and holds a timed pause until 22:05:00.824, and the resume alarm was set for that time. The widget was redrawn at 21:05:01.1. |
+| 21:05:11.979 | A WhatsApp message came with the phone unlocked and in use, and Beacon ignored it as `IN_USE`. Beacon checks whether the phone is in use before it checks the pause, so this message doesn't show the pause at work. |
+| 21:06:47 | The phone came off the cable. |
+| 21:06:48.8 | The power button put the phone to sleep, and the lock screen came up at 21:06:49.2. |
+| 21:09:34 | Doze's deep idle began. It lasted until the unlock at 21:13:38.7. |
+| 21:13:30.571 | WhatsApp posted a message notification. |
+| 21:13:30.831 | Beacon ignored it as `PAUSED`, a quarter of a second later. Nothing flashed: after 21:05 the log has no alert wake lock, no camera light and no alert screen from Beacon. |
+| 21:13:31.1 | The screen woke for WhatsApp's notification: Android logged the wake as coming from the system's notifications (`details=com.android.systemui:NOTIFICATION`), not from Beacon. At 21:13:31.6 Beacon set its resume alarm again, for the same 22:05:00.824. Its settings file wasn't written, and the widget wasn't redrawn. |
+| 21:13:38.6 | The phone was unlocked. |
+| 21:13:41 | The phone was plugged into a charger. |
+
+Beacon decides `PAUSED` only after a notification has passed its earlier
+checks: it comes from a message app, it is a new message and not the
+person's own, and the phone isn't in use. So the message at 21:13:30 was a
+new incoming WhatsApp message that would otherwise have flashed.
+
+The resume alarm set again at 21:13:31.6 came about half a second after
+the screen woke. That is what the screen-on catch-up does while a pause is
+still running: it keeps the pause and sets the alarm again. Beacon's Home
+didn't come to the front, and nothing in the log points to a time,
+time-zone or language change.
+
+| Check | Result |
+|---|---|
+| A message during a pause, with the phone locked, asleep and on battery | Tested on Redmi 15C 5G, Android 16. A WhatsApp message was ignored as `PAUSED`, in deep idle, and nothing flashed. |
+| The screen-on catch-up while a pause is still running | Tested on Redmi 15C 5G, Android 16. It set the resume alarm again for the same time, didn't change the stored pause, and didn't redraw the widget. |
+
 ## Not tested
 
-- **A message during the pause.** None came, so the phone didn't show the
-  pause holding an alert back. It was seen on the emulator (PR 2's check
-  12).
-- **The widget showing PAUSED during this hour.** Nobody looked at it. The
+- **A message during the first pause.** None came. The second pause showed
+  one being held back ([above](#a-message-during-a-pause-later-that-evening)).
+- **The widget showing PAUSED during either pause.** Nobody looked at it. The
   phone checks saw PAUSED after a tap
   ([`2026-11-phone-checks.md`](2026-11-phone-checks.md)).
 - **The resume alarm firing in Doze.** It never fired. It was cancelled at
