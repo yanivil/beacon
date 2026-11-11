@@ -239,7 +239,10 @@ All with the phone connected to the Mac by USB, so charging.
 ## Not tested
 
 - **Alerts on battery:** no alert ran on battery, so Doze, and the resume
-  alarm in Doze, weren't reached. This is the next phone check.
+  alarm in Doze, weren't reached. The owner's cable-out check later that
+  day ran WhatsApp and SMS alerts on battery in Doze; the resume alarm in
+  Doze is still not tested
+  ([`2026-11-alerts-on-battery.md`](2026-11-alerts-on-battery.md)).
 - **The resume alarm firing on its own:** the pause was ended by a tap.
 - **A restart during a timed pause:** there was no pause when the phone
   restarted.
