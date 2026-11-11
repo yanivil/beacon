@@ -688,6 +688,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- `docs/checks/2026-11-alerts-on-battery.md`: the blink's colours, which the
+  owner confirmed afterwards, move from "Not tested" to the results, by
+  the owner's report. `README.md`'s section on the check drops them from
+  its "Still not tested" line.
 - `docs/checks/2026-11-xiaomi-autostart.md`: the Autostart row's evidence
   from the test phone, its rulings R1 to R3, its tests and the phone's
   results, including the restart.
