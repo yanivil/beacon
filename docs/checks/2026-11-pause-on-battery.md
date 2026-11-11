@@ -1,8 +1,9 @@
 # The widget's pause on battery: checks
 
 This page records the owner's second cable-out check on the test phone, on
-11 November 2026. One tap on the widget set a 1-hour pause, and the phone
-lay locked on battery, mostly in Doze's deep idle. Then messages came. The
+11 November 2026. One tap on the widget set a 1-hour pause just before the
+phone came off the cable. The phone then lay locked on battery, mostly in
+Doze's deep idle, and then messages came. The
 page records how alerts and the widget came back on after the pause (spec
 section 1, "Done means" 4). Nothing in the code changed.
 
@@ -11,7 +12,7 @@ tested"**.
 
 ## How it was recorded
 
-The owner ran the check alone, as suggested: tap the widget, leave the
+The owner ran the check alone: tap the widget, leave the
 phone locked on battery for more than an hour, then send a message. They
 reported only that it worked. The tap came 6 seconds before the phone left
 the cable, and the screen went off, on and off again in the next few
@@ -57,7 +58,7 @@ the log's clock. Delays are measured on one clock.
 | 19:34:21 to 20:34:53 † | No push message reached WhatsApp or Google Messages, and Beacon logged no decision: no message came during the pause. |
 | 20:34:15.748 | The pause's end, and the start of the resume alarm's 10-minute window, which runs to 20:44:15.748. |
 | 20:34:53.6 † | A push message reached WhatsApp. |
-| 20:34:55.797 | Beacon decided `Alert(source=WHATSAPP)`, 40 seconds after the pause's end. Nothing had cleaned up the stored pause yet (that came at 20:34:59.131), so Beacon judged the pause over by its end time. |
+| 20:34:55.797 | Beacon decided `Alert(source=WHATSAPP)`, 40 seconds after the pause's end. Nothing had cleaned up the stored pause yet (that came at 20:34:59.131), so the alert didn't wait for a clean-up. By Beacon's code it checks the pause's end time on each message (rule 8 in `MessageClassifier`); no message came during the pause to show that check holding one back. |
 | 20:34:55.799 to 20:34:58.732 | Beacon asked for the alert's wake lock 2 ms after deciding, and waited 2.9 seconds for it. Android logged `Excessive delay in acquire_wake_lock(), duration=2932ms`, together with the end of a 2.7-second sleep. |
 | 20:34:58.745 | The camera light came on, 4.2 seconds after the push. At 20:34:58.8 the alert screen came to the front and the screen woke. |
 | 20:34:59.131 | Beacon's stored pause became ON. At 20:34:59.165 the resume alarm, which hadn't fired, was cancelled (`alarm_cancelled`), and at 20:34:59.620 the widget was redrawn. |
@@ -135,6 +136,8 @@ running, the widget wasn't redrawn: Android logged widget redraws only at
 - **The widget back to ON with no message.** Here an alert woke the screen.
   Pressing the power button runs the same screen-on clean-up, but that
   wasn't seen on the phone. Without a screen-on, the widget would have kept
-  showing PAUSED, unseen, until the alarm fired.
+  showing PAUSED, unseen, until the alarm fired (in Doze, at a maintenance
+  window), Beacon's Home came to the front, or the time, time zone or
+  language changed.
 - **A plain SMS from the phone network.** Both messages to Google Messages
   in the cable-out checks came as push messages, so they may have been RCS.

@@ -530,8 +530,8 @@ from the phone's own records. Nothing in the code changed.
   1 hour. The phone lay locked on battery, mostly in deep idle, and no
   message came during the hour.
 - **Alerts came back on time:** the first message after the hour flashed.
-  Beacon checks the pause's end time on each message, so it didn't need
-  anything else to switch alerts back on.
+  Beacon is built to check the pause's end time on each message, so it
+  didn't need anything else to switch alerts back on.
 - **The widget came back to ON:** Beacon also sets an alarm to switch the
   widget back at the end of a pause, but that alarm never got its turn.
   When the alert lit up the screen, Beacon switched the widget back to ON
