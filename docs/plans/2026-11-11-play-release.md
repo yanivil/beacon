@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Follow `CLAUDE.md` in full. Work on the branch `feature/play-release`; never commit to `main`; every change has a PR draft (Title, Context/Why, Summary of Changes, Test Steps, Doc Impact); update README, CHANGELOG `[Unreleased]` and affected specs with every change.
+- Follow `CLAUDE.md` in full. Work on the branch `feature/play-release-design`, which already holds the spec and this plan; never commit to `main`; every change has a PR draft (Title, Context/Why, Summary of Changes, Test Steps, Doc Impact); update README, CHANGELOG `[Unreleased]` and affected specs with every change.
 - `main` is protected by the "Protect main" ruleset: changes reach it only through a pull request.
 - GitHub access only with the repo-scoped keychain token, as `CLAUDE.md` shows. Never create, change or delete keychain entries.
 - **Secrets:** never print, log, echo or commit the upload key's password, or write it anywhere except `~/.gradle/gradle.properties`. Never show the contents of that file.
