@@ -89,11 +89,14 @@ class StaticLayoutMeasureTest {
     /**
      * The heights match what the emulator's launcher drew at 4 x 2, font 1.0, with 2 dp of margin:
      * the title 98 px, "PAUSED" 182 px, the resume line and the tap hint 77 px each, at 2.625 px per dp.
+     * "PAUSED" was drawn at 52 sp then, so it is measured at 52 sp here: this checks the measure
+     * against the launcher, whatever size the widget now uses.
      */
     @Test fun heightsMatchTheEmulator() {
         val (innerW, _) = inner(360f, 224f)
+        val paused52 = LineSpec(STATE, "PAUSED", 52f, true)
         assertEquals(98 / 2.625f + 2, measure.heightDp(paused[0], innerW), 0.5f)
-        assertEquals(182 / 2.625f + 2, measure.heightDp(paused[1], innerW - 52f - ICON_GAP_DP), 0.5f)
+        assertEquals(182 / 2.625f + 2, measure.heightDp(paused52, innerW - 52f - ICON_GAP_DP), 0.5f)
         assertEquals(77 / 2.625f + 2, measure.heightDp(paused[2], innerW), 0.5f)
         assertEquals(77 / 2.625f + 2, measure.heightDp(paused[3], innerW), 0.5f)
     }
@@ -106,12 +109,13 @@ class StaticLayoutMeasureTest {
     }
 
     /**
-     * At 3 x 2 the timed pause drops the tap hint, the title and the icon, so "PAUSED" takes one row
-     * and the resume line wraps whole below it (PR 3's D3).
+     * At 3 x 2 the timed pause keeps every line and the icon, with "PAUSED" on one row. With the
+     * design's 52 sp it dropped the tap hint, the title and the icon (PR 3's D3); the 40 sp the owner
+     * chose (the phone checks' P4) leaves room for all of them.
      */
-    @Test fun paused3x2DropsTheIconSoPausedTakesOneRow() {
+    @Test fun paused3x2KeepsEverything() {
         val fit = fitLines(paused, 266f, 224f, measure)
-        assertEquals(WidgetFit(setOf(STATE, RESUME_TIME), false), fit)
+        assertEquals(WidgetFit(setOf(TITLE, STATE, RESUME_TIME, TAP_HINT), true), fit)
         assertNothingClipped(paused, fit, 266f, 224f, measure); assertStateOnOneRow(paused, fit, 266f, measure)
     }
 
@@ -171,14 +175,15 @@ class StaticLayoutMeasureLargestFontTest {
     }
 
     /**
-     * At 3 x 2 the resume line can't fit beside "PAUSED", so it goes after the icon and only the state
-     * word is drawn (ruling F4); the spoken label still names the time.
+     * At 3 x 2 the resume line fits below "PAUSED" and its icon; the title and the tap hint go. With the
+     * design's 52 sp only the state word was drawn (ruling F4); the owner's 40 sp keeps the time
+     * (the phone checks' P4).
      */
-    @Test fun paused3x2KeepsOnlyTheState() {
+    @Test fun paused3x2KeepsTheResumeTime() {
         val m = measure()
         val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM")
         val fit = fitLines(paused, 266f, 224f, m)
-        assertEquals(WidgetFit(setOf(STATE), false), fit)
+        assertEquals(WidgetFit(setOf(STATE, RESUME_TIME), true), fit)
         assertNothingClipped(paused, fit, 266f, 224f, m); assertStateOnOneRow(paused, fit, 266f, m)
     }
 }

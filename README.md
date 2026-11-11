@@ -90,10 +90,18 @@ contrast, big touch targets and plain wording.
         WhatsApp notification no longer flashes, merged as
         yanivil/beacon#16 on 11 November 2026. Checks:
         [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
-      - [ ] **The Xiaomi battery step (P2):** names the row as HyperOS
-        does, "Power", built on `fix/xiaomi-battery-step` and not merged
-        yet. Checks:
+      - [x] **The Xiaomi battery step (P2):** names the row as HyperOS
+        does, "Power", merged as yanivil/beacon#17 on 11 November 2026.
+        Checks:
         [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
+      - [ ] **The widget's text size (P4):** the owner's smaller state word
+        and padding, so the resume time shows at 4 × 2, built on
+        `feature/widget-larger-text-fit` and not merged yet. Checks:
+        [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
+      - [ ] **The widget's text size (P4):** the owner's smaller state word
+        and padding, so the resume time shows at 4 × 2, built on
+        `feature/widget-larger-text-fit` and not merged yet. Checks:
+        [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -359,7 +367,9 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
     below.
   - P3: replying from a WhatsApp notification makes Beacon flash. Fixed in
     the own-reply PR, below.
-  - P4: at the owner's text size the widget hides the resume time.
+  - P4: at the owner's text size the widget hides the resume time. Fixed
+    with the owner's widget sizes, below. Fixed
+    with the owner's widget sizes, below.
   - P5: after a restart (HyperOS Autostart off), Beacon hears nothing until
     it's opened.
 - **The owner's decisions:** a real alert flashes only when the screen is
@@ -420,6 +430,38 @@ isn't called that.
 - **Checks:** 342 unit tests pass (1 new), and lint reports no issues:
   [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
   Not yet seen on the test phone.
+
+## The widget's text size
+
+The phone checks' defect P4: at the owner's text size, the 4 × 2 widget
+showed only "PAUSED", because the resume time didn't fit under it.
+
+- **The owner's choice:** "PAUSED" at 40 sp and "ON" at 48 sp (the design's
+  52 and 64), with 12 dp of padding instead of 16. The owner picked this
+  from a preview on the test phone; the spec lists it as a difference from
+  the design.
+- **Tests:** the fit is tested with the line heights the test phone itself
+  measured, and four tests that pinned the old sizes are updated. 344 unit
+  tests pass (2 new), with no compiler warnings, and lint reports no issues:
+  [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
+  The preview with the same values ran on the test phone; this build
+  hasn't yet.
+
+## The widget's text size
+
+The phone checks' defect P4: at the owner's text size, the 4 × 2 widget
+showed only "PAUSED", because the resume time didn't fit under it.
+
+- **The owner's choice:** "PAUSED" at 40 sp and "ON" at 48 sp (the design's
+  52 and 64), with 12 dp of padding instead of 16. The owner picked this
+  from a preview on the test phone; the spec lists it as a difference from
+  the design.
+- **Tests:** the fit is tested with the line heights the test phone itself
+  measured, and four tests that pinned the old sizes are updated. 344 unit
+  tests pass (2 new), with no compiler warnings, and lint reports no issues:
+  [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
+  The preview with the same values ran on the test phone; this build
+  hasn't yet.
 
 ## What Step 1 found
 

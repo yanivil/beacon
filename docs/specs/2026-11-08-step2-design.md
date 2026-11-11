@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), built on `fix/xiaomi-battery-step`. Defects P4 and P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), built on `feature/widget-larger-text-fit`. Defect P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -85,6 +85,7 @@ The project rules win. Each conflict and its resolution:
 | 15 | The ON/OFF pill always sits beside the app's name. | At the largest font that broke words into two-letter lines. The pill wraps under the text when a word would otherwise break. |
 | 16 | The per-app colour card's Change/Done button always sits beside the name. | At large fonts the names broke mid-word. The button sits under the name when the available width divided by the font scale is under 250 dp. |
 | 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
+| 18 | The widget's state word is 64 sp (ON) and 52 sp (PAUSED). | 48 and 40 sp, with 12 dp of padding instead of 16: at the owner's text size the design's sizes hid the resume time at 4 × 2 on the test phone (the phone checks' P4). The owner chose these values from a preview on the phone, 11 November 2026. |
 
 ## 4. Architecture
 
@@ -789,7 +790,7 @@ be resized.
 | | ON | PAUSED |
 |---|---|---|
 | Background | Yellow `#FFD60A`, 28 dp radius | `#0B0B0D`, 4 dp white border, 28 dp radius |
-| Lines | "Visual alerts" (28 sp), bolt icon + "ON" (64 sp), "Tap to pause for 1 hour" (22 sp) | "Visual alerts" (28 sp), pause icon + "PAUSED" (52 sp), "Back ON by itself at HH:MM" (22 sp, timed pause only), "Tap to turn ON now" (22 sp) |
+| Lines | "Visual alerts" (28 sp), bolt icon + "ON" (48 sp; the design's 64, by the owner's choice), "Tap to pause for 1 hour" (22 sp) | "Visual alerts" (28 sp), pause icon + "PAUSED" (40 sp; the design's 52, by the owner's choice), "Back ON by itself at HH:MM" (22 sp, timed pause only), "Tap to turn ON now" (22 sp) |
 | Tap | Pause for 1 hour | Turn ON now |
 | Spoken label | "Visual alerts are ON. Tap to pause for 1 hour." | "Visual alerts are PAUSED until HH:MM. Tap to turn them back on now." For an open-ended pause from the app: "Visual alerts are PAUSED. Tap to turn them back on now." |
 
@@ -847,7 +848,7 @@ out. It uses Android's `StaticLayout` with:
   and later this includes the system's non-linear font scaling);
 - bold for the title and the state word, as drawn;
 - the font padding a TextView adds, and high-quality line breaks;
-- the width the line really gets: the widget's width less 16 dp of padding
+- the width the line really gets: the widget's width less 12 dp of padding
   on each side, and for the state line less the icon (as wide as the text
   is tall) and its 8 dp gap. A word too wide for its line counts as
   wrapped, never as fitting.
@@ -1346,8 +1347,11 @@ owner's decisions are in
   [`docs/checks/2026-11-rtl-text-direction.md`](../checks/2026-11-rtl-text-direction.md).
 - P3 is merged as yanivil/beacon#16 (sections 6 and 14):
   [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md).
-- P2 is built on `fix/xiaomi-battery-step` (section 9):
+- P2 is merged as yanivil/beacon#17 (section 9):
   [`docs/checks/2026-11-xiaomi-battery-step.md`](../checks/2026-11-xiaomi-battery-step.md).
+- P4, with the owner's widget sizes, is built on
+  `feature/widget-larger-text-fit` (sections 3 and 10):
+  [`docs/checks/2026-11-widget-text-size.md`](../checks/2026-11-widget-text-size.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

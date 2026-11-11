@@ -126,6 +126,8 @@ Made during the session, on 11 November 2026:
   12:54").
 - Preview 2 shows both ([07](phone-checks/07-widget-preview.png)). The
   owner chose that look (decision 2).
+- **Fixed** with the owner's sizes: see
+  [`2026-11-widget-text-size.md`](2026-11-widget-text-size.md).
 
 ### P5. After a restart, Beacon is silent until it's opened
 
