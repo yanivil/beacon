@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Beacon's 512 x 512 Play Store icon: the launcher icon's two layers
+     (ic_launcher_background.xml and ic_launcher_foreground.xml) drawn at
+     512 px. The 108-unit layer, the bolt scaled by 2 and moved 30 units, the
+     yellow #FFD60A and the near-black #0B0B0D (13.93:1) are the launcher
+     icon's own. Play rounds the corners itself, so the square is full.
+     Rendered by render.sh. -->
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; width: 512px; height: 512px; overflow: hidden; background: transparent; }
+  svg { display: block; }
+</style></head><body>
+<svg width="512" height="512" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+  <rect width="108" height="108" fill="#FFD60A"/>
+  <g transform="translate(30 30) scale(2)">
+    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="#0B0B0D" stroke="#0B0B0D"
+          stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  </g>
+</svg>
+</body></html>
