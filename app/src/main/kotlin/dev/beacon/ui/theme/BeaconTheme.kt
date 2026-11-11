@@ -19,10 +19,10 @@ import androidx.compose.ui.unit.Dp
  * draw text with BasicText and read these two locals, so a screen only has to
  * be wrapped in BeaconTheme to get the right default font and colour.
  *
- * Why a custom ripple: material-ripple 1.11 no longer offers ripple() (it
- * moved into Material 2/3, which Beacon must not use) and rememberRipple() is
- * a compile error. createRippleModifierNode() is the supported way for a design
- * system to build its own ripple.
+ * Why a custom ripple: material-ripple has no public ripple() (checked in
+ * 1.11.4 and 1.12.1: it moved into Material 2/3, which Beacon must not use)
+ * and rememberRipple() is a compile error. createRippleModifierNode() is the
+ * supported way for a design system to build its own ripple.
  */
 
 /** Default text style for [androidx.compose.foundation.text.BasicText] in Beacon components. */

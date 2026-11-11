@@ -66,9 +66,13 @@ contrast, big touch targets and plain wording.
         and resources, merged as yanivil/beacon#11 on 10 November 2026.
         Checks:
         [`docs/checks/2026-11-lint-cleanup.md`](docs/checks/2026-11-lint-cleanup.md).
-      - [ ] **Dependency versions:** Gradle 9.9.1 and Kotlin 2.4.21, built
-        on `fix/dependency-versions` and not merged yet. Checks:
+      - [x] **Dependency versions:** Gradle 9.9.1 and Kotlin 2.4.21, merged
+        as yanivil/beacon#12 on 11 November 2026. Checks:
         [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
+      - [ ] **compileSdk 37:** the owner's raise of compileSdk, and Compose
+        1.12, Lifecycle 2.11 and Core KTX 1.19, built on
+        `fix/compile-sdk-37` and not merged yet. Checks:
+        [`docs/checks/2026-11-compile-sdk-37.md`](docs/checks/2026-11-compile-sdk-37.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -78,7 +82,8 @@ is not part of Beacon.
 ## What PR 1 delivers
 
 - **Project setup:** the `app` module with exact library versions, minSdk
-  29, compileSdk and targetSdk 36, no internet permission and Android backup
+  29, compileSdk and targetSdk 36 (compileSdk is 37 since the compileSdk 37
+  PR), no internet permission and Android backup
   off.
 - **Settings:** the settings model and its defaults, saved on the phone with
   DataStore.
@@ -270,11 +275,12 @@ The owner asked for lint's 8 newer-version warnings to be dealt with on
   built-in Kotlin moves up to the same version, so the compiler and the
   plugin still match. The only library the app ships that changes is
   `kotlin-stdlib`.
-- **Not bumped:** Compose 1.12 (BOM 2026.09.00 and the UI test libraries),
-  Lifecycle 2.11 and Core KTX 1.19 need compileSdk 37, and `CLAUDE.md`
-  fixes compileSdk at 36. The build stops on 13 of their libraries if they
-  are bumped. Only compileSdk would have to change for them; targetSdk can
-  stay at 36. Lint's 6 warnings about them stay until the owner decides.
+- **Not bumped then:** Compose 1.12 (BOM 2026.09.00 and the UI test
+  libraries), Lifecycle 2.11 and Core KTX 1.19 need compileSdk 37, and
+  `CLAUDE.md` fixed compileSdk at 36. The build stops on 13 of their
+  libraries if they are bumped. Only compileSdk had to change for them;
+  targetSdk could stay at 36. The owner then raised compileSdk to 37; see
+  the next section.
 - **One test line:** Kotlin 2.4.21 warned about a bare `Unit` that did
   nothing at the end of a test, so it is removed.
 - **Checks:** all 327 unit tests pass, with no compiler warnings. Lint
@@ -282,6 +288,31 @@ The owner asked for lint's 8 newer-version warnings to be dealt with on
   `main`'s. On the emulator, Home, Alert settings and the test alert run
   as before:
   [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
+  Nothing has run on the test phone.
+
+## compileSdk 37
+
+On 11 November 2026 the owner raised compileSdk from 36 to 37 in
+`CLAUDE.md`, so the held Compose, Lifecycle and Core KTX versions could be
+bumped. targetSdk stays at 36, so Android treats Beacon as before.
+
+- **What compileSdk 37 means:** the code is compiled against Android 17's
+  APIs (SDK platform `android-37.0`). It doesn't change how Android 10 to
+  16 run Beacon: that is targetSdk's job.
+- **Bumped:** Compose BOM 2026.06.01 to 2026.09.00 (Compose 1.11.4 to
+  1.12.1), the Compose UI test libraries to 1.12.1, Lifecycle 2.10.0 to
+  2.11.0, and Core KTX 1.18.0 to 1.19.1.
+- **Dropped from the app:** Compose UI 1.12 no longer needs
+  `androidx.transition`, so it and six old support libraries it brought in
+  leave the APK. Nothing new comes in.
+- **No code changes:** Beacon's code builds as it is. One comment now says
+  that material-ripple 1.12 still has no `ripple()`.
+- **Checks:** all 327 unit tests pass, with no compiler warnings, and lint
+  reports no issues. Its reminder that targetSdk 37 exists stays silenced on
+  that one line, as before. On the emulator, every screen that can be put
+  in the same place on both builds is pixel-identical to `main`'s, at font
+  size 1.0 and 2.0. The test alert runs as before:
+  [`docs/checks/2026-11-compile-sdk-37.md`](docs/checks/2026-11-compile-sdk-37.md).
   Nothing has run on the test phone.
 
 ## What Step 1 found
@@ -332,10 +363,9 @@ Added in the Step 2 spec:
 ## Tech stack
 
 - Kotlin, Jetpack Compose (app UI), Jetpack Glance (home-screen widget)
-- **minSdk 29 (Android 10)**; compileSdk and targetSdk 36
-- Built with Gradle 9.9.1, AGP 9.5.1 and Kotlin 2.4.21. Compose, Lifecycle
-  and Core KTX stay one release behind, because their newest releases need
-  compileSdk 37.
+- **minSdk 29 (Android 10)**; compileSdk 37; targetSdk 36
+- Built with Gradle 9.9.1, AGP 9.5.1 and Kotlin 2.4.21, with Compose 1.12,
+  Lifecycle 2.11 and Core KTX 1.19.
 
 Per Google's October 2026 distribution data, minSdk 29 covers about 94% of
 active Android phones, and every supported phone follows the same rules for
@@ -345,7 +375,8 @@ install Beacon.
 
 ## Building
 
-You need JDK 21 and the Android SDK with platform 36 and build-tools 36.
+You need JDK 21 and the Android SDK with platform 37 (`android-37.0`) and
+build-tools 36. The Step 1 test app still uses platform 36.
 [Android Studio](https://developer.android.com/studio) includes both, but
 isn't required: the command-line tools are enough. Set `ANDROID_HOME` to the
 SDK folder. Gradle comes with each project's wrapper.
@@ -363,8 +394,7 @@ Run the unit tests:
 ```
 
 Check the code with lint. The report goes to `app/build/reports/`. It
-should show no errors and 6 warnings: the newer Compose, Lifecycle and Core
-KTX versions, which need compileSdk 37 and wait for the owner's decision:
+should say "No issues found":
 
 ```bash
 ./gradlew :app:lintDebug

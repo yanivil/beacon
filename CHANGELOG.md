@@ -287,6 +287,16 @@ and the project uses [Semantic Versioning](https://semver.org/).
   the emulator (AVD `beacon-api36`, Android 16), Home, Alert settings and
   the test alert run as before. It also lists what stays not tested: the
   widget and a real message alert on the emulator, and every phone check.
+- `docs/checks/2026-11-compile-sdk-37.md`, with screenshots in
+  `docs/checks/compile-sdk-37/`: the compileSdk 37 PR's rulings C1 to C4,
+  each with what it costs if wrong, and its checks. 327 unit tests pass
+  with no compiler warnings, and lint reports no issues. The manifest
+  changes only in its compileSdk stamps, and the resources lose only 13
+  view ids of `androidx.transition`. On the emulator (AVD `beacon-api36`,
+  Android 16), every screen in a fixed position is pixel-identical to
+  `main`'s build at font size 1.0 and 2.0, and the test alert runs as
+  before. It also lists what stays not tested: TalkBack on a device, the
+  widget and a real message alert on the emulator, and every phone check.
 
 ### Changed
 
@@ -547,6 +557,37 @@ and the project uses [Semantic Versioning](https://semver.org/).
     Lifecycle and Core KTX stay.
   - Section 16: the lint clean-up merged, and a paragraph for the
     dependency versions.
+- `CLAUDE.md`: compileSdk goes from 36 to 37, as the owner decided on
+  11 November 2026, so Compose 1.12, Lifecycle 2.11 and Core 1.19 can be
+  used. minSdk stays at 29 and targetSdk at 36.
+- compileSdk 37, in `app/` and `gradle/` (no change anyone sees or hears):
+  - `app/build.gradle.kts`: `compileSdk = 37`, built against SDK platform
+    `android-37.0`. The comment says why compileSdk and targetSdk differ,
+    and lint's reminder about compileSdk is no longer silenced, since it
+    has nothing to say at 37.
+  - `gradle/libs.versions.toml`: Compose BOM 2026.06.01 to 2026.09.00
+    (Compose 1.11.4 to 1.12.1), the Compose UI test libraries 1.11.4 to
+    1.12.1, Lifecycle 2.10.0 to 2.11.0, and Core KTX 1.18.0 to 1.19.1. The
+    comment says why they need compileSdk 37.
+  - Compose UI 1.12 no longer needs `androidx.transition`, so it and the six
+    old support libraries it brought in leave the app.
+  - `BeaconTheme`'s comment says material-ripple 1.12 still has no
+    `ripple()`. No code changes.
+  - Lint now reports no issues.
+- `README.md`: the dependency versions marked merged (yanivil/beacon#12, on
+  11 November 2026). compileSdk 37 built on `fix/compile-sdk-37`, with a
+  link to its checks and a "compileSdk 37" section. "Tech stack" says
+  compileSdk 37 and the library versions, and "Building" names SDK platform
+  37 and says lint should find no issues. "What PR 1 delivers" notes that
+  compileSdk is 37 now.
+- `docs/specs/2026-11-08-step2-design.md`, for compileSdk 37:
+  - Status: the dependency versions merged; compileSdk 37 built.
+  - Section 4: the library versions, the ripple row and the SDK row.
+  - Section 16: the dependency versions merged, and a paragraph for
+    compileSdk 37.
+- `docs/checks/2026-11-dependency-versions.md`: a pointer to the
+  compileSdk 37 checks, where the Compose, Lifecycle and Core KTX versions
+  it held were bumped.
 
 ### Fixed
 

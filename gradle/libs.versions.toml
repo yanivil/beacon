@@ -10,15 +10,15 @@ agp = "9.5.1"
 kotlin = "2.4.21"
 activityCompose = "1.13.0"
 datastore = "1.3.0"
-# The next four stay at these versions on purpose. Compose 1.12 (BOM
-# 2026.09.00, and the UI test libraries 1.12.1), lifecycle 2.11 and core
-# 1.19 need compileSdk 37 (their AAR metadata says minCompileSdk=37), and
-# CLAUDE.md fixes compileSdk at 36. Lint's 6 newer-version warnings on them
-# stay until the owner decides about compileSdk 37.
-composeBom = "2026.06.01"
-composeUi = "1.11.4"
-lifecycle = "2.10.0"
-coreKtx = "1.18.0"
+# The next four need compileSdk 37: their AAR metadata says
+# minCompileSdk=37. The owner raised compileSdk to 37 in CLAUDE.md for them
+# on 11 November 2026, so they are at their newest releases. A later bump
+# that asks for a higher compileSdk fails checkDebugAarMetadata, and needs
+# the owner's say again.
+composeBom = "2026.09.00"
+composeUi = "1.12.1"
+lifecycle = "2.11.0"
+coreKtx = "1.19.1"
 junit = "4.13.2"
 robolectric = "4.17"
 androidxTest = "1.7.0"
