@@ -54,6 +54,13 @@ class SetupIntentsTest {
         assertEquals("package:dev.beacon", intent.data.toString())
     }
 
+    /** The Autostart row opens HyperOS's Background autostart list, by the action its page answers to. */
+    @Test fun autostartPage() {
+        val intent = SetupIntents.intentFor(SetupItem.AUTOSTART, app)
+        assertEquals("miui.intent.action.OP_AUTO_START", intent.action)
+        assertTrue(intent.hasCategory(Intent.CATEGORY_DEFAULT))
+    }
+
     /** The maker's name is matched ignoring case. */
     @Test fun xiaomiNames() {
         assertTrue(SetupIntents.isXiaomi("Xiaomi"))

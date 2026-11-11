@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -90,6 +91,10 @@ fun SetupCard(status: SetupStatus, @StringRes batterySteps: Int, onOpen: (SetupI
         SetupRow(SetupItem.NOTIFICATIONS, R.string.setup_notifications, R.string.setup_notifications_reason, null, status, onOpen)
         SetupRow(SetupItem.OVERLAY, R.string.setup_overlay, R.string.setup_overlay_reason, null, status, onOpen)
         SetupRow(SetupItem.BATTERY, R.string.setup_battery, R.string.setup_battery_reason, batterySteps, status, onOpen)
+        // Xiaomi only (the phone checks' P5): without it, Beacon hears nothing after a restart until it is opened.
+        if (status.shows(SetupItem.AUTOSTART)) {
+            SetupRow(SetupItem.AUTOSTART, R.string.setup_autostart, R.string.setup_autostart_reason, R.string.setup_autostart_steps, status, onOpen)
+        }
     }
 }
 
@@ -131,31 +136,42 @@ internal fun batteryStepsRes(manufacturer: String, sdkInt: Int): Int = when {
  * @param nameRes the row's name.
  * @param reasonRes the plain-words reason.
  * @param stepsRes the steps line shown under the reason, or null for none.
- * @param status the current grants, for the pill and the spoken state.
+ * @param status the current grants, for the pill and the spoken state; a row whose state isn't known
+ *   (an unreadable Autostart) shows neither a pill nor a spoken state.
  * @param onOpen called when the button is tapped.
  */
 @Composable
 private fun SetupRow(item: SetupItem, nameRes: Int, reasonRes: Int, stepsRes: Int?, status: SetupStatus, onOpen: (SetupItem) -> Unit) {
     val name = stringResource(nameRes)
     val on = status.isOn(item)
+    val known = status.stateKnown(item)
     val state = stringResource(if (on) R.string.setup_state_on else R.string.setup_state_off)
     val openFor = stringResource(R.string.setup_open_for, name)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        // The name, reason and pill read as one item with the state; the pill wraps under the text at large fonts.
-        Layout(
-            content = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    BeaconText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.White))
-                    BeaconText(stringResource(reasonRes), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
-                    if (stepsRes != null) {
-                        BeaconText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
-                    }
+        val texts: @Composable () -> Unit = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                BeaconText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.White))
+                BeaconText(stringResource(reasonRes), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+                if (stepsRes != null) {
+                    BeaconText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
                 }
-                OnOffPill(on = on, modifier = Modifier.testTag(SETUP_PILL_TAG))
-            },
-            modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { stateDescription = state },
-            measurePolicy = TextAndPillPolicy(hasTile = false),
-        )
+            }
+        }
+        if (known) {
+            // The name, reason and pill read as one item with the state; the pill wraps under the text at large fonts.
+            Layout(
+                content = {
+                    texts()
+                    OnOffPill(on = on, modifier = Modifier.testTag(SETUP_PILL_TAG))
+                },
+                modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { stateDescription = state },
+                measurePolicy = TextAndPillPolicy(hasTile = false),
+            )
+        } else {
+            // An unknown state (an unreadable Autostart) gets no pill and no spoken state: showing OFF for a
+            // setting that may be on would mislead. The texts still read as one item.
+            Box(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) { texts() }
+        }
         OutlineButton(
             text = stringResource(R.string.setup_open),
             onClick = { onOpen(item) },

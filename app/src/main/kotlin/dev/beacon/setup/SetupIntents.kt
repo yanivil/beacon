@@ -17,6 +17,12 @@ import dev.beacon.alert.BeaconListener
  * than a crash.
  */
 
+/**
+ * The action HyperOS's Background autostart list answers to: `AutoStartManagementActivity` in the
+ * Security app 12.8.6 on the test phone, exported with this intent filter.
+ */
+internal const val MIUI_AUTOSTART_ACTION = "miui.intent.action.OP_AUTO_START"
+
 /** The Settings pages behind the Finish setup buttons. */
 object SetupIntents {
     /**
@@ -45,6 +51,9 @@ object SetupIntents {
             Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, packageUri(context))
         // Beacon's App info page; the person goes on from there by the steps the row shows above the button.
         SetupItem.BATTERY -> appInfo(context)
+        // HyperOS's Background autostart list, by the action its page answers to; the person turns on
+        // Beacon's switch there. If a phone lacks it, open() falls back to App info.
+        SetupItem.AUTOSTART -> Intent(MIUI_AUTOSTART_ACTION).addCategory(Intent.CATEGORY_DEFAULT)
     }
 
     /**

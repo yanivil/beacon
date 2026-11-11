@@ -60,4 +60,38 @@ class SetupCheckerTest {
         assertTrue(status.isOn(SetupItem.BATTERY))
         assertFalse(status.complete)
     }
+
+    /** On a Xiaomi, Autostart OFF keeps the card open; ON, an unknown state and other phones don't. */
+    @Test fun autostartOffKeepsTheCardOpen() {
+        val granted = SetupStatus(true, true, true)
+        assertTrue(granted.complete)
+        assertFalse(granted.copy(autostart = AutostartState.OFF).complete)
+        assertTrue(granted.copy(autostart = AutostartState.ON).complete)
+        assertTrue(granted.copy(autostart = AutostartState.UNKNOWN).complete)
+    }
+
+    /** isOn reads Autostart, and the row is shown only on a Xiaomi. */
+    @Test fun autostartRowOnlyOnXiaomi() {
+        val status = SetupStatus(false, false, false)
+        assertFalse(status.shows(SetupItem.AUTOSTART))
+        assertTrue(status.shows(SetupItem.BATTERY))
+        assertTrue(status.copy(autostart = AutostartState.OFF).shows(SetupItem.AUTOSTART))
+        assertTrue(status.copy(autostart = AutostartState.UNKNOWN).shows(SetupItem.AUTOSTART))
+        assertTrue(status.copy(autostart = AutostartState.ON).isOn(SetupItem.AUTOSTART))
+        assertFalse(status.copy(autostart = AutostartState.OFF).isOn(SetupItem.AUTOSTART))
+    }
+
+    /** The checker on a phone that isn't a Xiaomi (Robolectric's) reports no Autostart. */
+    @Test fun checkerReportsNoAutostartOnOtherPhones() {
+        assertEquals(AutostartState.NOT_XIAOMI, SetupChecker(app).check().autostart)
+    }
+
+    /** Only an unreadable Autostart has no known state; the other rows always do. */
+    @Test fun stateKnownExceptForAnUnreadableAutostart() {
+        val status = SetupStatus(false, false, false)
+        assertTrue(status.stateKnown(SetupItem.NOTIFICATIONS))
+        assertTrue(status.copy(autostart = AutostartState.OFF).stateKnown(SetupItem.AUTOSTART))
+        assertTrue(status.copy(autostart = AutostartState.ON).stateKnown(SetupItem.AUTOSTART))
+        assertFalse(status.copy(autostart = AutostartState.UNKNOWN).stateKnown(SetupItem.AUTOSTART))
+    }
 }
