@@ -158,7 +158,7 @@ have flashed.
 The resume alarm set again at 21:13:31.6 came about half a second after
 the screen woke. That is what the screen-on catch-up does while a pause is
 still running: it keeps the pause and sets the alarm again. The log doesn't
-name the catch-up, but nothing else could have set the alarm: Beacon's
+name the catch-up, but nothing else in the log could have set the alarm: Beacon's
 Home didn't come to the front, and nothing in the log points to a time,
 time-zone or language change.
 
