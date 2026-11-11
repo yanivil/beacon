@@ -8,6 +8,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/specs/2026-11-11-play-release-design.md`: the design for Beacon
+  1.0.0 on Google Play, approved in chat on 11 November 2026. Internal
+  testing first, for a few testers; the upload key outside the repository;
+  the store listing (naming SMS and WhatsApp only), graphics and a privacy
+  policy in the repository; every Play Console answer approved by the owner
+  before it is submitted; a checklist for the later closed test and
+  production release.
 - The repository is public since 11 November 2026, with private
   vulnerability reporting, secret scanning and push protection, Dependabot
   alerts and security updates, approval for outside contributors'

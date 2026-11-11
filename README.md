@@ -117,6 +117,12 @@ contrast, big touch targets and plain wording.
         widget's own alarm never fired. A message during a second pause,
         with the phone locked, didn't flash. Checks:
         [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
+- [ ] **Google Play (in progress):** Beacon 1.0.0 on Play's internal
+      testing track for a few testers first, with the store listing,
+      graphics, privacy policy and Play forms prepared for the public
+      release. The design was approved in chat on 11 November 2026; its
+      written spec is waiting for the owner's review:
+      [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
