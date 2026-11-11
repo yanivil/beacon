@@ -112,7 +112,9 @@ contrast, big touch targets and plain wording.
         phone, on 11 November 2026. Checks:
         [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
       - [x] **The widget's pause on battery:** the owner's second cable-out
-        check, that evening. Checks:
+        check, that evening. Alerts came back on time after a 1-hour pause,
+        and the widget came back to ON when an alert lit the screen; the
+        widget's own alarm never fired. Checks:
         [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
@@ -503,35 +505,51 @@ until someone opens it.
 
 ## Alerts on battery
 
-The owner's cable-out check on the test phone, on 11 November 2026, with
-`main`'s build at `d3675d8` and Beacon's default settings. Nothing in the
-code changed.
+Two cable-out checks the owner ran alone on the test phone, on 11 November
+2026, with `main`'s build at `d3675d8` and Beacon's default settings. The
+owner reported only that each worked; everything else was read afterwards
+from the phone's own records. Nothing in the code changed.
+
+### First check: messages after hours asleep
 
 - **What ran:** the phone lay off the cable, with its screen off, for more
-  than three hours, mostly in Doze's deep idle. Then a WhatsApp message
-  and a message to the SMS app each flashed the screen and the camera
-  light, 2 to 3 seconds after the push reached their app. The WhatsApp
-  alert flashed once a second and ended by itself after 1 minute.
+  than three hours, mostly in Doze's deep idle (the phone's deepest sleep).
+  Then a WhatsApp message and a message to the SMS app each flashed the
+  screen and the camera light, 2 to 3 seconds after the message reached
+  their app. The WhatsApp alert flashed once a second and ended by itself
+  after 1 minute.
 - **Battery:** the level stayed at 100%. The alerts' own cost is too small
   for its 1% steps.
 - **The colours:** right, by the owner's report.
-- **The widget's pause, in a second check that evening:** one tap on the
-  widget paused alerts for 1 hour, and the phone lay locked on battery,
-  mostly in deep idle. The first message after the hour flashed: Beacon
-  checks the pause's end time on each message, so alerts came back on time
-  without the resume alarm. When the alert woke the screen, Beacon set the
-  stored pause and the widget back to ON within a second.
-- **Seen once:** in the second check the first alert's light came on about
-  4 seconds after its push, because the phone was just going to sleep and
-  Android took 2.9 seconds to give Beacon its wake lock.
-- **Still not tested:** the resume alarm firing in Doze (it never fired:
-  the screen-on catch-up cancelled it first), a message during the pause,
-  and a plain SMS, as the messages to the SMS app may have been RCS.
-- **Checks:** read from the phone's battery history, Android's log and
-  alarm records, and Beacon's files:
-  [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md)
-  and
+- **Checks:**
+  [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
+
+### Second check: the widget's pause
+
+- **What ran:** that evening, one tap on the widget paused alerts for
+  1 hour. The phone lay locked on battery, mostly in deep idle, and no
+  message came during the hour.
+- **Alerts came back on time:** the first message after the hour flashed.
+  Beacon checks the pause's end time on each message, so it didn't need
+  anything else to switch alerts back on.
+- **The widget came back to ON:** Beacon also sets an alarm to switch the
+  widget back at the end of a pause, but that alarm never got its turn.
+  When the alert lit up the screen, Beacon switched the widget back to ON
+  itself, within a second, and cancelled the alarm.
+- **Seen once:** the first alert's light came on about 4 seconds after the
+  message reached WhatsApp. The likely cause is the phone going to sleep
+  just as Beacon asked to keep it awake.
+- **Checks:**
   [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
+
+### Still not tested
+
+- A message during the pause, and the widget showing PAUSED during the hour
+  (the phone checks saw PAUSED after a tap).
+- The widget's alarm firing while the phone sleeps, and the widget coming
+  back to ON when no message wakes the screen.
+- A plain SMS from the phone network: the messages to the SMS app may have
+  been RCS chat messages.
 
 ## What Step 1 found
 

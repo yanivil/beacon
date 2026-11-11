@@ -9,26 +9,27 @@ and the project uses [Semantic Versioning](https://semver.org/).
 ### Added
 
 - `docs/checks/2026-11-pause-on-battery.md`: the owner's second cable-out
-  check on the test phone, on 11 November 2026: the widget's 1-hour pause
-  with the phone locked on battery, mostly in Doze's deep idle, read from
-  the battery history, Android's log and alarm records, and Beacon's file
-  times. The first message after the hour flashed while the pause was
-  still stored, so alerts came back by the clock; the screen-on catch-up
-  then set the pause and the widget back to ON, and a screenshot shows ON.
-  The resume alarm never fired: the catch-up cancelled it first, so it is
-  still not seen in Doze. The first alert's light came on about 4 seconds
-  after its push, while Android's wake lock waited for the phone to wake.
-  `README.md` gets a status entry and lines in its Alerts on battery
-  section, the spec's status and sections 10, 13, 15 and 16 point to it,
-  and the first cable-out check, the phone checks and PR 3's checks link
-  it.
+  check on the test phone, on 11 November 2026, read from the battery
+  history, Android's log and alarm records, and Beacon's file times. One
+  tap on the widget set a 1-hour pause, and the phone lay locked on
+  battery, mostly in Doze's deep idle. The first message after the hour
+  flashed before anything had cleaned up the stored pause, so alerts came
+  back on time. When the alert woke the screen, the screen-on catch-up set
+  the pause and the widget back to ON and cancelled the resume alarm,
+  which never fired; a screenshot shows ON. No message came during the
+  pause. The first alert's light came on 4.2 seconds after its push,
+  likely because the phone was going to sleep as Beacon asked for its wake
+  lock. `README.md` gets a status entry and splits its Alerts on battery
+  section into the two checks; the spec's status and sections 10, 13, 15
+  and 16 point to it; the first cable-out check, the phone checks and PR 3's
+  and PR 4's checks link it.
 - `docs/checks/2026-11-alerts-on-battery.md`: the owner's cable-out check
   on the test phone, on 11 November 2026, read from the phone's battery
   history and Beacon's log. After more than three hours asleep on battery,
   mostly in Doze's deep idle, a WhatsApp message and a message to the SMS
   app each flashed; the WhatsApp alert ran at Medium and ended after
   1 minute. The level stayed at 100%. The widget's pause and its resume
-  alarm in Doze weren't run. `README.md` gets a status entry and a
+  alarm in Doze weren't run in that check. `README.md` gets a status entry and a
   section, the spec's status and sections 15 and 16 point to it, and the
   phone checks and PR 2's, PR 3's and PR 4's checks link it.
 - A Background autostart row in the Finish setup card, on Xiaomi phones
@@ -702,6 +703,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Spec section 13 and PR 3's checks listed a widget update among what
+  cleans up an ended pause. The widget only draws from the clock; the
+  stored pause is cleaned up when Beacon comes to the front, the screen
+  turns on, or the time, time zone or language changes.
 - `docs/checks/2026-11-alerts-on-battery.md`: the blink's colours, which the
   owner confirmed afterwards, move from "Not tested" to the results, by
   the owner's report. `README.md`'s section on the check drops them from

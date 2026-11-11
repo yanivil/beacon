@@ -69,8 +69,9 @@ clock alone.
 - **The widget's 1-hour pause on battery, and its resume alarm in Doze.**
   No pause was set during the check: Beacon's stored settings weren't
   written after 12:34. The owner's second cable-out check, that evening,
-  ran the pause on battery: alerts and the widget came back on, but the
-  resume alarm never fired, so it is still not seen in Doze
+  ran the pause on battery: alerts came back on time, and the widget came
+  back to ON when an alert woke the screen. The resume alarm never fired,
+  so it is still not seen in Doze
   ([`2026-11-pause-on-battery.md`](2026-11-pause-on-battery.md)).
 - **How the second alert ended.** The records show only that its light
   stopped after about 5 seconds, not what ended it.

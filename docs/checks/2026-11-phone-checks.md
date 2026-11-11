@@ -244,9 +244,9 @@ All with the phone connected to the Mac by USB, so charging.
   Doze is still not tested
   ([`2026-11-alerts-on-battery.md`](2026-11-alerts-on-battery.md)).
 - **The resume alarm firing on its own:** the pause was ended by a tap. In
-  the owner's second cable-out check that evening, a 1-hour pause ended by
-  itself on battery, but the screen-on catch-up cancelled the alarm before
-  it fired
+  the owner's second cable-out check that evening, a 1-hour pause ended on
+  battery, but the screen-on catch-up cleaned it up and cancelled the alarm
+  before it fired
   ([`2026-11-pause-on-battery.md`](2026-11-pause-on-battery.md)).
 - **A restart during a timed pause:** there was no pause when the phone
   restarted.
