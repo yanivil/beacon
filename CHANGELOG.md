@@ -8,6 +8,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/store/graphics/`: the Play Store icon (512 × 512, 32-bit PNG),
+  feature graphic (1024 × 500) and five emulator screenshots, with the HTML
+  they are rendered from, `render.sh` (headless Chrome) and
+  `png_add_alpha.py` (gives the icon the alpha channel Play asks for).
+- `docs/store/play-console-answers.md`: every Play Console answer for
+  Beacon 1.0.0 (create app, store listing, store settings, App content
+  with the content rating and Data safety, internal testing), for the
+  owner to approve before anything is entered.
 - `PRIVACY.md`, the privacy policy Google Play links to: Beacon collects
   and shares nothing, has no internet access, and ignores the text of
   notifications; it explains each permission. `SECURITY.md` links it.
