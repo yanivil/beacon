@@ -1,8 +1,9 @@
 # Security
 
 Beacon is an Android app that turns incoming messages into visual alerts
-for deaf and hard-of-hearing people. It has no internet permission, so
-nothing it reads can leave the phone.
+for deaf and hard-of-hearing people. It has no internet permission, so it
+can't open a network connection itself: the release build's merged
+manifest asks only for the wake lock and "Display over other apps".
 
 ## Reporting a problem
 
@@ -13,12 +14,18 @@ version and the steps that show the problem.
 
 Only the latest version of Beacon gets fixes.
 
-## What Beacon reads and keeps
+## What the Beacon app reads and keeps
 
-- **Notifications:** Beacon's notification listener reads only what it
-  needs to decide whether to flash: which app a notification came from,
-  its key, its kind (a new message or not) and its times. It never reads a
-  notification's title or text, or a message's text.
+This section is about the app in [`app/`](app). The test app in
+[`spikes/`](spikes) was used only for the feasibility tests on a test phone
+and isn't part of Beacon.
+
+- **Notifications:** Android gives a notification listener every
+  notification on the phone, from every app, not only the message apps
+  Beacon flashes for. Beacon uses only which app posted it, its key, its
+  kind (a new message or not) and its times. Android hands over the rest of
+  the notification too, titles and message text included; Beacon ignores
+  them, and doesn't keep or log them.
 - **Your own WhatsApp replies:** WhatsApp marks a reply typed into its
   notification only by the sender's name. So for WhatsApp alone, Beacon
   compares the newest sender's name with yours, in memory, to avoid
@@ -27,13 +34,17 @@ Only the latest version of Beacon gets fixes.
 - **The alert screen** shows "New message" and the app's name, never who
   sent the message or what it says.
 - **Settings** (colour, speed, length, the pause and each app's settings)
-  stay on the phone. Android backup is turned off for Beacon.
-- **Logs:** release builds write no logs.
+  stay on the phone. Android backup and device-to-device transfer are
+  turned off for Beacon.
+- **Logs:** Beacon's own code logs nothing in release builds. Debug builds
+  log only each notification's decision: to flash, with its source (SMS,
+  WhatsApp or Telegram), or not to, with the reason. Android and the libraries Beacon uses
+  keep their own logs.
 
 ## Keeping secrets out of this repository
 
 The repository is public. Signing keys, passwords, tokens and service
 credentials are never committed: [`.gitignore`](.gitignore) blocks the
-usual files (`*.jks`, `*.keystore`, `keystore.properties`, `.env`,
-`google-services.json` and others), and the Google Play upload key lives
+usual files (`*.jks`, `*.keystore`, `*.pepk`, `keystore.properties`,
+`.env`, `google-services.json` and others). Any signing key is kept
 outside the repository.

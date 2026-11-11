@@ -11,15 +11,18 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `SECURITY.md`, for a public repository: how to report a security or
   privacy problem privately, and what Beacon reads and keeps. A Security
   section in `README.md` points to it.
-- `docs/checks/2026-11-public-repo-audit.md`: the whole git history checked
-  before going public, for tokens, keys, passwords, credential files,
-  email addresses, phone numbers, WhatsApp ids, message text, device
-  details and personal data in images. Nothing was found; the owner's real
-  name is the author name on 28 commits. It lists the GitHub settings for
-  the owner to switch on.
+- `docs/checks/2026-11-public-repo-audit.md`: the whole git history and
+  the 27 pull requests checked before going public, for tokens, keys,
+  passwords, credential files, email addresses, phone numbers, WhatsApp
+  ids, message text, device details and personal data in images. None was
+  found. Personal details left in on purpose are listed: the owner's name
+  on GitHub merges, the country, the test phone's model and build. It also
+  lists the GitHub settings to switch on, before and after going public.
 - `.gitignore` blocks signing keys and credential files (`*.jks`,
-  `*.keystore`, `keystore.properties`, `.env`, `google-services.json` and
-  others).
+  `*.keystore` and their backups, `*.pepk`, `*.p8`, SSH keys,
+  `keystore.properties`, `secrets.properties`, `.env`,
+  `google-services.json`, OAuth and service-account files and others), and
+  local Claude Code and superpowers state.
 - `docs/checks/2026-11-pause-on-battery.md`: the owner's second cable-out
   check on the test phone, on 11 November 2026, read from the battery
   history, Android's log and alarm records, and Beacon's file times. One
