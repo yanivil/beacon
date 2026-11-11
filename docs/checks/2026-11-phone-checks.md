@@ -104,10 +104,11 @@ Made during the session, on 11 November 2026:
   diagnostic build showed that WhatsApp sets no keys at all. Its reply
   carries a sender whose name equals the owner's name in the notification.
   WhatsApp also doesn't fill in Android's reply-history field.
-- **Fix:** when neither the sender nor the owner has a key, compare their
-  names. The names are compared in memory only, and never stored or
-  logged. A contact whose name is exactly the owner's name in WhatsApp
-  would then not flash.
+- **Fix:** for WhatsApp only, when neither the sender nor the owner has a
+  key, compare their names. The names are compared in memory only, and
+  never stored or logged. If WhatsApp's label for the owner is their
+  profile name (the label wasn't logged), a contact or group member with
+  exactly that name would then not flash.
 - Google Messages wasn't tried this way.
 - **Fixed** in the own-reply PR: see
   [`2026-11-own-whatsapp-reply.md`](2026-11-own-whatsapp-reply.md).
