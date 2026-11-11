@@ -5,7 +5,9 @@
     <string name="alerts_heading">Visual alerts</string>
     <string name="alerts_on">ON</string>
     <string name="alerts_paused">PAUSED</string>
-    <string name="alerts_on_body">Your screen and camera light will flash when a message arrives.</string>
+    <!-- "and you aren't using the phone": a real alert flashes only with the screen off or the lock screen showing
+         (the owner's decision, 11 November 2026; spec section 6, rule 7). -->
+    <string name="alerts_on_body">Your screen and camera light will flash when a message arrives and you aren’t using the phone.</string>
     <string name="alerts_paused_body">You will NOT see any flashes until you turn alerts back on.</string>
     <string name="alerts_back_on_at">Back ON by itself at %1$s.</string>
     <string name="alerts_pause_button">Pause all alerts</string>
