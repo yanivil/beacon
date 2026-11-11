@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) built on `fix/dependency-versions`. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), built on `fix/compile-sdk-37`. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -119,10 +119,10 @@ on it.
 | Widget | Jetpack Glance (`glance-appwidget`) |
 | Navigation | None: two tabs switched by a saved state value |
 | Build | Gradle wrapper, AGP 9.5.1 with its built-in Kotlin, the Compose compiler plugin matching that Kotlin, and a version catalog. Library versions are pinned to exact releases looked up on Google Maven when the plan is written. Gradle 9.8.2 and Kotlin 2.2.10 (AGP's own) until the dependency-version PR, which moved them to Gradle 9.9.1 and Kotlin 2.4.21: the Compose compiler plugin at 2.4.21 raises AGP's built-in Kotlin to the same version, so the two still match. |
-| Library versions (PR 1) | Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0. Compose 1.12, core 1.19 and lifecycle 2.11 need compileSdk 37 (their AAR metadata says `minCompileSdk=37`), and the project rules fix compileSdk at 36. The dependency-version PR checked this again: with them, the build stops on 13 libraries. They stay until the owner decides about compileSdk 37. |
-| Ripple | material-ripple 1.11.4 has no `ripple()` function, so `BeaconTheme` builds its white press ripple with the public `createRippleModifierNode`. |
+| Library versions | Compose BOM 2026.09.00 (Compose 1.12.1), core-ktx 1.19.1 and lifecycle 2.11.0, since the compileSdk 37 PR. From PR 1 until then: Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0, because the newer ones need compileSdk 37 (their AAR metadata says `minCompileSdk=37`) and the project rules fixed compileSdk at 36. |
+| Ripple | material-ripple has no `ripple()` function (1.11.4, and 1.12.1 has none either), so `BeaconTheme` builds its white press ripple with the public `createRippleModifierNode`. |
 | Unit tests | On JDK 21, Robolectric needs the JVM flag `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED`, which the app's test tasks set. |
-| SDK | minSdk 29, compileSdk 36, targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` |
+| SDK | minSdk 29, compileSdk 37 (36 until the owner raised it on 11 November 2026), targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` |
 
 ### Data flow
 
@@ -1276,9 +1276,10 @@ lint's two reminders that 37 exists are silenced on those two lines.
 Lint then reports 0 errors and 8 warnings, all about newer versions of
 Gradle and the libraries, for the owner to decide on.
 
-Dependency versions: built on `fix/dependency-versions`, a PR of its own
-after the lint clean-up, when the owner asked for the 8 warnings to be
-dealt with. Its rulings and checks are in
+Dependency versions: built on `fix/dependency-versions` and merged as
+yanivil/beacon#12 on 11 November 2026, a PR of its own after the lint
+clean-up, when the owner asked for the 8 warnings to be dealt with. Its
+rulings and checks are in
 [`docs/checks/2026-11-dependency-versions.md`](../checks/2026-11-dependency-versions.md).
 - The Gradle wrapper goes from 9.8.2 to 9.9.1, and Kotlin from 2.2.10 to
   2.4.21 (section 4). Nothing anyone sees or hears changes.
@@ -1289,6 +1290,19 @@ dealt with. Its rulings and checks are in
 
 Lint then reports 0 errors and 6 warnings, all about those three
 libraries, until the owner decides about compileSdk 37.
+
+compileSdk 37: built on `fix/compile-sdk-37`, after the owner raised
+compileSdk from 36 to 37 in `CLAUDE.md` on 11 November 2026. targetSdk
+stays at 36. Its rulings and checks are in
+[`docs/checks/2026-11-compile-sdk-37.md`](../checks/2026-11-compile-sdk-37.md).
+- Compose goes to 1.12.1 (BOM 2026.09.00), Lifecycle to 2.11.0 and Core
+  KTX to 1.19.1 (section 4). Beacon's code needs no change.
+- Compose UI 1.12 no longer needs `androidx.transition`, so it and six old
+  support libraries leave the app.
+- On the emulator, the screens are pixel-identical to the build before,
+  at font size 1.0 and 2.0.
+
+Lint then reports no issues.
 
 ## 17. Not tested at the end of Step 2 (expected)
 
