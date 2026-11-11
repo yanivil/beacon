@@ -659,6 +659,30 @@ Install it on one device or emulator, named by its serial (see
 ANDROID_SERIAL=<serial> ./gradlew :app:installDebug
 ```
 
+### Release builds for Google Play
+
+A release build is signed with the Play upload key, which never lives in
+this repository. Its keystore is `~/.android-keys/beacon-upload.jks`, and
+four Gradle properties in `~/.gradle/gradle.properties` point to it:
+`BEACON_UPLOAD_STORE_FILE`, `BEACON_UPLOAD_STORE_PASSWORD`,
+`BEACON_UPLOAD_KEY_ALIAS` and `BEACON_UPLOAD_KEY_PASSWORD`. Both files are
+readable only by their owner. Keep a backup of both, for example in a
+password manager: if the key is lost, Google can reset the upload key, but
+that takes a request and a wait.
+
+Build the bundle for Play (it goes to
+`app/build/outputs/bundle/release/app-release.aab`):
+
+```bash
+./gradlew :app:bundleRelease
+```
+
+Without the four properties, a release build stops at once and names the
+missing ones. Debug builds and the unit tests don't need them. Code
+shrinking is off for release builds (see
+[`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md),
+section 4).
+
 Build the Step 1 test app:
 
 ```bash

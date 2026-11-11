@@ -5,6 +5,36 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+/*
+ * Release signing (docs/specs/2026-11-11-play-release-design.md, section 4).
+ * The repository is public, so the Play upload key and its passwords never
+ * live in it: they come from four Gradle properties in the owner's
+ * ~/.gradle/gradle.properties. Debug builds and unit tests don't need them.
+ * A release build without them stops early and names the missing ones,
+ * instead of failing later with a vaguer signing error.
+ */
+
+/** The four Gradle properties the release signing config reads. */
+val uploadKeyProperties = listOf(
+    "BEACON_UPLOAD_STORE_FILE",
+    "BEACON_UPLOAD_STORE_PASSWORD",
+    "BEACON_UPLOAD_KEY_ALIAS",
+    "BEACON_UPLOAD_KEY_PASSWORD",
+)
+
+/**
+ * Reads one signing property.
+ *
+ * @param name the Gradle property's name.
+ * @return its value, or null when it is missing or blank (a blank value on the
+ *   command line, such as `-PBEACON_UPLOAD_KEY_ALIAS=`, counts as missing).
+ */
+fun uploadKeyProperty(name: String): String? =
+    providers.gradleProperty(name).orNull?.takeIf { it.isNotBlank() }
+
+/** The signing properties that are missing, in the order of [uploadKeyProperties]. */
+val missingUploadKeyProperties: List<String> = uploadKeyProperties.filter { uploadKeyProperty(it) == null }
+
 android {
     namespace = "dev.beacon"
     // CLAUDE.md sets compileSdk at 37 and targetSdk at 36. compileSdk 37 only
@@ -19,9 +49,34 @@ android {
         minSdk = 29
         //noinspection OldTargetApi
         targetSdk = 36
+        // Every upload to Google Play needs a higher versionCode.
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            // Only filled in when all four properties are there; otherwise
+            // checkReleaseSigning stops the release build first.
+            if (missingUploadKeyProperties.isEmpty()) {
+                storeFile = file(uploadKeyProperty("BEACON_UPLOAD_STORE_FILE")!!)
+                storePassword = uploadKeyProperty("BEACON_UPLOAD_STORE_PASSWORD")
+                keyAlias = uploadKeyProperty("BEACON_UPLOAD_KEY_ALIAS")
+                keyPassword = uploadKeyProperty("BEACON_UPLOAD_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            // Shrinking stays off for 1.0.0: Beacon reads Xiaomi's Autostart
+            // through a hidden Android method by reflection (Autostart.kt),
+            // which shrinking could break, and the app is small.
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
     }
 
     compileOptions {
@@ -47,6 +102,31 @@ android {
         }
     }
 }
+
+/**
+ * Stops a release build when a signing property is missing, naming each one and
+ * never printing a value. Every preReleaseBuild task depends on it.
+ *
+ * @throws GradleException when one or more of [uploadKeyProperties] is missing or blank.
+ */
+val checkReleaseSigning = tasks.register("checkReleaseSigning") {
+    group = "verification"
+    description = "Checks that the four release signing properties are set."
+    // Captured at configuration time as a plain list, so the action holds no
+    // reference to the build script.
+    val missing = missingUploadKeyProperties
+    doLast {
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "Release signing needs these Gradle properties in ~/.gradle/gradle.properties: " +
+                    missing.joinToString(", ") +
+                    ". See docs/specs/2026-11-11-play-release-design.md, section 4.",
+            )
+        }
+    }
+}
+
+tasks.matching { it.name == "preReleaseBuild" }.configureEach { dependsOn(checkReleaseSigning) }
 
 kotlin {
     compilerOptions {

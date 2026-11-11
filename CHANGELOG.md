@@ -8,6 +8,15 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Release signing for Google Play: `app/build.gradle.kts` signs release
+  builds with the Play upload key, read from four Gradle properties
+  (`BEACON_UPLOAD_STORE_FILE`, `BEACON_UPLOAD_STORE_PASSWORD`,
+  `BEACON_UPLOAD_KEY_ALIAS`, `BEACON_UPLOAD_KEY_PASSWORD`) in the owner's
+  `~/.gradle/gradle.properties`. The key lives in
+  `~/.android-keys/beacon-upload.jks`, outside the repository. A new
+  `checkReleaseSigning` task stops a release build that lacks any of them
+  and names the missing ones; debug builds and tests don't need them. Code
+  shrinking stays off. `README.md` explains how to build a release.
 - `docs/specs/2026-11-11-play-release-design.md`: the design for Beacon
   1.0.0 on Google Play, approved in chat on 11 November 2026. Internal
   testing first, for a few testers; the upload key outside the repository;
@@ -379,6 +388,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The version is 1.0.0 (versionCode 1), the first one for Google Play.
 - `docs/checks/2026-11-pause-on-battery.md`: a message during a pause, on
   the test phone later on 11 November 2026. With a second 1-hour pause on
   and the phone locked in deep idle on battery, a WhatsApp message was
