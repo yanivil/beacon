@@ -625,9 +625,20 @@ and the project uses [Semantic Versioning](https://semver.org/).
   says how "sent by the owner" is decided, section 14 that names are
   compared in memory but never kept, and the status and section 16 record
   #15's merge and the fix.
+- `docs/checks/2026-11-xiaomi-battery-step.md`: HyperOS's own labels for
+  the battery path, read from its Security app, and the Xiaomi step fix's
+  ruling and checks.
+- `README.md` for the Xiaomi step: the own-reply fix marked merged
+  (yanivil/beacon#16), a status entry and a section.
+- `docs/specs/2026-11-08-step2-design.md` for the Xiaomi step: section 9's
+  steps, and the status and section 16.
 
 ### Fixed
 
+- The Xiaomi battery step named the wrong row (the phone checks' P2). It
+  now says "Tap Power (or Battery), then No restrictions.", the row's name
+  on HyperOS 3 and on older versions, read from HyperOS's Security app on
+  the test phone. A test pins the wording.
 - The owner's own reply typed into a WhatsApp notification made Beacon
   flash (the phone checks' P3). WhatsApp sets no Person keys and marks the
   reply with a sender named as the owner, so `NotificationReader`'s new

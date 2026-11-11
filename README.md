@@ -86,10 +86,14 @@ contrast, big touch targets and plain wording.
         phone set to Hebrew, merged as yanivil/beacon#15 on 11 November
         2026. Checks:
         [`docs/checks/2026-11-rtl-text-direction.md`](docs/checks/2026-11-rtl-text-direction.md).
-      - [ ] **The owner's own WhatsApp reply (P3):** a reply typed into a
-        WhatsApp notification no longer flashes, built on
-        `fix/own-whatsapp-reply` and not merged yet. Checks:
+      - [x] **The owner's own WhatsApp reply (P3):** a reply typed into a
+        WhatsApp notification no longer flashes, merged as
+        yanivil/beacon#16 on 11 November 2026. Checks:
         [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
+      - [ ] **The Xiaomi battery step (P2):** names the row as HyperOS
+        does, "Power", built on `fix/xiaomi-battery-step` and not merged
+        yet. Checks:
+        [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -351,7 +355,8 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
     ("minute 1", full stops at the start). Fixed in the right-to-left text
     PR, below.
   - P2: the Xiaomi battery step says "Battery saver", but HyperOS in Hebrew
-    names the row "חשמל" (Power).
+    names the row "חשמל" (Power). Fixed in the Xiaomi battery step PR,
+    below.
   - P3: replying from a WhatsApp notification makes Beacon flash. Fixed in
     the own-reply PR, below.
   - P4: at the owner's text size the widget hides the resume time.
@@ -400,6 +405,21 @@ notification made Beacon flash for the owner's own reply.
   lint reports no issues:
   [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
   Not yet run on the test phone, the only place with WhatsApp.
+
+## The Xiaomi battery step
+
+The phone checks' defect P2: on Xiaomi phones the "Battery: No
+restrictions" row said "Tap Battery saver", but the row to tap on App info
+isn't called that.
+
+- **Evidence:** HyperOS's own Security app, read off the test phone, names
+  the App info row "Power" on HyperOS 3 ("חשמל" in Hebrew) and "Battery" on
+  older versions. "Battery saver" is the next page's heading, and "No
+  restrictions" its option.
+- **The fix:** "Tap Power (or Battery), then No restrictions."
+- **Checks:** 342 unit tests pass (1 new), and lint reports no issues:
+  [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
+  Not yet seen on the test phone.
 
 ## What Step 1 found
 
