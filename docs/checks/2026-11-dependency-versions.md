@@ -32,7 +32,8 @@ The owner asked for them to be bumped on 11 November 2026.
     release 9.9.1, so the wrapper took that.
   - It was updated with `./gradlew wrapper --gradle-version 9.9.1`, run
     twice so that the second run, already on 9.9.1, also writes its own
-    wrapper jar. The jar's SHA-256 matches the one Gradle publishes.
+    wrapper jar. The evidence that the jar is right is its SHA-256, which
+    matches the one Gradle publishes.
   - The Step 1 test app in `spikes/feasibility/` keeps its own wrapper at
     9.8.2. It is a separate, throwaway project kept as Step 1's record, and
     lint doesn't check it.
@@ -46,10 +47,11 @@ The owner asked for them to be bumped on 11 November 2026.
     `kotlin-gradle-plugin:2.2.10 -> 2.4.21`.
   - The app's `kotlin-stdlib` goes from 2.2.20 to 2.4.21. No other library
     the app ships changes.
-  - A comment in the catalog now says all this.
+  - A comment in the catalog now says all this, including that it holds
+    only while the catalog's version is at least AGP's own.
   - Cost if wrong: Beacon's code is compiled by a newer compiler. Every
-    test passes with no compiler warnings, and the screens run on the
-    emulator, but nothing has run on the phone.
+    test passes with no compiler warnings (after ruling V4), and the
+    screens run on the emulator, but nothing has run on the phone.
 - **V3. Compose, Lifecycle and Core KTX stay where they are.**
   - Compose 1.12 (BOM 2026.09.00 and the UI test libraries 1.12.1),
     Lifecycle 2.11.0 and Core KTX 1.19.1 need compileSdk 37: their AAR
@@ -69,14 +71,27 @@ The owner asked for them to be bumped on 11 November 2026.
     targetSdk decides how Android treats the app.
   - Lint's 6 warnings about them are not silenced. They stay as the
     owner's reminder until the owner decides about compileSdk 37. A comment
-    in the catalog says why.
+    in the catalog says why, above the four versions, which now sit
+    together at the end of the catalog's list.
   - Cost if wrong: Beacon misses those libraries' newer fixes until then.
+- **V4. The one test line Kotlin 2.4.21 warns about is removed.**
+  - `updatePauseFailsOnUnreadableStore` in `SettingsRepositoryTest` ended
+    its `runTest` block with a bare `Unit`. Kotlin 2.2.10 said nothing
+    about it, but Kotlin 2.4.21 reports it as an unused expression
+    (`UNUSED_EXPRESSION`).
+  - The block already returns `Unit`, so the line did nothing. It is
+    removed, with a comment saying why.
+  - Cost if wrong: none. The test still expects the `IOException`, and it
+    passes.
 
-### Where the rules and lint disagree
+### Where the owner's request and the rules disagree
 
-- Lint asks for Compose 1.12, Lifecycle 2.11 and Core 1.19, which need
-  compileSdk 37. `CLAUDE.md` says compileSdk 36.
-- The rules win (ruling V3).
+- The owner asked for all 8 versions to be bumped. Six of them (Compose
+  1.12, Lifecycle 2.11 and Core KTX 1.19) need compileSdk 37, and
+  `CLAUDE.md` says compileSdk 36.
+- The rules win (ruling V3): 2 of the 8 are bumped, and 6 wait.
+- One decision is the owner's: whether to raise compileSdk to 37. That
+  means changing `CLAUDE.md`; targetSdk could stay at 36.
 - The design isn't involved.
 
 ## Build machine
@@ -85,7 +100,7 @@ The owner asked for them to be bumped on 11 November 2026.
 |---|---|
 | `./gradlew clean :app:testDebugUnitTest` | Passes: 327 tests, 0 failures, the same tests as `main`. A version bump adds no behaviour of its own to test, so the whole suite is the test. |
 | `./gradlew :app:lintDebug` | Passes: 0 errors, 6 warnings, all of them ruling V3's. |
-| Warnings | A clean build with `--warning-mode all` shows no Kotlin compiler warnings and no Gradle deprecation warnings. |
+| Warnings | The first clean build on Kotlin 2.4.21 showed one compiler warning, `UNUSED_EXPRESSION` at `SettingsRepositoryTest.kt:94`, which `main` doesn't have (ruling V4; the review found it). After the fix, `./gradlew clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --rerun-tasks --warning-mode all` shows no Kotlin compiler warnings and no Gradle deprecation warnings. |
 | Kotlin version | `./gradlew buildEnvironment`: `compose-compiler-gradle-plugin:2.4.21`, and `kotlin-gradle-plugin:2.2.10 -> 2.4.21`. |
 | Libraries the app ships | `./gradlew :app:dependencies --configuration debugRuntimeClasspath` before and after: the only difference is `kotlin-stdlib`, 2.2.20 before and 2.4.21 after. |
 | Wrapper jar | SHA-256 `621008af…3cdaf8`, the same as Gradle's published `gradle-9.9.1-wrapper.jar.sha256`. |

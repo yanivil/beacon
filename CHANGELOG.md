@@ -279,7 +279,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
   11, and every phone check.
 - `docs/checks/2026-11-dependency-versions.md`, with a screenshot in
   `docs/checks/dependency-versions/`: the dependency-version PR's rulings
-  V1 to V3, each with what it costs if wrong, and its checks. 327 unit
+  V1 to V4, each with what it costs if wrong, and its checks. 327 unit
   tests pass with no compiler warnings, and lint reports 0 errors and 6
   warnings. The APK's manifest and resources match `main`'s, and the only
   library the app ships that changes is `kotlin-stdlib`. With the other
@@ -529,7 +529,11 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - Compose (BOM 2026.06.01, UI test libraries 1.11.4), Lifecycle 2.10.0
     and Core KTX 1.18.0 stay. Their newer releases need compileSdk 37, and
     `CLAUDE.md` fixes compileSdk at 36. Comments in
-    `gradle/libs.versions.toml` say why each version is where it is.
+    `gradle/libs.versions.toml` say why each version is where it is, and
+    those four versions now sit together under their comment.
+  - `SettingsRepositoryTest`: the bare `Unit` at the end of
+    `updatePauseFailsOnUnreadableStore` did nothing, and Kotlin 2.4.21
+    reports it as an unused expression, so it is removed.
   - Lint now reports 0 errors and 6 warnings, all about those three
     libraries, left for the owner's decision on compileSdk 37.
 - `README.md`: the lint clean-up marked merged (yanivil/beacon#11, on

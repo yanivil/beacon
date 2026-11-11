@@ -254,10 +254,10 @@ and hears in English doesn't change.
     `allowBackup="false"` already turns backup off there.
   - `compileSdk` and `targetSdk` stay at 36, as `CLAUDE.md` says, so
     lint's two reminders that 37 exists are silenced on those two lines.
-- **Left for the owner:** 8 warnings about newer versions of Gradle, the
-  Compose BOM and test libraries, Lifecycle, Core KTX and the Kotlin
-  Compose plugin. The owner asked for them to be bumped; see the next
-  section.
+- **Left for the owner at the time:** 8 warnings about newer versions of
+  Gradle, the Compose BOM and test libraries, Lifecycle, Core KTX and the
+  Kotlin Compose plugin. The owner asked for them to be bumped; see the
+  next section.
 
 ## The dependency versions
 
@@ -275,6 +275,8 @@ The owner asked for lint's 8 newer-version warnings to be dealt with on
   fixes compileSdk at 36. The build stops on 13 of their libraries if they
   are bumped. Only compileSdk would have to change for them; targetSdk can
   stay at 36. Lint's 6 warnings about them stay until the owner decides.
+- **One test line:** Kotlin 2.4.21 warned about a bare `Unit` that did
+  nothing at the end of a test, so it is removed.
 - **Checks:** all 327 unit tests pass, with no compiler warnings. Lint
   reports 0 errors and 6 warnings. The APK's manifest and resources match
   `main`'s. On the emulator, Home, Alert settings and the test alert run

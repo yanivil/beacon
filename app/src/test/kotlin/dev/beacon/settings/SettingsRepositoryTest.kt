@@ -90,8 +90,9 @@ class SettingsRepositoryTest {
 
     /** A store that can't be read makes updatePause fail, rather than write over unknown data. */
     @Test(expected = IOException::class) fun updatePauseFailsOnUnreadableStore() = runTest {
+        // runTest's block returns Unit, so the Pause this would return is dropped. A bare
+        // `Unit` after it is an unused expression to Kotlin 2.4, so there is none.
         SettingsRepository(UnreadableDataStore()).updatePause { Pause.None }
-        Unit
     }
 
     /** Stepping the custom length does not change which duration is chosen. */

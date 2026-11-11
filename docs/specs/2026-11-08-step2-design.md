@@ -1284,6 +1284,8 @@ dealt with. Its rulings and checks are in
   2.4.21 (section 4). Nothing anyone sees or hears changes.
 - Compose, Lifecycle and Core KTX stay, since their newer releases need
   compileSdk 37 (section 4).
+- One test line, a bare `Unit` that Kotlin 2.4.21 reports as unused, is
+  removed.
 
 Lint then reports 0 errors and 6 warnings, all about those three
 libraries, until the owner decides about compileSdk 37.
