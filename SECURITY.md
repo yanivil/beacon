@@ -17,6 +17,9 @@ Only the latest version of Beacon gets fixes.
 
 ## What the Beacon app reads and keeps
 
+The privacy policy for Google Play says the same in plainer words:
+[`PRIVACY.md`](PRIVACY.md).
+
 This section is about the app in [`app/`](app). The test app in
 [`spikes/`](spikes) was used only for the feasibility tests on a test phone
 and isn't part of Beacon.

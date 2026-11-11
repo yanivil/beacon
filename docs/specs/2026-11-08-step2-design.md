@@ -58,7 +58,8 @@ engine behind them, which notices messages and runs the alert.
 
 - Phone calls and WhatsApp video calls (owner's decision, 8 November 2026).
 - The "Add other apps" button (owner's decision, 8 November 2026).
-- Publishing on Google Play, release signing, store listing.
+- Publishing on Google Play, release signing, store listing. They have
+  their own spec: [`2026-11-11-play-release-design.md`](2026-11-11-play-release-design.md).
 - A Hebrew translation. The layouts stay right-to-left ready (section 12).
 - Any network use, analytics or crash reporting.
 

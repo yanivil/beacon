@@ -8,6 +8,48 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/store/graphics/`: the Play Store icon (512 × 512, 32-bit PNG),
+  feature graphic (1024 × 500) and five emulator screenshots, with the HTML
+  they are rendered from, `render.sh` (headless Chrome) and
+  `png_add_alpha.py` (gives the icon the alpha channel Play asks for).
+- `docs/store/play-console-answers.md`: every Play Console answer for
+  Beacon 1.0.0 (create app, store listing, store settings, App content
+  with the content rating and Data safety, internal testing), for the
+  owner to approve before anything is entered.
+- `PRIVACY.md`, the privacy policy Google Play links to: Beacon collects
+  and shares nothing, has no internet access, and ignores the text of
+  notifications; it explains each permission. `SECURITY.md` links it.
+- `docs/store/listing.md`: the Play store texts (name, short and full
+  descriptions, release notes and other fields), with a table of each
+  claim's source. They name SMS and WhatsApp only.
+- `docs/store/release-checklist.md`: the steps after internal testing (a
+  closed test with at least 12 testers for 14 days, the production
+  application, the production release) and for every later version.
+- `docs/checks/2026-11-play-release.md`: the release build's smoke test on
+  the emulator (setup card, test alert, widget pause, an SMS with the screen
+  off, no decision log). `README.md` gets a "Google Play" section.
+- Release signing for Google Play: `app/build.gradle.kts` signs release
+  builds with the Play upload key, read from four Gradle properties
+  (`BEACON_UPLOAD_STORE_FILE`, `BEACON_UPLOAD_STORE_PASSWORD`,
+  `BEACON_UPLOAD_KEY_ALIAS`, `BEACON_UPLOAD_KEY_PASSWORD`) in the owner's
+  `~/.gradle/gradle.properties`. The key lives in
+  `~/.android-keys/beacon-upload.jks`, outside the repository. A new
+  `checkReleaseSigning` task stops a release build that lacks any of them
+  and names the missing ones; debug builds and tests don't need them. Code
+  shrinking stays off. `README.md` explains how to build a release.
+- `docs/specs/2026-11-11-play-release-design.md`: the design for Beacon
+  1.0.0 on Google Play, approved in chat on 11 November 2026. Internal
+  testing first, for a few testers; the upload key outside the repository;
+  the store listing (naming SMS and WhatsApp only), graphics and a privacy
+  policy in the repository; every Play Console answer approved by the owner
+  before it is submitted; a checklist for the later closed test and
+  production release.
+- `docs/plans/2026-11-11-play-release.md`: the plan for that release, in
+  ten tasks: the upload key and release signing, a smoke test of the
+  release build, the store texts and privacy policy, the graphics, the
+  Play Console answer sheet (the owner approves it before anything is
+  entered), the merge, the Play Console setup, the internal test, the
+  check from Play on the test phone, and the docs.
 - The repository is public since 11 November 2026, with private
   vulnerability reporting, secret scanning and push protection, Dependabot
   alerts and security updates, approval for outside contributors'
@@ -366,6 +408,7 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The version is 1.0.0 (versionCode 1), the first one for Google Play.
 - `docs/checks/2026-11-pause-on-battery.md`: a message during a pause, on
   the test phone later on 11 November 2026. With a second 1-hour pause on
   and the phone locked in deep idle on battery, a WhatsApp message was
