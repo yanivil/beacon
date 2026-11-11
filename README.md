@@ -94,10 +94,14 @@ contrast, big touch targets and plain wording.
         does, "Power", merged as yanivil/beacon#17 on 11 November 2026.
         Checks:
         [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
-      - [ ] **The widget's text size (P4):** the owner's smaller state word
-        and padding, so the resume time shows at 4 × 2, built on
-        `feature/widget-larger-text-fit` and not merged yet. Checks:
+      - [x] **The widget's text size (P4):** the owner's smaller state word
+        and padding, so the resume time shows at 4 × 2, merged as
+        yanivil/beacon#18 on 11 November 2026. Checks:
         [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
+      - [ ] **Flash only when the phone isn't in use:** the owner's
+        decision, built on `feature/flash-only-when-not-in-use` and not
+        merged yet. Checks:
+        [`docs/checks/2026-11-flash-when-not-in-use.md`](docs/checks/2026-11-flash-when-not-in-use.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -442,6 +446,23 @@ showed only "PAUSED", because the resume time didn't fit under it.
   The preview with the same values ran on the test phone; this build
   hasn't yet.
 
+## Flash only when the phone isn't in use
+
+The owner's decision after the phone checks: while the phone is unlocked
+and in use, a flashing yellow screen disrupts, and the message app's own
+banner already shows the message.
+
+- **The rule:** a real alert flashes only when the screen is off, or on but
+  showing the lock screen. While the phone is in use Beacon does nothing,
+  and that message stays handled, so it doesn't flash later. The test
+  alert is not affected. `CLAUDE.md`'s scope records the decision.
+- **Checks:** 356 unit tests pass (12 new), with no compiler warnings, and
+  lint reports no issues. On the emulator an SMS gave `IN_USE` with the
+  screen on and unlocked, and an alert with the screen off and with the
+  lock screen showing:
+  [`docs/checks/2026-11-flash-when-not-in-use.md`](docs/checks/2026-11-flash-when-not-in-use.md).
+  Not yet run on the test phone.
+
 ## What Step 1 found
 
 On the test phone, Beacon works if the person grants three things:
@@ -465,9 +486,10 @@ From the design:
 
 - **Flash for these apps:** Texts (SMS), WhatsApp messages and Telegram
   messages, each switched ON or OFF. Beacon flashes only when a message is
-  received, never for backups or other app activity. Telegram wasn't tested
-  in Step 1. The design also shows Phone Calls and WhatsApp video calls;
-  those are out of scope.
+  received, never for backups or other app activity, and only when the
+  screen is off or the lock screen is showing (owner, 11 November 2026).
+  Telegram wasn't tested in Step 1. The design also shows Phone Calls and
+  WhatsApp video calls; those are out of scope.
 - **How long to flash:** 1 min, 5 min, Custom (1 to 60 minutes in fixed
   steps) or Until I stop it. The default is 1 min.
 - **Blink speed:** Slow (30), Medium (60) or Fast (90) blinks a minute.

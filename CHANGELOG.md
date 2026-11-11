@@ -311,6 +311,15 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- A real alert flashes only when the phone isn't in use: when the screen is
+  off, or on but showing the lock screen (the owner's decision, 11 November
+  2026). A new message rule, `IN_USE`, comes after the owner's own message
+  and before the pause; the message stays handled, so it can't flash later.
+  The new `phoneInUse` reads the screen and the lock screen, only when a
+  message reaches that rule, and counts a failed read as not in use. 12
+  tests, two of them through the real app's wiring; `BeaconListenerTest`
+  turns Robolectric's screen off for its alert.
+- `CLAUDE.md`: the scope records the owner's decision on when to flash.
 - The widget's state word is smaller and its padding narrower, as the owner
   chose from a preview on the test phone (the phone checks' P4): "PAUSED"
   40 sp and "ON" 48 sp instead of the design's 52 and 64, and 12 dp of
@@ -646,6 +655,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/specs/2026-11-08-step2-design.md` for the widget text size: section
   10's sizes and padding, a section 3 row for the difference from the
   design, and the status and section 16.
+- `docs/checks/2026-11-flash-when-not-in-use.md`: the in-use rule's
+  rulings R1 to R3, its tests, and three emulator cases (in use, screen
+  off, lock screen).
+- `README.md` for the in-use rule: the widget text size marked merged
+  (yanivil/beacon#18), a status entry, the feature line and a section.
+- `docs/specs/2026-11-08-step2-design.md` for the in-use rule: section 6's
+  new rule 7 (the pause and the switches become 8 and 9), how section 7
+  decides "in use", a section 3 row, and the status and section 16.
 
 ### Fixed
 

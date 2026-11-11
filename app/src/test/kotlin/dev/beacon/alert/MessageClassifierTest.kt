@@ -1,6 +1,8 @@
 package dev.beacon.alert
 
+import dev.beacon.settings.AppSetting
 import dev.beacon.settings.BeaconSettings
+import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -37,7 +39,8 @@ class MessageClassifierTest {
         settings: BeaconSettings = BeaconSettings.DEFAULT,
         now: Long = 0,
         seen: HandledRecord = HandledRecord(),
-    ) = MessageClassifier.decide(f, settings, now, SMS_APP, seen)
+        inUse: Boolean = false,
+    ) = MessageClassifier.decide(f, settings, now, SMS_APP, seen) { inUse }
 
     private fun paused(p: Pause) = BeaconSettings.DEFAULT.copy(pause = p)
 
@@ -163,5 +166,47 @@ class MessageClassifierTest {
         decide(facts(), seen = seen)
         seen.remove("k1")
         assertEquals(Decision.Alert(MessageSource.WHATSAPP), decide(facts(), seen = seen))
+    }
+
+    /** While the person is using the phone, a message doesn't flash: its own banner is the cue (owner, 11 November 2026). */
+    @Test fun inUseIgnoresTheMessage() =
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), inUse = true))
+
+    /** A message that arrived while the phone was in use is handled: it doesn't flash later, once the screen is off. */
+    @Test fun aMessageSeenInUseDoesNotFlashLater() {
+        val seen = HandledRecord()
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), seen = seen, inUse = true))
+        assertEquals(Decision.Ignore(IgnoreReason.ALREADY_HANDLED), decide(facts(), seen = seen, inUse = false))
+        // A newer message in the same notification flashes, once the phone isn't in use.
+        assertEquals(Decision.Alert(MessageSource.WHATSAPP), decide(facts(newest = 2_000), seen = seen, inUse = false))
+    }
+
+    /** The owner's own message is named as such even while the phone is in use. */
+    @Test fun ownMessageComesBeforeInUse() =
+        assertEquals(Decision.Ignore(IgnoreReason.OWN_MESSAGE), decide(facts(own = true), inUse = true))
+
+    /** In use is named before a pause and an app switched OFF. */
+    @Test fun inUseComesBeforePausedAndAppOff() {
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), paused(Pause.Indefinite), inUse = true))
+        val whatsAppOff = BeaconSettings.DEFAULT.copy(
+            apps = BeaconSettings.DEFAULT.apps + (MessageSource.WHATSAPP to AppSetting(false, FlashColour.GREEN)),
+        )
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), whatsAppOff, inUse = true))
+    }
+
+    /** A repeat of a message seen while in use is already handled, even while still in use: rule 5 comes first. */
+    @Test fun repeatWhileInUseIsAlreadyHandled() {
+        val seen = HandledRecord()
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), seen = seen, inUse = true))
+        assertEquals(Decision.Ignore(IgnoreReason.ALREADY_HANDLED), decide(facts(), seen = seen, inUse = true))
+    }
+
+    /** The in-use check is asked only for a message that reaches its rule, not for other apps' notifications. */
+    @Test fun inUseIsAskedOnlyAtItsRule() {
+        var asked = 0
+        MessageClassifier.decide(facts(pkg = "com.example"), BeaconSettings.DEFAULT, 0, SMS_APP, HandledRecord()) { asked++; true }
+        assertEquals(0, asked)
+        MessageClassifier.decide(facts(), BeaconSettings.DEFAULT, 0, SMS_APP, HandledRecord()) { asked++; true }
+        assertEquals(1, asked)
     }
 }

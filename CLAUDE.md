@@ -26,6 +26,11 @@ hard-of-hearing seniors. Follow every rule below in every session.
   are out of scope, although the design shows them. "How long to flash"
   defaults to 1 minute. Step 1 results and their reasons are in
   `docs/feasibility.md`.
+- **When to flash (owner's decision, 11 November 2026):** a real alert
+  flashes only when the screen is off or the lock screen is showing. While
+  the phone is unlocked and in use, Beacon does nothing, neither the screen
+  nor the camera light: the message app's own notification is the cue. The
+  test alert is not affected.
 
 ## Plan gate
 

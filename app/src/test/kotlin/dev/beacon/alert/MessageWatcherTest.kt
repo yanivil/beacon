@@ -28,8 +28,11 @@ class MessageWatcherTest {
         FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform(),
     )
     private val logged = mutableListOf<Decision>()
+
+    /** Whether the phone counts as in use; false unless a test says otherwise. */
+    private var inUse = false
     private val watcher = MessageWatcher(
-        settings, controller, CoroutineScope(Dispatchers.Main.immediate), { SMS_APP }, { 0L }, { logged += it },
+        settings, controller, CoroutineScope(Dispatchers.Main.immediate), { SMS_APP }, { inUse }, { 0L }, { logged += it },
     )
 
     /**
@@ -121,6 +124,17 @@ class MessageWatcherTest {
         controller.stop(); idle(10)
         watcher.onConnected(emptyList())
         watcher.onPosted(facts())
+        assertTrue(controller.state.value is AlertState.Running)
+    }
+
+    /** While the phone is in use, a message starts no alert, and the decision says why. */
+    @Test fun noAlertWhileThePhoneIsInUse() {
+        inUse = true
+        watcher.onPosted(facts())
+        assertEquals(AlertState.Idle, controller.state.value)
+        assertEquals(listOf<Decision>(Decision.Ignore(IgnoreReason.IN_USE)), logged)
+        inUse = false
+        watcher.onPosted(facts(key = "k2", time = 2_000))
         assertTrue(controller.state.value is AlertState.Running)
     }
 }

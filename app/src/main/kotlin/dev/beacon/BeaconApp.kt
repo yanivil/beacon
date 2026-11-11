@@ -11,6 +11,7 @@ import dev.beacon.alert.AlertController
 import dev.beacon.alert.AndroidAlertPlatform
 import dev.beacon.alert.CameraTorchSwitch
 import dev.beacon.alert.MessageWatcher
+import dev.beacon.alert.phoneInUse
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.SettingsRepository
 import dev.beacon.widget.AndroidResumeAlarm
@@ -125,6 +126,8 @@ class BeaconApp : Application() {
             settingsState, alertController, appScope,
             // Read on every call: the user can change the default SMS app at any time.
             defaultSmsPackage = { Telephony.Sms.getDefaultSmsPackage(this) },
+            // Read when each message arrives: the owner wants no flash while the phone is in use.
+            phoneInUse = { phoneInUse(this) },
             // The only log in the app: the decision alone, and only in debug builds.
             log = { if (BuildConfig.DEBUG) Log.d("Beacon", it.toString()) },
         )

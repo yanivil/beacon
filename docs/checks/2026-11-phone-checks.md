@@ -45,8 +45,8 @@ Made during the session, on 11 November 2026:
    the screen is off, or when it's on but showing the lock screen. While
    the phone is unlocked and in use, Beacon does nothing at all: no screen
    flash and no camera light. The message app's own notification is the cue
-   then. The test alert is not affected. Not built yet: it needs a spec
-   change and a PR.
+   then. The test alert is not affected. Built afterwards: see
+   [`2026-11-flash-when-not-in-use.md`](2026-11-flash-when-not-in-use.md).
 2. **The widget's new look.** "PAUSED" at 40 sp and "ON" at 48 sp, instead
    of the design's 52 and 64, and 12 dp of padding instead of 16, so the
    resume time fits at 4 × 2 (defect P4). The owner chose this from preview
