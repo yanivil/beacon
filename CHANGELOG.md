@@ -8,6 +8,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `LICENSE.md`: Beacon is licensed under the PolyForm Strict License 1.0.0
+  (copyright 2026 Bernhard Software), as the owner chose: free for
+  non-commercial use, no changes or sharing, and no liability as far as the
+  law allows. The bundled font keeps its own SIL Open Font License.
+  `README.md` gets "License" and "Disclaimer" sections, and the store
+  listing a "Please note" paragraph: Beacon is an aid that can miss a
+  message, and a warning for photosensitive epilepsy.
 - `docs/store/graphics/`: the Play Store icon (512 × 512, 32-bit PNG),
   feature graphic (1024 × 500) and five emulator screenshots, with the HTML
   they are rendered from, `render.sh` (headless Chrome) and

@@ -62,7 +62,10 @@ Beacon shows a "Finish setup" card that explains each step in plain words and op
 PRIVATE
 Beacon has no internet access. It collects nothing, shares nothing and shows no ads. It ignores the text of your messages, and the alert screen shows only "New message" and the app's name, never who sent it or what it says.
 
-Beacon is free, and its code is public on GitHub: github.com/yanivil/beacon
+PLEASE NOTE
+Beacon is an aid, not a safety device. It can miss a message or flash late, for example if a permission is turned off or the phone's battery settings hold it back, so don't rely on it alone where a missed message could cause harm. It flashes the screen and the camera light: if you have photosensitive epilepsy, check with your doctor first.
+
+Beacon is free. Its code is public on GitHub under the PolyForm Strict License: github.com/yanivil/beacon
 <!-- /full -->
 
 ## Release notes for 1.0.0
@@ -103,7 +106,8 @@ Every claim in the full description, with what shows it.
 | Every alert has Stop, and stops by itself after its length unless "Until I stop it" was chosen | `strings.xml` (`stop`); [`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md) (an alert ended by itself after 1 minute; another by a tap) |
 | The setup steps and their reasons | `strings.xml` (`setup_*`), word for word |
 | No internet, collects and shares nothing, no ads, ignores message text, alert screen shows only "New message" and the app | [`PRIVACY.md`](../../PRIVACY.md), [`SECURITY.md`](../../SECURITY.md); the release manifest ([`docs/checks/2026-11-public-repo-audit.md`](../checks/2026-11-public-repo-audit.md)) |
-| Free; code public on GitHub | This repository is public. It has no licence yet, so the listing says "public", not "open source". |
+| Free; code public on GitHub under the PolyForm Strict License | This repository is public; [`LICENSE.md`](../../LICENSE.md). PolyForm Strict isn't an open-source licence, so the listing says "public", not "open source". |
+| Please note: an aid, not a safety device; can miss a message or flash late; photosensitive epilepsy | The owner asked for this protection (11 November 2026); `README.md`, "Disclaimer". The reasons named are real: setup permissions, battery settings ([`docs/feasibility.md`](../feasibility.md)). |
 
 Telegram: Beacon supports Telegram messages too, but that has never been
 tested on a phone, so the listing doesn't mention it (spec section 2).
