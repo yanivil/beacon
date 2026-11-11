@@ -50,7 +50,8 @@ Made during the session, on 11 November 2026:
 2. **The widget's new look.** "PAUSED" at 40 sp and "ON" at 48 sp, instead
    of the design's 52 and 64, and 12 dp of padding instead of 16, so the
    resume time fits at 4 × 2 (defect P4). The owner chose this from preview
-   2 on the phone. Not built yet.
+   2 on the phone. Built afterwards: see
+   [`2026-11-widget-text-size.md`](2026-11-widget-text-size.md).
 3. **A second tap on Stop needs no guard.** On an unlocked phone the second
    tap lands on whatever is behind the alert, such as a home-screen icon.
    The owner ruled that this isn't Beacon's problem.
@@ -126,6 +127,8 @@ Made during the session, on 11 November 2026:
   12:54").
 - Preview 2 shows both ([07](phone-checks/07-widget-preview.png)). The
   owner chose that look (decision 2).
+- **Fixed** with the owner's sizes: see
+  [`2026-11-widget-text-size.md`](2026-11-widget-text-size.md).
 
 ### P5. After a restart, Beacon is silent until it's opened
 

@@ -11,7 +11,10 @@ import org.junit.Test
  * Why an estimate here: these cases test the fit's rules (the drop order,
  * the icon, the kept state word) with the fixed estimate the fit used before
  * ruling F5, so their numbers stay as they were. The widget's real measure
- * is tested at the emulator's sizes in StaticLayoutMeasureTest.
+ * is tested at the emulator's sizes in StaticLayoutMeasureTest. The lines
+ * here keep the design's 64 and 52 sp state words on purpose: they test the
+ * rules, not the widget's current sizes (WidgetFitOnPhoneTest does that), and
+ * the numbers in the comments below are for those sizes.
  */
 
 /** Tests for [fitLines] with [EstimateMeasure]. `{ it }` is font scale 1.0; `{ it * 2 }` is a linear 2.0. */

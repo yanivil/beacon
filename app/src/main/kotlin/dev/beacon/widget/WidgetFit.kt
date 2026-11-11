@@ -56,8 +56,8 @@ interface LineMeasure {
     fun heightDp(spec: LineSpec, widthDp: Float): Float
 }
 
-/** Padding on each side of the widget, in dp; WidgetContent pads by the same. */
-internal const val WIDGET_PADDING_DP = 16f
+/** Padding on each side of the widget, in dp; WidgetContent pads by the same. 12, not 16, by the owner's choice (phone checks P4). */
+internal const val WIDGET_PADDING_DP = 12f
 
 /** Gap between lines, in dp; WidgetContent draws the same gap. */
 internal const val LINE_GAP_DP = 4f

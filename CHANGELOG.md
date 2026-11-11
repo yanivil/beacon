@@ -311,6 +311,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The widget's state word is smaller and its padding narrower, as the owner
+  chose from a preview on the test phone (the phone checks' P4): "PAUSED"
+  40 sp and "ON" 48 sp instead of the design's 52 and 64, and 12 dp of
+  padding instead of 16, so the resume time shows at 4 × 2 at the owner's
+  text size. The sizes are named constants. `WidgetFitOnPhoneTest` (2
+  tests) runs the fit with the phone's own line heights; four tests that
+  pinned the old sizes are updated.
 - `CLAUDE.md`:
   - Git rules: authenticate only through the gh login
     (`gh auth setup-git`); never read, use or create credentials, tokens or
@@ -632,6 +639,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
   (yanivil/beacon#16), a status entry and a section.
 - `docs/specs/2026-11-08-step2-design.md` for the Xiaomi step: section 9's
   steps, and the status and section 16.
+- `docs/checks/2026-11-widget-text-size.md`: the widget text size's
+  rulings W1 to W3, its tests and the phone's preview.
+- `README.md` for the widget text size: the Xiaomi step marked merged
+  (yanivil/beacon#17), a status entry and a section.
+- `docs/specs/2026-11-08-step2-design.md` for the widget text size: section
+  10's sizes and padding, a section 3 row for the difference from the
+  design, and the status and section 16.
 
 ### Fixed
 

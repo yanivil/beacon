@@ -88,6 +88,21 @@ fun WidgetContent(
     }
 }
 
+/*
+ * Why the state word is smaller than the design's 64 and 52 sp: at the test
+ * phone's 4 × 2 size and the owner's text size, a 52 sp "PAUSED" left no
+ * room for the resume time, so the widget showed the word alone (the phone
+ * checks' P4). The owner chose these sizes, with 12 dp of padding, from a
+ * preview on the phone on 11 November 2026. Both stay well above the 28 sp
+ * floor for headers.
+ */
+
+/** The ON word's text size, in sp (the design's 64, reduced by the owner's choice). */
+internal const val STATE_ON_SP = 48f
+
+/** The PAUSED word's text size, in sp (the design's 52, reduced by the owner's choice). */
+internal const val STATE_PAUSED_SP = 40f
+
 /**
  * Builds every line the widget wants, in display order, with its words from strings.xml and its text size.
  *
@@ -107,7 +122,7 @@ internal fun widgetLines(context: Context, state: WidgetState, resumeTime: Strin
     }
     return listOfNotNull(
         LineSpec(WidgetLine.TITLE, context.getString(R.string.alerts_heading), 28f, false),
-        LineSpec(WidgetLine.STATE, stateWord, if (on) 64f else 52f, true),
+        LineSpec(WidgetLine.STATE, stateWord, if (on) STATE_ON_SP else STATE_PAUSED_SP, true),
         resumeText?.let { LineSpec(WidgetLine.RESUME_TIME, it, 22f, false) },
         LineSpec(
             WidgetLine.TAP_HINT,

@@ -77,8 +77,9 @@ class WidgetContentTest {
     /** When the fit drops the icon, no icon is drawn, and the word and the resume line stay. */
     @Test fun iconGoesWhenTheFitDropsIt() = runGlanceAppWidgetUnitTest {
         setContext(app)
-        // WidgetFitTest's case: at 232 x 160 dp the icon goes before "PAUSED" would wrap.
-        setAppWidgetSize(DpSize(232.dp, 160.dp))
+        // At 190 x 160 dp the 40 sp "PAUSED" and its icon need 180 dp of the 166 left inside, so the
+        // icon goes before the word would wrap; the word and the resume line then fit.
+        setAppWidgetSize(DpSize(190.dp, 160.dp))
         provideComposable { WidgetContent(WidgetState.Paused(1L), "10:30", EstimateMeasure { it }) }
         onNode(hasText("PAUSED")).assertExists()
         onNode(hasText("Back ON by itself at 10:30")).assertExists()
