@@ -15,6 +15,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
   policy in the repository; every Play Console answer approved by the owner
   before it is submitted; a checklist for the later closed test and
   production release.
+- `docs/plans/2026-11-11-play-release.md`: the plan for that release, in
+  ten tasks: the upload key and release signing, a smoke test of the
+  release build, the store texts and privacy policy, the graphics, the
+  Play Console answer sheet (the owner approves it before anything is
+  entered), the merge, the Play Console setup, the internal test, the
+  check from Play on the test phone, and the docs.
 - The repository is public since 11 November 2026, with private
   vulnerability reporting, secret scanning and push protection, Dependabot
   alerts and security updates, approval for outside contributors'

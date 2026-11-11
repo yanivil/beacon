@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| Status | Design approved by the owner in chat, 11 November 2026. This written spec is waiting for the owner's review. |
+| Status | Approved by the owner, 11 November 2026: the design in chat, then this written spec. |
+| Plan | [`docs/plans/2026-11-11-play-release.md`](../plans/2026-11-11-play-release.md) |
 | Date | 11 November 2026 |
 | Builds on | Step 2 ([`2026-11-08-step2-design.md`](2026-11-08-step2-design.md)), whose section 2 left Google Play, release signing and the store listing out of Step 2 |
 | Play account | The owner's personal developer account, "Bernhard Software" |
@@ -139,15 +140,17 @@ Every claim in the listing must match the app and its checks records.
 
 ## 6. Graphics
 
-All made on this computer with tools it already has (SVG drawn by hand,
-turned into PNG with macOS's own tools); no new software. They live in
+All made on this computer with tools it already has: the icon and the
+feature graphic are drawn as small HTML pages and rendered at their exact
+size by Google Chrome in headless mode, and macOS's `sips` converts
+formats. No new software. They live in
 `docs/store/graphics/`.
 
 | Asset | Size and format | Content |
 |---|---|---|
 | App icon | 512 × 512, 32-bit PNG | The launcher icon: the black bolt on the design's yellow. |
-| Feature graphic | 1024 × 500, 24-bit PNG, no transparency | "Beacon" and the bolt on the yellow, with one short line such as "See every message", in the app's colours. |
-| Phone screenshots | 4 or 5, 24-bit PNG, no transparency; each side 320 to 3,840 pixels, the long side at most twice the short one | From the emulator at the default text size, in English: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the widget. The emulator's 1080 × 2400 screens are cropped to 1080 × 2160 to fit the 2:1 limit. |
+| Feature graphic | 1024 × 500, JPEG (Play takes JPEG or a 24-bit PNG; neither has transparency) | "Beacon" and the bolt on the yellow, with one short line such as "See every message", in the app's colours. |
+| Phone screenshots | 4 or 5, JPEG, no transparency; each side 320 to 3,840 pixels, the long side at most twice the short one | From the emulator at the default text size, in English: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the widget. The emulator's 1080 × 2400 screens are cropped to 1080 × 2160 to fit the 2:1 limit. |
 
 The screenshots come from the emulator, so they contain no personal data.
 Contrast and text sizes are the app's own, which already meet the project's
