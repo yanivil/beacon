@@ -353,7 +353,17 @@ class HomeScreenTest {
         setup = SetupStatus(false, false, false)
         show()
         rule.onNodeWithText(STEPS_API34).performScrollTo().assertExists()
-        rule.onNodeWithText("Tap Battery saver, then No restrictions.").assertDoesNotExist()
+        rule.onNodeWithText(STEPS_XIAOMI).assertDoesNotExist()
+    }
+
+    /**
+     * The Xiaomi steps name the rows as HyperOS labels them. The test phone's App info row is "Power"
+     * (its Hebrew is the "חשמל" the phone showed); HyperOS's Security app, 12.8.6, also carries an older
+     * title for that row, "Battery". The next page offers "No restrictions" (the phone checks' P2).
+     */
+    @Test fun xiaomiStepsNameHyperOsRows() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        assertEquals(STEPS_XIAOMI, context.getString(R.string.setup_battery_steps_xiaomi))
     }
 
     /**
@@ -482,6 +492,9 @@ class HomeScreenTest {
          */
         const val STEPS_API34 = "Tap App battery usage. Tap the words Allow background usage, not its switch. " +
             "If the next page’s switch is off, turn it on. Then tap Unrestricted."
+
+        /** The Xiaomi battery steps, with HyperOS's own row names. */
+        const val STEPS_XIAOMI = "Tap Power (or Battery), then No restrictions."
 
         /** Android 10 and 11's steps. */
         const val STEPS_API29 = "Tap Advanced, then Battery, then Battery optimization. Choose All apps, " +

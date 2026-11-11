@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), built on `fix/own-whatsapp-reply`. Defects P2, P4 and P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), built on `fix/xiaomi-battery-step`. Defects P4 and P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -683,7 +683,7 @@ card, as an icon.
 |---|---|---|---|
 | Notification access | So Beacon knows when a message arrives. | `NotificationManagerCompat.getEnabledListenerPackages` | Android 11+: Beacon's own notification-access page. Android 10: the notification-access list. |
 | Display over other apps | So the screen can flash over other apps and the lock screen. | `Settings.canDrawOverlays` | Beacon asks for its own "Display over other apps" page. Android 11 and later ignore the app's address for this page and open the list of apps, where the person taps Beacon (seen on the Android 16 emulator). |
-| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps in the row, above the button. On Xiaomi phones: "Tap Battery saver, then No restrictions." On other phones the steps follow the Android version (see "The battery steps" below). |
+| Battery: No restrictions | So alerts still arrive while the phone sleeps. | `PowerManager.isIgnoringBatteryOptimizations` (Step 1 showed HyperOS reports "No restrictions" this way) | Beacon's App info page, with steps in the row, above the button. On Xiaomi phones: "Tap Power (or Battery), then No restrictions." On other phones the steps follow the Android version (see "The battery steps" below). |
 
 ### The battery steps
 
@@ -701,7 +701,7 @@ Each names the labels in the order the person taps them.
 | 13 (33) | "Tap App battery usage, then Unrestricted." | Android's Settings source | Not tested |
 | 12 and 12L (31 and 32) | "Tap Battery, then Unrestricted." (the steps PR 2 showed on every other phone) | Android's Settings source | Not tested |
 | 10 and 11 (29 and 30) | "Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done." | Android's Settings source | Not tested |
-| Xiaomi, any version | "Tap Battery saver, then No restrictions." (unchanged) | Step 1 on HyperOS | Not tested |
+| Xiaomi, any version | "Tap Power (or Battery), then No restrictions." | HyperOS's Security app 12.8.6, copied off the test phone: the App info row is "Power" there ("חשמל", as the phone showed), and the app carries an older title for it, "Battery"; the option is "No restrictions" (the phone checks' P2) | Not tested |
 
 - **Android's Settings source:** the App info and battery-page layouts and
   their strings in AOSP's `platform/packages/apps/Settings`, at each
@@ -1344,8 +1344,10 @@ owner's decisions are in
   the sections named here.
 - P1 is merged as yanivil/beacon#15 (section 12):
   [`docs/checks/2026-11-rtl-text-direction.md`](../checks/2026-11-rtl-text-direction.md).
-- P3 is built on `fix/own-whatsapp-reply` (sections 6 and 14):
+- P3 is merged as yanivil/beacon#16 (sections 6 and 14):
   [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md).
+- P2 is built on `fix/xiaomi-battery-step` (section 9):
+  [`docs/checks/2026-11-xiaomi-battery-step.md`](../checks/2026-11-xiaomi-battery-step.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

@@ -92,6 +92,8 @@ Made during the session, on 11 November 2026:
 - The phone's log shows the owner's first visit to App info didn't open the
   battery page; the second did.
 - Not checked: HyperOS in English, which would need a language change.
+- **Fixed** in the Xiaomi battery step PR, which read HyperOS's own labels
+  instead: see [`2026-11-xiaomi-battery-step.md`](2026-11-xiaomi-battery-step.md).
 
 ### P3. Beacon flashes for the owner's own reply sent from a WhatsApp notification
 

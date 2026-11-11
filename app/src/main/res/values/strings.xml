@@ -100,7 +100,11 @@
     <string name="setup_overlay_reason">So the screen can flash over other apps and the lock screen.</string>
     <string name="setup_battery">Battery: No restrictions</string>
     <string name="setup_battery_reason">So alerts still arrive while the phone sleeps.</string>
-    <string name="setup_battery_steps_xiaomi">Tap Battery saver, then No restrictions.</string>
+    <!-- HyperOS's own row names, read from its Security app 12.8.6 pulled off the test phone: the App
+         info row there is "Power" (Hebrew "חשמל", which the phone showed); the app also carries an older
+         title for that row, "Battery" (Hebrew "סוללה"). The next page offers "No restrictions" (Hebrew
+         "אין הגבלות"). The phone checks' P2. -->
+    <string name="setup_battery_steps_xiaomi">Tap Power (or Battery), then No restrictions.</string>
     <!-- Other phones: the labels on Beacon's App info page, in the order they are tapped, by Android version. -->
     <!-- Android 10 and 11 (API 29 and 30). -->
     <string name="setup_battery_steps_api29">Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done.</string>
