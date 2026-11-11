@@ -300,10 +300,12 @@ otherwise the first reason that fails:
 6. With MessagingStyle, the newest message wasn't sent by the owner, for
    example a reply typed into the notification. Otherwise `OWN_MESSAGE`.
    A message is the owner's when it has no sender (MessagingStyle's
-   convention), or when its sender's key is the owner's key. When neither
-   the sender nor the owner has a key, as in WhatsApp, it is the owner's
-   when the sender's name is the owner's name in the notification:
-   WhatsApp marks the owner's reply that way (the phone checks' P3).
+   convention), or when its sender's key is the owner's key (an empty key
+   is no key). For WhatsApp only, when neither the sender nor the owner has
+   a key, it is the owner's when the sender's name is the owner's non-blank
+   name in the notification: WhatsApp marks the owner's reply that way (the
+   phone checks' P3). Other apps keep the key rule alone, because a wrong
+   match silently drops a real alert.
 7. Alerts aren't paused at this moment. Otherwise `PAUSED`.
 8. That source's switch is ON. Otherwise `APP_OFF`.
 
@@ -1116,10 +1118,10 @@ reaches TalkBack as a subtree change of the live region:
 - **No internet:** Beacon has no `INTERNET` permission. The merged manifest
   is checked for it.
 - **No message content:** content is never stored, logged or shown.
-- **Names:** the owner check (section 6, rule 6) may compare the newest
-  sender's name with the owner's, when neither has a key. The names are
-  read only for that comparison, in memory; only the yes/no answer is
-  kept, and nothing is logged.
+- **Names:** for WhatsApp, the owner check (section 6, rule 6) may compare
+  the newest sender's name with the owner's, when neither has a key. The
+  names are read only for that comparison, in memory; only the yes/no
+  answer is kept, and nothing is logged.
 - **Logs:** release builds write no logs. Debug builds log only the
   classifier's decision and reason, never titles, names or text.
 - **What's saved:** settings are the only saved data, and they never leave

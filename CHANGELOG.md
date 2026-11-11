@@ -630,10 +630,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 - The owner's own reply typed into a WhatsApp notification made Beacon
   flash (the phone checks' P3). WhatsApp sets no Person keys and marks the
-  reply with a sender named as the owner, so `NotificationReader` now
-  compares the newest sender's name with the owner's when neither has a
-  key, in memory, keeping only the yes/no answer. Keys still decide when
-  either side has one. 5 tests in `NotificationReaderTest`.
+  reply with a sender named as the owner, so `NotificationReader`'s new
+  `sentByOwner` compares the newest sender's name with the owner's, for
+  WhatsApp only and when neither has a key, in memory, keeping only the
+  yes/no answer. Keys still decide when either side has one, an empty key
+  is no key, and blank names never match. 8 tests in
+  `NotificationReaderTest`.
 - English text on a phone set to Hebrew (the phone checks' P1): lines were
   laid out right to left, so "1 minute" read "minute 1" and full stops moved
   to the start. Every text is now drawn by the new `BeaconText`

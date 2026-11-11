@@ -391,11 +391,12 @@ notification made Beacon flash for the owner's own reply.
 - **Why:** Beacon took a message as the owner's only if it had no sender,
   or its sender's key was the owner's. WhatsApp sets no keys, and marks the
   reply with a sender named as the owner.
-- **The fix:** when neither the sender nor the owner has a key, Beacon
-  compares their names. The names are compared in memory only; Beacon
-  keeps only the yes/no answer and logs nothing. Keys still decide when
-  either side has one.
-- **Checks:** 338 unit tests pass (5 new), with no compiler warnings, and
+- **The fix:** for WhatsApp, when neither the sender nor the owner has a
+  key, Beacon compares their names. The names are compared in memory only;
+  Beacon keeps only the yes/no answer and logs nothing. Keys still decide
+  when either side has one, and blank names never match. Other apps keep
+  the old rule, because a wrong match would silently drop a real alert.
+- **Checks:** 341 unit tests pass (8 new), with no compiler warnings, and
   lint reports no issues:
   [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
   Not yet run on the test phone, the only place with WhatsApp.
