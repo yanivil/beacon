@@ -8,7 +8,7 @@ asks something this page doesn't cover, Claude stops and asks.
 
 | | |
 |---|---|
-| Status | Waiting for the owner's approval |
+| Status | Approved by the owner in chat, 11 November 2026 |
 | Developer account | "Bernhard Software" (personal), account ID 4816272390393932551 |
 
 ## 1. Create app
