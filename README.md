@@ -564,6 +564,27 @@ from the phone's own records. Nothing in the code changed.
 - A plain SMS from the phone network: the messages to the SMS app may have
   been RCS chat messages.
 
+## Google Play
+
+Beacon 1.0.0 is being prepared for Google Play's internal testing track,
+for a few testers first
+([spec](docs/specs/2026-11-11-play-release-design.md),
+[plan](docs/plans/2026-11-11-play-release.md)).
+
+- **Release build:** signed with the upload key from outside the
+  repository (see "Release builds for Google Play" under Building). On the
+  emulator it opened on its setup card, ran the test alert, paused from its
+  widget, and flashed for an SMS with the screen off:
+  [`docs/checks/2026-11-play-release.md`](docs/checks/2026-11-play-release.md).
+- **Store texts:** [`docs/store/listing.md`](docs/store/listing.md), with
+  each claim's source. They name SMS and WhatsApp only, since Telegram
+  hasn't been tested on a phone.
+- **Privacy policy:** [`PRIVACY.md`](PRIVACY.md): Beacon collects and
+  shares nothing and has no internet access.
+- **After internal testing:** a closed test with at least 12 testers for
+  14 days, then Google's production review:
+  [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
+
 ## What Step 1 found
 
 On the test phone, Beacon works if the person grants three things:

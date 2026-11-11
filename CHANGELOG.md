@@ -8,6 +8,18 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `PRIVACY.md`, the privacy policy Google Play links to: Beacon collects
+  and shares nothing, has no internet access, and ignores the text of
+  notifications; it explains each permission. `SECURITY.md` links it.
+- `docs/store/listing.md`: the Play store texts (name, short and full
+  descriptions, release notes and other fields), with a table of each
+  claim's source. They name SMS and WhatsApp only.
+- `docs/store/release-checklist.md`: the steps after internal testing (a
+  closed test with at least 12 testers for 14 days, the production
+  application, the production release) and for every later version.
+- `docs/checks/2026-11-play-release.md`: the release build's smoke test on
+  the emulator (setup card, test alert, widget pause, an SMS with the screen
+  off, no decision log). `README.md` gets a "Google Play" section.
 - Release signing for Google Play: `app/build.gradle.kts` signs release
   builds with the Play upload key, read from four Gradle properties
   (`BEACON_UPLOAD_STORE_FILE`, `BEACON_UPLOAD_STORE_PASSWORD`,
