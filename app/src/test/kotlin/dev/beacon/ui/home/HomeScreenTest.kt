@@ -431,6 +431,18 @@ class HomeScreenTest {
         rule.assertNoTextOverflow()
     }
 
+    /**
+     * The ON card says when Beacon flashes: only when the phone isn't in use, as the owner decided on
+     * 11 November 2026 (a real alert flashes only with the screen off or the lock screen showing).
+     */
+    @Test fun onCardSaysItFlashesWhenThePhoneIsNotInUse() {
+        setup = SetupStatus(true, true, true)
+        show()
+        rule.onNodeWithText(
+            "Your screen and camera light will flash when a message arrives and you aren’t using the phone.",
+        ).assertExists()
+    }
+
     /** With Autostart on and the other grants in place, Home has no setup card. */
     @Test fun setupCardHiddenWhenAutostartIsOn() {
         setup = SetupStatus(true, true, true, AutostartState.ON)

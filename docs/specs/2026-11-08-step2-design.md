@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), merged on 11 November 2026 (yanivil/beacon#18). The owner's decision that a real alert flashes only with the screen off or locked (sections 6 and 7) merged on 11 November 2026 (yanivil/beacon#19). P5, a Background autostart row on Xiaomi phones (sections 9 and 13), built on `feature/xiaomi-autostart-row`. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), merged on 11 November 2026 (yanivil/beacon#18). The owner's decision that a real alert flashes only with the screen off or locked (sections 6 and 7) merged on 11 November 2026 (yanivil/beacon#19). P5, a Background autostart row on Xiaomi phones (sections 9 and 13), merged on 11 November 2026 (yanivil/beacon#20). Home's ON card now says it flashes when the phone isn't in use (section 8), built on `fix/home-in-use-wording`. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -86,7 +86,7 @@ The project rules win. Each conflict and its resolution:
 | 16 | The per-app colour card's Change/Done button always sits beside the name. | At large fonts the names broke mid-word. The button sits under the name when the available width divided by the font scale is under 250 dp. |
 | 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
 | 18 | The widget's state word is 64 sp (ON) and 52 sp (PAUSED). | 48 and 40 sp, with 12 dp of padding instead of 16: at the owner's text size the design's sizes hid the resume time at 4 × 2 on the test phone (the phone checks' P4). The owner chose these values from a preview on the phone, 11 November 2026. |
-| 19 | The design doesn't say whether an alert flashes while the phone is in use. | It doesn't: a real alert flashes only when the screen is off or the lock screen is showing (the owner's decision, 11 November 2026; section 6, rule 7). Home's "…will flash when a message arrives." is unchanged for now. |
+| 19 | The design doesn't say whether an alert flashes while the phone is in use. | It doesn't: a real alert flashes only when the screen is off or the lock screen is showing (the owner's decision, 11 November 2026; section 6, rule 7). Home's ON card adds "and you aren’t using the phone" to its line (owner, 11 November 2026). |
 
 ## 4. Architecture
 
@@ -512,7 +512,9 @@ From top to bottom:
    - **ON:**
      - Yellow, 24 dp radius.
      - The heading "Visual alerts" at 28 sp, then a bolt icon and "ON" at 56 sp.
-     - The text "Your screen and camera light will flash when a message arrives."
+     - The text "Your screen and camera light will flash when a message
+       arrives and you aren’t using the phone." (The design's ends at
+       "arrives."; the rest follows the owner's decision, section 6, rule 7.)
      - A black "Pause all alerts" button: white text, pause icon, at least 80 dp.
    - **PAUSED:**
      - `#1B1B20` with a 4 dp white border.
@@ -1370,9 +1372,11 @@ owner's decisions are in
 - The owner's decision 1, a flash only with the screen off or locked, is
   merged as yanivil/beacon#19 (sections 6 and 7):
   [`docs/checks/2026-11-flash-when-not-in-use.md`](../checks/2026-11-flash-when-not-in-use.md).
-- P5, a Background autostart row on Xiaomi phones, is built on
-  `feature/xiaomi-autostart-row` (sections 9 and 13):
+- P5, a Background autostart row on Xiaomi phones, is merged as
+  yanivil/beacon#20 (sections 9 and 13):
   [`docs/checks/2026-11-xiaomi-autostart.md`](../checks/2026-11-xiaomi-autostart.md).
+- Home's ON card line ends "…and you aren’t using the phone.", as the owner
+  asked (section 8), built on `fix/home-in-use-wording`.
 
 ## 17. Not tested at the end of Step 2 (expected)
 

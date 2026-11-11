@@ -101,9 +101,12 @@ contrast, big touch targets and plain wording.
       - [x] **Flash only when the phone isn't in use:** the owner's
         decision, merged as yanivil/beacon#19 on 11 November 2026. Checks:
         [`docs/checks/2026-11-flash-when-not-in-use.md`](docs/checks/2026-11-flash-when-not-in-use.md).
-      - [ ] **Background autostart on Xiaomi (P5):** a fourth setup row,
-        built on `feature/xiaomi-autostart-row` and not merged yet. Checks:
+      - [x] **Background autostart on Xiaomi (P5):** a fourth setup row,
+        merged as yanivil/beacon#20 on 11 November 2026. Checks:
         [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
+      - [ ] **Home's wording for the in-use rule:** the ON card says Beacon
+        flashes "when a message arrives and you aren’t using the phone",
+        built on `fix/home-in-use-wording` and not merged yet.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -458,6 +461,8 @@ banner already shows the message.
   showing the lock screen. While the phone is in use Beacon does nothing,
   and that message stays handled, so it doesn't flash later. The test
   alert is not affected. `CLAUDE.md`'s scope records the decision.
+- **Home says so:** the ON card's line ends "…when a message arrives and
+  you aren’t using the phone." (a follow-up the owner asked for).
 - **Checks:** 356 unit tests pass (12 new), with no compiler warnings, and
   lint reports no issues. On the emulator an SMS gave `IN_USE` with the
   screen on and unlocked, and an alert with the screen off and with the

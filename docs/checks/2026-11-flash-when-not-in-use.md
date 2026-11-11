@@ -52,8 +52,9 @@ screen into a flashing yellow, which was disruptive
 
 The design doesn't say whether an alert flashes while the phone is in use.
 This follows the owner's decision. Home's line "Your screen and camera
-light will flash when a message arrives." is unchanged; whether it should
-mention "when you're not using the phone" is the owner's call.
+light will flash when a message arrives." was left to the owner, who then
+asked for it to say so: it ends "…and you aren’t using the phone." since
+the follow-up on `fix/home-in-use-wording`.
 
 ## Build machine
 

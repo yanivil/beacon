@@ -321,6 +321,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Home's ON card says when Beacon flashes: "Your screen and camera light
+  will flash when a message arrives and you aren’t using the phone.", as
+  the owner asked after the in-use rule. A test pins the wording.
 - A real alert flashes only when the phone isn't in use: when the screen is
   off, or on but showing the lock screen (the owner's decision, 11 November
   2026). A new message rule, `IN_USE`, comes after the owner's own message
@@ -684,6 +687,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/specs/2026-11-08-step2-design.md` for the Autostart row: section
   9's fourth row, section 13's restart row, section 17, and the status and
   section 16.
+- For Home's wording: `README.md` marks the Autostart row merged
+  (yanivil/beacon#20), adds a status entry and a line in the in-use
+  section; the spec's section 8 text, section 3 row 19, status and section
+  16; and the in-use checks file.
 - The Xiaomi battery step named the wrong row (the phone checks' P2). It
   now says "Tap Power (or Battery), then No restrictions.": "Power" is the
   row's name on the test phone, and "Battery" an older title for it, both
