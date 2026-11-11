@@ -747,6 +747,28 @@ commits and the test phone's model. The record lists the check and each
 setting:
 [`docs/checks/2026-11-public-repo-audit.md`](docs/checks/2026-11-public-repo-audit.md).
 
+## License
+
+Beacon is licensed under the [PolyForm Strict License 1.0.0](LICENSE.md),
+copyright 2026 Bernhard Software. Anyone may use it for a non-commercial
+purpose: personal use, or a charity, school, public research, health or
+safety organisation, or government body. Nobody may change it, copy it or
+share it, and nobody may use it commercially, without asking Bernhard
+Software first. The licence's "No Liability" clause says that, as far as
+the law allows, the software comes as is, without any warranty, and the
+licensor isn't liable for damages from using it. The bundled Atkinson
+Hyperlegible Next font keeps its own licence, the SIL Open Font License
+1.1.
+
+## Disclaimer
+
+Beacon is an aid, not a safety device. It can miss a message or flash late,
+for example if a permission is turned off, if the phone's battery settings
+hold it back, or if a message app changes how it notifies. Don't rely on it
+alone where a missed message could cause harm. Beacon flashes the screen
+and the camera light, at most 1.5 times a second; anyone with photosensitive
+epilepsy should check with a doctor before using it.
+
 ## Contributing
 
 - Work on a `feature/<desc>` or `fix/<desc>` branch, never on `main`.
