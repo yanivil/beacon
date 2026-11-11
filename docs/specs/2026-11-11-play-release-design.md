@@ -246,6 +246,7 @@ log.
 | Play's review questions notification access | Beacon's use is its core function and is explained in the app's setup card and in `PRIVACY.md`. If Play asks for more, Claude stops and asks. |
 | The Data safety answer is wrong | It rests on the release manifest having no internet permission (checked) and on `PRIVACY.md`. A future network feature must update both. |
 | The upload key is lost | Google can reset the upload key; the app keeps its Play signing key. |
+| Play's User Data policy asks for the privacy policy inside the app too (found by the final review) | 1.0.0 has no in-app link, which internal testing doesn't review. A "Privacy policy" text button that opens `PRIVACY.md` is added before the closed test, on its own branch with the owner's say ([`release-checklist.md`](../store/release-checklist.md), section 1). `PRIVACY.md` names the developer, Bernhard Software. |
 
 ## 12. Docs
 

@@ -9,6 +9,21 @@ any other change, and recorded in `docs/checks/`.
 
 ## 1. Closed test: at least 12 testers for 14 days in a row
 
+Before the closed test, which Google reviews:
+
+- **A privacy policy link inside the app.** Play's User Data policy asks
+  for the policy both in Play Console and within the app itself. Add a
+  "Privacy policy" text button (a string in `strings.xml`, at least 64 dp
+  tall, with a TalkBack label) that opens
+  `https://github.com/yanivil/beacon/blob/main/PRIVACY.md` with
+  `ACTION_VIEW`. That needs no internet permission: the browser opens it.
+  It adds UI, so it goes on its own `feature/` branch with the owner's say,
+  and its version gets a higher `versionCode`. The 1.0.0 internal test
+  doesn't have it, since internal testing isn't reviewed. (Found by the
+  final review of the Play release branch, I1.)
+- **A contact that needs no GitHub account** in `PRIVACY.md`: the public
+  contact email from the store listing.
+
 - In Play Console: Test and release → Testing → Closed testing → create a
   track (for example "Beacon closed test").
 - Add at least 12 testers, as an email list or a Google Group. They must

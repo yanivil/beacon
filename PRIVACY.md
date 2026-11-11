@@ -3,8 +3,9 @@
 Last updated: 11 November 2026
 
 Beacon is an Android app that flashes the screen and the camera light when
-a message arrives, for people who are deaf or hard of hearing. This page
-explains what Beacon does with information on your phone.
+a message arrives, for people who are deaf or hard of hearing. It is
+published on Google Play by **Bernhard Software**. This page explains what
+Beacon does with information on your phone.
 
 ## The short version
 
@@ -73,7 +74,7 @@ with a new date. The history of every change is kept in this repository.
 
 ## Contact
 
-To report a privacy or security problem privately, use "Report a
-vulnerability" on this repository's
+Beacon is published by Bernhard Software. To report a privacy or security
+problem privately, use "Report a vulnerability" on this repository's
 [Security tab](https://github.com/yanivil/beacon/security). For other
 questions, open an [issue](https://github.com/yanivil/beacon/issues).

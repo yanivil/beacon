@@ -28,7 +28,7 @@ Beacon is for people who are deaf or hard of hearing. When a text message (SMS) 
 WHEN IT FLASHES
 • When the screen is off or the lock screen is showing, even while the phone sleeps on battery.
 • Not while you're using the phone: then the message app's own notification is your cue.
-• Only for new messages. Never for calls, backups, progress bars or your own replies.
+• Only for new messages. Never for calls, backups or progress bars.
 
 MAKE IT YOURS
 • Screen colour: red, yellow, blue, green or white. Each colour has its name written on it. Use one colour for every app, or a different colour for each.
@@ -62,7 +62,7 @@ Beacon shows a "Finish setup" card that explains each step in plain words and op
 PRIVATE
 Beacon has no internet access. It collects nothing, shares nothing and shows no ads. It ignores the text of your messages, and the alert screen shows only "New message" and the app's name, never who sent it or what it says.
 
-Beacon is free and its code is open: github.com/yanivil/beacon
+Beacon is free, and its code is public on GitHub: github.com/yanivil/beacon
 <!-- /full -->
 
 ## Release notes for 1.0.0
@@ -89,7 +89,7 @@ Every claim in the full description, with what shows it.
 |---|---|
 | Flashes the whole screen and blinks the camera light for an SMS or a WhatsApp message | Spec section 1, "Done means" 2; [`docs/checks/2026-11-alerts-on-battery.md`](../checks/2026-11-alerts-on-battery.md) (both on battery, in Doze) |
 | Flashes with the screen off or the lock screen showing; not while the phone is in use | `CLAUDE.md`, "When to flash"; [`docs/checks/2026-11-flash-when-not-in-use.md`](../checks/2026-11-flash-when-not-in-use.md); `IN_USE` in [`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md) |
-| Only new messages; never calls, backups, progress bars or your own replies | `MessageClassifier.kt` rules; [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md); `CLAUDE.md`, "Scope" |
+| Only new messages; never calls, backups or progress bars | `MessageClassifier.kt` rules (ongoing notifications, group summaries, non-message kinds); `CLAUDE.md`, "Scope". "Your own replies" is left out until it is tested on a phone: [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md) has it as Not tested there, and only WhatsApp's are recognised by name. |
 | Red, yellow, blue, green or white, each with its name; one colour or one per app | `strings.xml` (`colour_*`, `colour_mode_*`, `colour_hint`) |
 | Slow 30, Medium 60, Fast 90 a minute | `CLAUDE.md`, "Blink safety"; `strings.xml` (`speed_*`) |
 | 1 minute, 5 minutes, a chosen length, or until stopped | `strings.xml` (`duration_*`) |
@@ -103,7 +103,7 @@ Every claim in the full description, with what shows it.
 | Every alert has Stop, and stops by itself after its length unless "Until I stop it" was chosen | `strings.xml` (`stop`); [`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md) (an alert ended by itself after 1 minute; another by a tap) |
 | The setup steps and their reasons | `strings.xml` (`setup_*`), word for word |
 | No internet, collects and shares nothing, no ads, ignores message text, alert screen shows only "New message" and the app | [`PRIVACY.md`](../../PRIVACY.md), [`SECURITY.md`](../../SECURITY.md); the release manifest ([`docs/checks/2026-11-public-repo-audit.md`](../checks/2026-11-public-repo-audit.md)) |
-| Free, open code | This repository is public |
+| Free; code public on GitHub | This repository is public. It has no licence yet, so the listing says "public", not "open source". |
 
 Telegram: Beacon supports Telegram messages too, but that has never been
 tested on a phone, so the listing doesn't mention it (spec section 2).
