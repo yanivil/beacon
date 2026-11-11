@@ -62,10 +62,13 @@ contrast, big touch targets and plain wording.
         Emulator checks:
         [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
         Nothing in it has run on the test phone yet.
-      - [ ] **Lint clean-up:** lint's ten warnings about Beacon's own code
-        and resources, built on `fix/lint-warnings` and not merged yet.
+      - [x] **Lint clean-up:** lint's ten warnings about Beacon's own code
+        and resources, merged as yanivil/beacon#11 on 10 November 2026.
         Checks:
         [`docs/checks/2026-11-lint-cleanup.md`](docs/checks/2026-11-lint-cleanup.md).
+      - [ ] **Dependency versions:** Gradle 9.9.1 and Kotlin 2.4.21, built
+        on `fix/dependency-versions` and not merged yet. Checks:
+        [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -253,7 +256,31 @@ and hears in English doesn't change.
     lint's two reminders that 37 exists are silenced on those two lines.
 - **Left for the owner:** 8 warnings about newer versions of Gradle, the
   Compose BOM and test libraries, Lifecycle, Core KTX and the Kotlin
-  Compose plugin.
+  Compose plugin. The owner asked for them to be bumped; see the next
+  section.
+
+## The dependency versions
+
+The owner asked for lint's 8 newer-version warnings to be dealt with on
+11 November 2026. Two are bumped, and six can't be yet:
+
+- **Gradle:** the wrapper goes from 9.8.2 to 9.9.1. Lint asked for 9.9.0,
+  then found 9.9.1 once the build was on 9.9.0.
+- **Kotlin:** 2.2.10 to 2.4.21, through the Compose compiler plugin. AGP's
+  built-in Kotlin moves up to the same version, so the compiler and the
+  plugin still match. The only library the app ships that changes is
+  `kotlin-stdlib`.
+- **Not bumped:** Compose 1.12 (BOM 2026.09.00 and the UI test libraries),
+  Lifecycle 2.11 and Core KTX 1.19 need compileSdk 37, and `CLAUDE.md`
+  fixes compileSdk at 36. The build stops on 13 of their libraries if they
+  are bumped. Only compileSdk would have to change for them; targetSdk can
+  stay at 36. Lint's 6 warnings about them stay until the owner decides.
+- **Checks:** all 327 unit tests pass, with no compiler warnings. Lint
+  reports 0 errors and 6 warnings. The APK's manifest and resources match
+  `main`'s. On the emulator, Home, Alert settings and the test alert run
+  as before:
+  [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
+  Nothing has run on the test phone.
 
 ## What Step 1 found
 
@@ -304,6 +331,9 @@ Added in the Step 2 spec:
 
 - Kotlin, Jetpack Compose (app UI), Jetpack Glance (home-screen widget)
 - **minSdk 29 (Android 10)**; compileSdk and targetSdk 36
+- Built with Gradle 9.9.1, AGP 9.5.1 and Kotlin 2.4.21. Compose, Lifecycle
+  and Core KTX stay one release behind, because their newest releases need
+  compileSdk 37.
 
 Per Google's October 2026 distribution data, minSdk 29 covers about 94% of
 active Android phones, and every supported phone follows the same rules for
@@ -331,8 +361,8 @@ Run the unit tests:
 ```
 
 Check the code with lint. The report goes to `app/build/reports/`. It
-should show no errors, and its only warnings should be about newer
-dependency versions, which the owner decides on:
+should show no errors and 6 warnings: the newer Compose, Lifecycle and Core
+KTX versions, which need compileSdk 37 and wait for the owner's decision:
 
 ```bash
 ./gradlew :app:lintDebug
