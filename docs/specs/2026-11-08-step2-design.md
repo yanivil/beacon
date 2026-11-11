@@ -1234,6 +1234,12 @@ reaches TalkBack as a subtree change of the live region:
 - Widget pause and auto-resume.
 - Largest font and TalkBack on the phone.
 
+The phone checks on 11 November 2026
+([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md))
+and the owner's cable-out check that day
+([`docs/checks/2026-11-alerts-on-battery.md`](../checks/2026-11-alerts-on-battery.md))
+ran most of these; what is left is in their "Not tested" lists.
+
 Anything not run on the phone is reported as "Not tested". "Should work"
 counts as not tested.
 

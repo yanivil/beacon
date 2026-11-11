@@ -505,12 +505,14 @@ code changed.
 
 - **What ran:** the phone lay off the cable, with its screen off, for more
   than three hours, mostly in Doze's deep idle. Then a WhatsApp message
-  and an SMS each flashed the screen and the camera light, about 2 seconds
-  after their app woke. The WhatsApp alert flashed once a second and ended
-  by itself after 1 minute.
-- **Battery:** the level read 100% at both ends, so no drop shows.
+  and a message to the SMS app each flashed the screen and the camera
+  light, about 2 seconds after the push reached their app. The WhatsApp
+  alert flashed once a second and ended by itself after 1 minute.
+- **Battery:** the level stayed at 100%. The alerts' own cost is too small
+  for its 1% steps.
 - **Still not tested:** the widget's 1-hour pause on battery and its resume
-  alarm in Doze, since no pause was set.
+  alarm in Doze, since no pause was set; the blink's colours on the phone;
+  and a plain SMS, as the second message may have been RCS.
 - **Checks:** read from the phone's battery history and Beacon's log:
   [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
 
