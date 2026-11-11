@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), built on `fix/rtl-text-direction`. Defects P2 to P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), built on `fix/own-whatsapp-reply`. Defects P2, P4 and P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -299,6 +299,11 @@ otherwise the first reason that fails:
    time is the MessagingStyle time, else `when`. Otherwise `ALREADY_HANDLED`.
 6. With MessagingStyle, the newest message wasn't sent by the owner, for
    example a reply typed into the notification. Otherwise `OWN_MESSAGE`.
+   A message is the owner's when it has no sender (MessagingStyle's
+   convention), or when its sender's key is the owner's key. When neither
+   the sender nor the owner has a key, as in WhatsApp, it is the owner's
+   when the sender's name is the owner's name in the notification:
+   WhatsApp marks the owner's reply that way (the phone checks' P3).
 7. Alerts aren't paused at this moment. Otherwise `PAUSED`.
 8. That source's switch is ON. Otherwise `APP_OFF`.
 
@@ -1111,6 +1116,10 @@ reaches TalkBack as a subtree change of the live region:
 - **No internet:** Beacon has no `INTERNET` permission. The merged manifest
   is checked for it.
 - **No message content:** content is never stored, logged or shown.
+- **Names:** the owner check (section 6, rule 6) may compare the newest
+  sender's name with the owner's, when neither has a key. The names are
+  read only for that comparison, in memory; only the yes/no answer is
+  kept, and nothing is logged.
 - **Logs:** release builds write no logs. Debug builds log only the
   classifier's decision and reason, never titles, names or text.
 - **What's saved:** settings are the only saved data, and they never leave
@@ -1331,8 +1340,10 @@ owner's decisions are in
   (PAUSED) and 48 sp (ON), with 12 dp of padding (section 10).
 - Each defect and decision is built in a PR of its own, which also changes
   the sections named here.
-- P1 is built on `fix/rtl-text-direction` (section 12):
+- P1 is merged as yanivil/beacon#15 (section 12):
   [`docs/checks/2026-11-rtl-text-direction.md`](../checks/2026-11-rtl-text-direction.md).
+- P3 is built on `fix/own-whatsapp-reply` (sections 6 and 14):
+  [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

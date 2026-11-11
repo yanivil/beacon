@@ -58,6 +58,52 @@ class NotificationReaderTest {
         assertEquals(true, f.newestFromOwner)
     }
 
+    /**
+     * Builds a messaging notification the way WhatsApp does: no Person has a key, and the
+     * owner's own reply carries the owner's name (seen on the test phone, phone checks P3).
+     *
+     * @param newestSender the sender of the newest message.
+     * @return the facts.
+     */
+    private fun readKeyless(newestSender: Person): NotificationFacts {
+        val user = Person.Builder().setName("You").build()
+        val style = NotificationCompat.MessagingStyle(user)
+            .addMessage("hello", 5_000, Person.Builder().setName("Ann").build())
+            .addMessage("ok", 6_000, newestSender)
+        val n = NotificationCompat.Builder(context, "c")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setStyle(style).setWhen(6_000).setCategory(NotificationCompat.CATEGORY_MESSAGE).build()
+        return factsOf("com.whatsapp", "key", n)
+    }
+
+    /** With no keys anywhere, a newest sender named as the owner is the owner: WhatsApp's own reply. */
+    @Test fun ownerByNameWhenNoPersonHasAKey() {
+        assertEquals(true, readKeyless(Person.Builder().setName("You").build()).newestFromOwner)
+    }
+
+    /** With no keys anywhere, a newest sender with another name is not the owner: an incoming message. */
+    @Test fun otherNameWithoutKeysIsNotTheOwner() {
+        assertEquals(false, readKeyless(Person.Builder().setName("Ann").build()).newestFromOwner)
+    }
+
+    /** When the sender has a key, the keys decide, even if the name is the owner's. */
+    @Test fun keysDecideWhenTheSenderHasOne() {
+        val f = read { it.addMessage("ok", 6_000, Person.Builder().setName("Me").setKey("ann").build()) }
+        assertEquals(false, f.newestFromOwner)
+    }
+
+    /** When only the owner has a key, a keyless sender with the owner's name is still not the owner. */
+    @Test fun nameIsNotComparedWhenTheOwnerHasAKey() {
+        val f = read { it.addMessage("ok", 6_000, Person.Builder().setName("Me").build()) }
+        assertEquals(false, f.newestFromOwner)
+    }
+
+    /** The facts of a keyless reply hold no names either. */
+    @Test fun keylessOwnerCheckHoldsNoNames() {
+        val text = readKeyless(Person.Builder().setName("You").build()).toString()
+        for (secret in listOf("hello", "ok", "Ann", "You")) assertFalse(secret, Regex("\\b$secret\\b").containsMatchIn(text))
+    }
+
     /** Pins the ongoing and group-summary flags, and a plain notification having no style. */
     @Test fun readsFlags() {
         fun build(block: NotificationCompat.Builder.() -> Unit): Notification =

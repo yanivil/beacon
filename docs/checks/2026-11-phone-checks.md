@@ -109,6 +109,8 @@ Made during the session, on 11 November 2026:
   logged. A contact whose name is exactly the owner's name in WhatsApp
   would then not flash.
 - Google Messages wasn't tried this way.
+- **Fixed** in the own-reply PR: see
+  [`2026-11-own-whatsapp-reply.md`](2026-11-own-whatsapp-reply.md).
 
 ### P4. The widget hides the resume time at the owner's text size
 

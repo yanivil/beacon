@@ -617,9 +617,23 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/specs/2026-11-08-step2-design.md` for the right-to-left fix: the
   status records #14's merge and the fix; section 12 says every text goes
   through `BeaconText`; section 16 notes P1's fix.
+- `docs/checks/2026-11-own-whatsapp-reply.md`: the own-reply fix's ruling
+  R1, the phone's yes/no evidence it rests on, and its tests.
+- `README.md` for the own-reply fix: the right-to-left fix marked merged
+  (yanivil/beacon#15), a status entry and a section.
+- `docs/specs/2026-11-08-step2-design.md` for the own-reply fix: section 6
+  says how "sent by the owner" is decided, section 14 that names are
+  compared in memory but never kept, and the status and section 16 record
+  #15's merge and the fix.
 
 ### Fixed
 
+- The owner's own reply typed into a WhatsApp notification made Beacon
+  flash (the phone checks' P3). WhatsApp sets no Person keys and marks the
+  reply with a sender named as the owner, so `NotificationReader` now
+  compares the newest sender's name with the owner's when neither has a
+  key, in memory, keeping only the yes/no answer. Keys still decide when
+  either side has one. 5 tests in `NotificationReaderTest`.
 - English text on a phone set to Hebrew (the phone checks' P1): lines were
   laid out right to left, so "1 minute" read "minute 1" and full stops moved
   to the start. Every text is now drawn by the new `BeaconText`
