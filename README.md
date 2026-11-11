@@ -98,10 +98,12 @@ contrast, big touch targets and plain wording.
         and padding, so the resume time shows at 4 × 2, merged as
         yanivil/beacon#18 on 11 November 2026. Checks:
         [`docs/checks/2026-11-widget-text-size.md`](docs/checks/2026-11-widget-text-size.md).
-      - [ ] **Flash only when the phone isn't in use:** the owner's
-        decision, built on `feature/flash-only-when-not-in-use` and not
-        merged yet. Checks:
+      - [x] **Flash only when the phone isn't in use:** the owner's
+        decision, merged as yanivil/beacon#19 on 11 November 2026. Checks:
         [`docs/checks/2026-11-flash-when-not-in-use.md`](docs/checks/2026-11-flash-when-not-in-use.md).
+      - [ ] **Background autostart on Xiaomi (P5):** a fourth setup row,
+        built on `feature/xiaomi-autostart-row` and not merged yet. Checks:
+        [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -370,7 +372,7 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
   - P4: at the owner's text size the widget hides the resume time. Fixed
     with the owner's widget sizes, below.
   - P5: after a restart (HyperOS Autostart off), Beacon hears nothing until
-    it's opened.
+    it's opened. Fixed with a Background autostart row, below.
 - **The owner's decisions:** a real alert flashes only when the screen is
   off or locked, and does nothing while the phone is in use; the widget
   uses a smaller state word (40 and 48 sp) and 12 dp of padding.
@@ -463,6 +465,25 @@ banner already shows the message.
   [`docs/checks/2026-11-flash-when-not-in-use.md`](docs/checks/2026-11-flash-when-not-in-use.md).
   Not yet run on the test phone.
 
+## Background autostart on Xiaomi phones
+
+The phone checks' defect P5: with HyperOS's Autostart off, the phone
+doesn't connect Beacon's listener after a restart, so Beacon hears nothing
+until someone opens it.
+
+- **The fix:** on Xiaomi phones the Finish setup card has a fourth row,
+  "Background autostart", whose button opens HyperOS's own list, where the
+  person turns on Beacon's switch. Beacon reads the setting through a hidden
+  Android method; if a phone blocks it, the row shows its steps without
+  ON/OFF.
+- **On the test phone:** the row showed OFF, its button opened the right
+  page, and after the owner turned the switch on the card went away. After
+  a restart Beacon came back by itself, and an SMS flashed without anyone
+  opening it.
+- **Checks:** 368 unit tests pass (12 new), with no compiler warnings, and
+  lint reports no issues:
+  [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
+
 ## What Step 1 found
 
 On the test phone, Beacon works if the person grants three things:
@@ -502,7 +523,7 @@ Added in the Step 2 spec:
 
 - **Finish setup:** a card on Home, shown only while notification access,
   "Display over other apps" or the battery setting "No restrictions" is
-  missing. Each shows ON or OFF and opens the right settings page.
+  missing, or, on Xiaomi phones, Background autostart is off. Each shows ON or OFF and opens the right settings page.
 - **Alert screen:** "New message" and the app's name over the blinking
   colour, with a big Stop button. It never shows who sent the message or
   what it says.

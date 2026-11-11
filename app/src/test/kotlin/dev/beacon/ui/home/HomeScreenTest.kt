@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -52,6 +53,7 @@ import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.ColourMode
 import dev.beacon.settings.Pause
+import dev.beacon.setup.AutostartState
 import dev.beacon.setup.SetupItem
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.WithFontScale
@@ -391,6 +393,44 @@ class HomeScreenTest {
         rule.assertNoTextOverflow()
     }
 
+    /** On a Xiaomi with Autostart off, the card has a Background autostart row with its state and steps. */
+    @Test fun autostartRowShowsItsStateOnXiaomi() {
+        setup = SetupStatus(true, true, true, AutostartState.OFF)
+        show()
+        rule.onNodeWithText("Finish setup").assertExists()
+        rule.onNodeWithText("Background autostart").performScrollTo().assertExists()
+        rule.onNodeWithText(STEPS_AUTOSTART).assertExists()
+        rule.onNode(hasText("Background autostart") and hasStateDescription("Off")).assertExists()
+        rule.onNodeWithContentDescription("Open settings for Background autostart").performScrollTo().performClick()
+        assertEquals(listOf("openSetup:AUTOSTART"), calls)
+    }
+
+    /** When Autostart can't be read, the row still shows its steps and button, but no On/Off. */
+    @Test fun autostartRowWithoutStateWhenUnknown() {
+        setup = SetupStatus(false, true, true, AutostartState.UNKNOWN)
+        show()
+        rule.onNodeWithText("Background autostart").performScrollTo().assertExists()
+        rule.onNode(hasText("Background autostart") and SemanticsMatcher.keyIsDefined(SemanticsProperties.StateDescription))
+            .assertDoesNotExist()
+        // Only the three rows whose state is known draw a pill.
+        rule.onAllNodesWithTag(SETUP_PILL_TAG, useUnmergedTree = true).assertCountEquals(3)
+    }
+
+    /** Phones that aren't Xiaomis have no Autostart row. */
+    @Test fun noAutostartRowOnOtherPhones() {
+        setup = SetupStatus(false, false, false)
+        show()
+        rule.onNodeWithText("Background autostart").assertDoesNotExist()
+    }
+
+    /** All four rows, at the largest font, with nothing cut off. */
+    @Test fun setupCardWithAutostartNoOverflowAtLargestFont() {
+        setup = SetupStatus(false, false, false, AutostartState.OFF)
+        show(fontScale = 2.0f)
+        rule.onNodeWithText("Background autostart").assertExists()
+        rule.assertNoTextOverflow()
+    }
+
     /** The card sits between the title and the alerts card. */
     @Test fun setupCardIsAboveTheAlertsCard() {
         setup = SetupStatus(false, true, true)
@@ -492,6 +532,9 @@ class HomeScreenTest {
          */
         const val STEPS_API34 = "Tap App battery usage. Tap the words Allow background usage, not its switch. " +
             "If the next page’s switch is off, turn it on. Then tap Unrestricted."
+
+        /** The Autostart row's steps, with HyperOS's own page. */
+        const val STEPS_AUTOSTART = "Find Beacon in the list and turn its switch on."
 
         /** The Xiaomi battery steps, with HyperOS's own row names. */
         const val STEPS_XIAOMI = "Tap Power (or Battery), then No restrictions."

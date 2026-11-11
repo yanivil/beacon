@@ -144,6 +144,8 @@ Made during the session, on 11 November 2026:
   12:11:05, flashed at once.
 - **What's needed:** this needs the owner's decision. One option is a
   fourth setup row on Xiaomi phones, for HyperOS's Autostart permission.
+- **Fixed** with a Background autostart row, as the owner decided: see
+  [`2026-11-xiaomi-autostart.md`](2026-11-xiaomi-autostart.md).
 
 ## Observations
 

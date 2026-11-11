@@ -8,6 +8,15 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A Background autostart row in the Finish setup card, on Xiaomi phones
+  only (the phone checks' P5): without it, HyperOS doesn't reconnect
+  Beacon's listener after a restart until Beacon is opened. `Autostart.kt`
+  reads Xiaomi's private app-op 10008 through the hidden
+  `AppOpsManager.checkOpNoThrow`, as ON, OFF or, when that fails, UNKNOWN;
+  OFF keeps the card open, and an unknown row shows no pill. Its button
+  opens HyperOS's list (`miui.intent.action.OP_AUTO_START`). 12 tests. On
+  the test phone it read OFF and then ON, and after a restart Beacon came
+  back by itself.
 - `CLAUDE.md` with the rules every session follows: WCAG AAA accessibility,
   blink-safety limits (30/60/90 blinks a minute, never over 3 flashes a
   second), the branch and PR workflow, code-comment and docs requirements,
@@ -666,6 +675,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- `docs/checks/2026-11-xiaomi-autostart.md`: the Autostart row's evidence
+  from the test phone, its rulings R1 to R3, its tests and the phone's
+  results, including the restart.
+- `README.md` for the Autostart row: the in-use rule marked merged
+  (yanivil/beacon#19), a status entry, the Finish setup line and a section.
+- `docs/specs/2026-11-08-step2-design.md` for the Autostart row: section
+  9's fourth row, section 13's restart row, section 17, and the status and
+  section 16.
 - The Xiaomi battery step named the wrong row (the phone checks' P2). It
   now says "Tap Power (or Battery), then No restrictions.": "Power" is the
   row's name on the test phone, and "Battery" an older title for it, both
