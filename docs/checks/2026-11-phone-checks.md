@@ -205,7 +205,7 @@ All with the phone connected to the Mac by USB, so charging.
 
 | Check | Result |
 |---|---|
-| After an update | Tested on Redmi 15C 5G, Android 16. HyperOS refused to reconnect the listener (P5). Opening Beacon reconnected it each time: within 4 s after the diagnostic update, and before the next check after each preview. |
+| After an update | Tested on Redmi 15C 5G, Android 16. HyperOS refused to reconnect the listener (P5). Opening Beacon reconnected it each time: within 4 s after the diagnostic update, and again after each preview. |
 | After a restart | Tested on Redmi 15C 5G, Android 16: no alerts until Beacon is opened (P5). |
 
 ### The widget
