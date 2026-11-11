@@ -774,6 +774,11 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- The five Play Store screenshots are retaken at 1080 × 1920 (9:16): Play
+  Console accepts phone screenshots only at 16:9 or 9:16, and they were
+  1080 × 2160 and 1080 × 1080. The widget one now shows the home screen
+  with only Beacon's widget (the emulator launcher's app suggestions off).
+  The spec's section 6 says so.
 - Spec section 13 and PR 3's checks listed a widget update among what
   cleans up an ended pause. The widget only draws from the clock; the
   stored pause is cleaned up when Beacon comes to the front, the screen

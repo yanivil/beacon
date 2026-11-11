@@ -24,7 +24,7 @@
 - Shrinking (`isMinifyEnabled`, `isShrinkResources`) stays off.
 - Store texts: app name "Beacon: Visual Message Alerts" (29 characters); short description at most 80 characters; full description at most 4,000; English only; name SMS and WhatsApp, never claim Telegram.
 - Colours for graphics: yellow `#FFD60A`, near-black `#0B0B0D` (13.93:1). The bolt path is `M13 2L3 14h9l-1 8 10-12h-9l1-8z`, filled and stroked 2 with round joins, as in `app/src/main/res/drawable/ic_launcher_foreground.xml`.
-- Asset formats: icon 512 × 512 PNG with an alpha channel; feature graphic 1024 × 500 and screenshots 1080 × 2160, without alpha (JPEG).
+- Asset formats: icon 512 × 512 PNG with an alpha channel; feature graphic 1024 × 500 and screenshots 1080 × 2160, without alpha (JPEG). (Changed during Task 7: Play Console asks for 9:16 screenshots, so they were retaken at 1080 × 1920; see the spec, section 6.)
 - Nothing in Play Console is submitted, saved or rolled out until the owner has approved `docs/store/play-console-answers.md`. The two legal declarations at app creation, and the final "Start rollout", each need the owner's yes in chat at that moment.
 
 ## Review Focus
