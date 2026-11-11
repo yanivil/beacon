@@ -86,6 +86,7 @@ The project rules win. Each conflict and its resolution:
 | 16 | The per-app colour card's Change/Done button always sits beside the name. | At large fonts the names broke mid-word. The button sits under the name when the available width divided by the font scale is under 250 dp. |
 | 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
 | 18 | The widget's state word is 64 sp (ON) and 52 sp (PAUSED). | 48 and 40 sp, with 12 dp of padding instead of 16: at the owner's text size the design's sizes hid the resume time at 4 × 2 on the test phone (the phone checks' P4). The owner chose these values from a preview on the phone, 11 November 2026. |
+| 19 | The design doesn't say whether an alert flashes while the phone is in use. | It doesn't: a real alert flashes only when the screen is off or the lock screen is showing (the owner's decision, 11 November 2026; section 6, rule 7). Home's "…will flash when a message arrives." is unchanged for now. |
 
 ## 4. Architecture
 
@@ -350,7 +351,12 @@ otherwise the first reason that fails:
 ## 7. The alert
 
 A real alert starts only for a message that passed every rule in section 6,
-so never while the phone is in use (rule 7). The test alert starts from its
+so never while the phone is in use (rule 7). The phone is in use when
+`PowerManager.isInteractive` is true and `KeyguardManager.isKeyguardLocked`
+is false: an always-on display counts as off, and a phone with no lock
+screen is in use whenever its screen is on. It is read when a message's
+decision reaches rule 7, and if either service can't be read, the phone
+counts as not in use, so the alert flashes. The test alert starts from its
 button and isn't affected.
 
 ### AlertController

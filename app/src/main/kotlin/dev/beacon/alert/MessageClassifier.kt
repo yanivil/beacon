@@ -9,7 +9,8 @@ import dev.beacon.settings.isPausedAt
  * The first failing rule is the reason reported. The "already handled"
  * record is updated for every notification that passes the message checks
  * (rules 1 to 4), whatever the final result, so a message that arrived while
- * paused, switched OFF or from the owner never flashes when re-posted.
+ * the phone was in use, paused or switched OFF, or that came from the owner,
+ * never flashes when re-posted.
  */
 
 /** Why a notification did not start an alert, named after the rule that failed. */
@@ -94,7 +95,8 @@ object MessageClassifier {
      * @param nowEpochMillis the current time, for the pause check.
      * @param defaultSmsPackage the phone's default SMS app, or null.
      * @param seen the already-handled record; updated here.
-     * @param phoneInUse whether the person is using the phone now: its screen is on and unlocked.
+     * @param phoneInUse tells whether the person is using the phone now (its screen is on and unlocked);
+     *   asked only for a message that reaches rule 7, so other apps' notifications cost nothing.
      * @return [Decision.Alert] when every rule passes, otherwise [Decision.Ignore] with the first failing rule.
      */
     fun decide(
@@ -103,7 +105,7 @@ object MessageClassifier {
         nowEpochMillis: Long,
         defaultSmsPackage: String?,
         seen: HandledRecord,
-        phoneInUse: Boolean,
+        phoneInUse: () -> Boolean,
     ): Decision {
         val source = sourceOf(facts.packageName, defaultSmsPackage) ?: return Decision.Ignore(IgnoreReason.NOT_A_SOURCE)
         notAMessageReason(facts)?.let { return Decision.Ignore(it) }
@@ -115,7 +117,7 @@ object MessageClassifier {
         // The owner's decision (11 November 2026): no flash while the person is using the phone. The
         // message app's own banner is the cue then, and the message stays handled, so it can't flash
         // later when the screen goes off.
-        if (phoneInUse) return Decision.Ignore(IgnoreReason.IN_USE)
+        if (phoneInUse()) return Decision.Ignore(IgnoreReason.IN_USE)
         if (settings.pause.isPausedAt(nowEpochMillis)) return Decision.Ignore(IgnoreReason.PAUSED)
         // A missing map entry falls back to the app's default, as in the settings model.
         if (!(settings.apps[source]?.enabled ?: source.defaultEnabled)) return Decision.Ignore(IgnoreReason.APP_OFF)

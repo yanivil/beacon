@@ -1,6 +1,8 @@
 package dev.beacon.alert
 
 import android.app.NotificationManager
+import android.os.Looper
+import android.app.KeyguardManager
 import android.os.PowerManager
 import org.junit.Rule
 import dev.beacon.widget.NoWidgetRefreshRule
@@ -109,13 +111,13 @@ class BeaconListenerTest {
         assertEquals(0, screenOnReceivers())
     }
 
-    /** A WhatsApp message from another person, posted to the listener, starts a real WhatsApp alert. */
-    @Test fun postedNotificationStartsAnAlert() {
-        val app = context as BeaconApp
-        // Robolectric's screen is on and unlocked, which counts as the phone in use (no flash); a real
-        // alert is for a phone that isn't in use, so the screen is off here.
-        shadowOf(app.getSystemService(PowerManager::class.java)).turnScreenOn(false)
-        // The watcher waits for the saved settings; load them first so the decision runs at once.
+    /**
+     * Posts a WhatsApp message from another person to a fresh listener, through the real app's watcher,
+     * after the saved settings have loaded so the decision runs at once.
+     *
+     * @param app the test application.
+     */
+    private fun postWhatsAppMessage(app: BeaconApp) {
         app.settingsState
         idleMainUntil { app.settingsState.value != null }
         val me = Person.Builder().setName("Me").setKey("me").build()
@@ -130,9 +132,16 @@ class BeaconListenerTest {
         val sbn = StatusBarNotification(
             "com.whatsapp", "com.whatsapp", 1, null, 10_000, 0, 0, notification, Process.myUserHandle(), now,
         )
-        val listener = Robolectric.buildService(BeaconListener::class.java).create().get()
+        Robolectric.buildService(BeaconListener::class.java).create().get().onNotificationPosted(sbn)
+    }
+
+    /**
+     * Checks that the alert running now is a real WhatsApp one, then ends it.
+     *
+     * @param app the test application.
+     */
+    private fun assertWhatsAppAlertRuns(app: BeaconApp) {
         try {
-            listener.onNotificationPosted(sbn)
             idleMainUntil { app.alertController.state.value is AlertState.Running }
             val state = app.alertController.state.value
             assertTrue("running: $state", state is AlertState.Running)
@@ -142,5 +151,33 @@ class BeaconListenerTest {
         } finally {
             app.alertController.stop()
         }
+    }
+
+    /** A WhatsApp message from another person, posted to the listener with the screen off, starts a real WhatsApp alert. */
+    @Test fun postedNotificationStartsAnAlert() {
+        val app = context as BeaconApp
+        // Robolectric's screen is on and unlocked, which counts as the phone in use (no flash).
+        shadowOf(app.getSystemService(PowerManager::class.java)).turnScreenOn(false)
+        postWhatsAppMessage(app)
+        assertWhatsAppAlertRuns(app)
+    }
+
+    /** With the lock screen showing, the screen being on doesn't count as in use: the message flashes. */
+    @Test fun lockScreenStillFlashes() {
+        val app = context as BeaconApp
+        shadowOf(app.getSystemService(KeyguardManager::class.java)).setKeyguardLocked(true)
+        postWhatsAppMessage(app)
+        assertWhatsAppAlertRuns(app)
+    }
+
+    /**
+     * With Robolectric's own screen, on and unlocked, the real app sees the phone in use and starts no alert:
+     * this pins BeaconApp's wiring of the in-use check, which the owner's decision depends on.
+     */
+    @Test fun noAlertWhileThePhoneIsInUse() {
+        val app = context as BeaconApp
+        postWhatsAppMessage(app)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(AlertState.Idle, app.alertController.state.value)
     }
 }

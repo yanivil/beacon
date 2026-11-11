@@ -39,7 +39,10 @@ screen into a flashing yellow, which was disruptive
     never flashes later when the screen goes off: the person has seen its
     banner. A newer message in the same chat still flashes, once the phone
     isn't in use.
-  - The check is read when each message arrives.
+  - The check is asked only when a message's decision reaches rule 7,
+    after any wait for the saved settings, so other apps' notifications
+    cost nothing. If a system service can't be read, the phone counts as
+    not in use, so the alert flashes rather than the listener crashing.
   - Cost if wrong: a person who unlocked the phone but didn't look at the
     banner misses that message's flash.
 - **R3. `CLAUDE.md`'s scope records the decision**, next to the owner's
@@ -56,9 +59,9 @@ mention "when you're not using the phone" is the owner's call.
 
 | Check | Result |
 |---|---|
-| New tests | 8 tests. `MessageClassifierTest`: a message while in use is `IN_USE`; it doesn't flash later, but a newer one does; the owner's own message is still named first; "in use" is named before a pause and an app switched OFF. `MessageWatcherTest`: no alert while in use, then an alert once it isn't. `PhoneUseTest`: screen on and unlocked is in use; the lock screen and a screen that is off are not. Against the code before the rule, 5 failed; the other 3 are guards. All pass with it. |
+| New tests | 12 tests. `MessageClassifierTest` (6): a message while in use is `IN_USE`; it doesn't flash later, but a newer one does; a repeat while still in use is already handled; the owner's own message is still named first; "in use" is named before a pause and an app switched OFF; the check is asked only for a message that reaches its rule. `MessageWatcherTest` (1): no alert while in use, then an alert once it isn't. `PhoneUseTest` (3): screen on and unlocked is in use; the lock screen and a screen that is off are not. `BeaconListenerTest` (2), through the real app: no alert with Robolectric's screen on and unlocked, and an alert with the lock screen showing. Against the code before the rule, the first 8 written included 5 that failed (`inUseIgnoresTheMessage`, `aMessageSeenInUseDoesNotFlashLater`, `inUseComesBeforePausedAndAppOff`, `noAlertWhileThePhoneIsInUse` in the watcher, `screenOnAndUnlockedIsInUse`); the rest are guards. With the app's check replaced by "never in use", `BeaconListenerTest.noAlertWhileThePhoneIsInUse` fails, so it guards the wiring. All pass with the rule. |
 | An existing test | `BeaconListenerTest.postedNotificationStartsAnAlert` now turns Robolectric's screen off first: its phone reports the screen on and unlocked, which is now "in use". |
-| `./gradlew :app:testDebugUnitTest` | 352 tests, 0 failures: the 344 before, and the 8 new ones. |
+| `./gradlew :app:testDebugUnitTest` | 356 tests, 0 failures: the 344 before, and the 12 new ones. |
 | `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:lintDebug --rerun-tasks --warning-mode all` | No Kotlin compiler warnings, and lint reports "No issues found". The new test first used Robolectric's deprecated `setIsInteractive`; it uses `turnScreenOn`. |
 
 ## Emulator

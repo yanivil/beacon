@@ -456,7 +456,7 @@ banner already shows the message.
   showing the lock screen. While the phone is in use Beacon does nothing,
   and that message stays handled, so it doesn't flash later. The test
   alert is not affected. `CLAUDE.md`'s scope records the decision.
-- **Checks:** 352 unit tests pass (8 new), with no compiler warnings, and
+- **Checks:** 356 unit tests pass (12 new), with no compiler warnings, and
   lint reports no issues. On the emulator an SMS gave `IN_USE` with the
   screen on and unlocked, and an alert with the screen off and with the
   lock screen showing:
@@ -487,9 +487,9 @@ From the design:
 - **Flash for these apps:** Texts (SMS), WhatsApp messages and Telegram
   messages, each switched ON or OFF. Beacon flashes only when a message is
   received, never for backups or other app activity, and only when the
-  screen is off or the lock screen is showing (owner, 11 November 2026). Telegram wasn't tested
-  in Step 1. The design also shows Phone Calls and WhatsApp video calls;
-  those are out of scope.
+  screen is off or the lock screen is showing (owner, 11 November 2026).
+  Telegram wasn't tested in Step 1. The design also shows Phone Calls and
+  WhatsApp video calls; those are out of scope.
 - **How long to flash:** 1 min, 5 min, Custom (1 to 60 minutes in fixed
   steps) or Until I stop it. The default is 1 min.
 - **Blink speed:** Slow (30), Medium (60) or Fast (90) blinks a minute.

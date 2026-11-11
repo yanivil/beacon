@@ -24,7 +24,8 @@ import kotlinx.coroutines.launch
  * @param alerts the controller that runs alerts.
  * @param scope a main-thread scope (Dispatchers.Main.immediate), so a decision with loaded settings runs at once.
  * @param defaultSmsPackage the phone's default SMS app, read on every call because the user can change it.
- * @param phoneInUse whether the person is using the phone now, read on every message (see [phoneInUse]).
+ * @param phoneInUse whether the person is using the phone now (see [phoneInUse]); read when a message's decision
+ *   reaches that rule, after any wait for the settings.
  * @param nowEpochMillis the clock for the pause check.
  * @param log receives every decision (debug builds only; never anything else about the notification).
  */
@@ -61,7 +62,7 @@ class MessageWatcher(
         scope.launch {
             // Waits (in arrival order) for the saved settings; never decides with the defaults.
             val current = settings.value ?: settings.filterNotNull().first()
-            val decision = MessageClassifier.decide(facts, current, nowEpochMillis(), defaultSmsPackage(), seen, phoneInUse())
+            val decision = MessageClassifier.decide(facts, current, nowEpochMillis(), defaultSmsPackage(), seen, phoneInUse)
             log(decision)
             if (decision is Decision.Alert) {
                 // A false answer (busy) is fine: the message is already recorded, so it never stacks later.

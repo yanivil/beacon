@@ -40,7 +40,7 @@ class MessageClassifierTest {
         now: Long = 0,
         seen: HandledRecord = HandledRecord(),
         inUse: Boolean = false,
-    ) = MessageClassifier.decide(f, settings, now, SMS_APP, seen, inUse)
+    ) = MessageClassifier.decide(f, settings, now, SMS_APP, seen) { inUse }
 
     private fun paused(p: Pause) = BeaconSettings.DEFAULT.copy(pause = p)
 
@@ -192,5 +192,21 @@ class MessageClassifierTest {
             apps = BeaconSettings.DEFAULT.apps + (MessageSource.WHATSAPP to AppSetting(false, FlashColour.GREEN)),
         )
         assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), whatsAppOff, inUse = true))
+    }
+
+    /** A repeat of a message seen while in use is already handled, even while still in use: rule 5 comes first. */
+    @Test fun repeatWhileInUseIsAlreadyHandled() {
+        val seen = HandledRecord()
+        assertEquals(Decision.Ignore(IgnoreReason.IN_USE), decide(facts(), seen = seen, inUse = true))
+        assertEquals(Decision.Ignore(IgnoreReason.ALREADY_HANDLED), decide(facts(), seen = seen, inUse = true))
+    }
+
+    /** The in-use check is asked only for a message that reaches its rule, not for other apps' notifications. */
+    @Test fun inUseIsAskedOnlyAtItsRule() {
+        var asked = 0
+        MessageClassifier.decide(facts(pkg = "com.example"), BeaconSettings.DEFAULT, 0, SMS_APP, HandledRecord()) { asked++; true }
+        assertEquals(0, asked)
+        MessageClassifier.decide(facts(), BeaconSettings.DEFAULT, 0, SMS_APP, HandledRecord()) { asked++; true }
+        assertEquals(1, asked)
     }
 }

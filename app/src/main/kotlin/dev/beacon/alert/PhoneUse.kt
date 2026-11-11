@@ -18,10 +18,14 @@ import android.os.PowerManager
  * Tells whether the person is using the phone right now.
  *
  * @param context any context, for the power and keyguard services.
- * @return true when the screen is on and the lock screen isn't showing.
+ * @return true when the screen is on and the lock screen isn't showing; false if either service
+ *   can't be read, because for a deaf person a missed alert is worse than an unneeded flash.
  */
-fun phoneInUse(context: Context): Boolean {
+fun phoneInUse(context: Context): Boolean = try {
     val power = context.getSystemService(PowerManager::class.java)
     val keyguard = context.getSystemService(KeyguardManager::class.java)
-    return power.isInteractive && !keyguard.isKeyguardLocked
+    power.isInteractive && !keyguard.isKeyguardLocked
+} catch (_: RuntimeException) {
+    // A system service that fails, or is missing, must not crash the listener: flash instead.
+    false
 }
