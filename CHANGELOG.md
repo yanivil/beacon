@@ -695,6 +695,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   checks record that, with Autostart on, the listener reconnected by itself
   after an update; the in-use checks that Home's new line shows on the
   phone. `README.md` and the spec mark #21 merged.
+- `docs/checks/2026-11-xiaomi-autostart.md`: the owner's decision that the
+  Robolectric tests are enough for TalkBack and the largest font on the
+  new row, so neither is checked on the phone.
 - The Xiaomi battery step named the wrong row (the phone checks' P2). It
   now says "Tap Power (or Battery), then No restrictions.": "Power" is the
   row's name on the test phone, and "Battery" an older title for it, both

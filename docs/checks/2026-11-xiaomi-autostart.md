@@ -99,6 +99,7 @@ restrictions." with its full stop at the end (P2, and P1's direction).
 - **Other HyperOS and MIUI versions,** where the page or its title may
   differ.
 - **TalkBack on the new row** and **the largest font on the phone.** Both
-  are covered by the Robolectric tests only.
+  are covered by the Robolectric tests only. The owner judged that enough
+  on 11 November 2026, so they won't be checked on the phone.
 - **Process death without a restart,** such as HyperOS killing Beacon for
   memory, with Autostart on.
