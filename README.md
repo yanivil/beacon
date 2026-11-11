@@ -682,9 +682,22 @@ The full rules are in [`CLAUDE.md`](CLAUDE.md). In short:
 - Blink speed is limited to the presets 30, 60 and 90 blinks a minute, never
   more than 3 flashes a second (WCAG 2.3.1).
 
+## Security
+
+The repository is public. Report a security or privacy problem privately
+through the Security tab's "Report a vulnerability", as
+[`SECURITY.md`](SECURITY.md) explains; it also lists what Beacon reads and
+keeps. Before going public, the whole history and the pull requests were
+checked for secrets and private data, and none was found. A few personal
+details stay on purpose, such as the owner's name on merge commits and the
+test phone's model. The record also lists the GitHub settings to switch
+on: [`docs/checks/2026-11-public-repo-audit.md`](docs/checks/2026-11-public-repo-audit.md).
+
 ## Contributing
 
 - Work on a `feature/<desc>` or `fix/<desc>` branch, never on `main`.
+- Never commit signing keys, passwords, tokens or credential files;
+  [`.gitignore`](.gitignore) blocks the usual ones.
 - GitHub access uses only the repo-scoped token in the macOS keychain
   (`github.com`, path `yanivil/beacon.git`); see the Git rules in
   [`CLAUDE.md`](CLAUDE.md).

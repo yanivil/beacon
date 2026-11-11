@@ -10,3 +10,38 @@ local.properties
 .idea/
 *.iml
 .DS_Store
+
+# Signing keys, passwords and service credentials: never commit them (the
+# repo is public). Any signing key is kept outside the repository.
+*.jks
+*.jks.*
+*.keystore
+*.keystore.*
+*.p12
+*.pfx
+*.p8
+*.pk8
+*.pepk
+*.pem
+*.key
+*.gpg
+id_rsa*
+id_ed25519*
+keystore.properties
+signing.properties
+secrets.properties
+.env
+.env.*
+!.env.example
+!.env.sample
+.netrc
+google-services.json
+credentials.json
+client_secret*.json
+*service-account*.json
+
+# Local tool state (Claude Code worktrees and settings, the superpowers
+# plugin's workspace)
+.claude/settings.local.json
+.claude/worktrees/
+.superpowers/
