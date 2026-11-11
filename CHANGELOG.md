@@ -345,6 +345,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- `docs/checks/2026-11-pause-on-battery.md`: a message during a pause, on
+  the test phone later on 11 November 2026. With a second 1-hour pause on
+  and the phone locked in deep idle on battery, a WhatsApp message was
+  ignored as `PAUSED` and nothing flashed. The screen-on catch-up then set
+  the resume alarm again without redrawing the widget. A message sent
+  earlier with the phone unlocked was ignored as `IN_USE`, which is
+  checked first. `README.md` and the spec's status and section 16 say so.
 - Home's ON card says when Beacon flashes: "Your screen and camera light
   will flash when a message arrives and you aren’t using the phone.", as
   the owner asked after the in-use rule. A test pins the wording.
