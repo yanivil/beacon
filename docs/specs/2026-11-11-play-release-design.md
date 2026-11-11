@@ -128,7 +128,7 @@ other change and can be pasted into Play Console.
 |---|---|
 | App name (30 characters at most) | "Beacon: Visual Message Alerts" |
 | Short description (80 at most) | One sentence: Beacon flashes the screen and the camera light when an SMS or WhatsApp message arrives. |
-| Full description (4,000 at most) | Plain words for older deaf and hard-of-hearing people and their families: what Beacon does, when it flashes (screen off or locked) and when it doesn't (phone in use, calls, backups), the settings (colour, speed, length, per-app switches, pause), the widget, the three setup permissions and why each is needed, safety (at most 1.5 flashes a second, a light that stops when hot), and privacy (no internet, nothing collected). It names SMS and WhatsApp only. |
+| Full description (4,000 at most) | Plain words for older deaf and hard-of-hearing people and their families: what Beacon does, when it flashes (screen off or locked) and when it doesn't (phone in use, calls, backups), the settings (colour, speed, length, per-app switches, pause), the widget, the setup steps (three, and a fourth on Xiaomi phones) and why each is needed, safety (at most 1.5 flashes a second, a light that stops when hot), and privacy (no internet, nothing collected). It names SMS and WhatsApp only. |
 | Category | Communication |
 | Price | Free |
 | Contact email | The owner gives it at the form. Shown publicly. |
