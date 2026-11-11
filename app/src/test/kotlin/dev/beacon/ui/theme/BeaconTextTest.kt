@@ -107,11 +107,21 @@ class BeaconTextTest {
 
     /** No screen draws text with BasicText directly, so every text gets the direction fix. */
     @Test fun onlyBeaconTextCallsBasicText() {
-        val offenders = File("src/main/kotlin").walkTopDown()
-            .filter { it.isFile && it.extension == "kt" && it.name != "BeaconText.kt" }
-            .filter { file -> file.readLines().any { line -> "BasicText(" in line && !line.trimStart().startsWith("*") && !line.trimStart().startsWith("//") } }
+        val root = File("src/main/kotlin")
+        val files = root.walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+        // Guards against a vacuous pass: run from another folder, the walk would find nothing.
+        assertTrue("source folder not found from ${File("").absolutePath}", root.isDirectory)
+        assertTrue("BeaconText.kt not among the scanned files", files.any { it.name == "BeaconText.kt" })
+        val offenders = files
+            .filter { it.name != "BeaconText.kt" }
+            .filter { file ->
+                file.readLines().any { line ->
+                    val code = line.trimStart()
+                    // Comments may name BasicText; only code that calls it counts.
+                    "BasicText(" in line && !code.startsWith("*") && !code.startsWith("//") && !code.startsWith("/*")
+                }
+            }
             .map { it.path }
-            .toList()
         assertEquals(emptyList<String>(), offenders)
     }
 }

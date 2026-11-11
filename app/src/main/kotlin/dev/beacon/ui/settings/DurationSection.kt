@@ -42,9 +42,9 @@ import dev.beacon.ui.theme.BeaconType
  * changed text through a pass that keeps only the verdict of the last
  * property it compares, and a BasicText (which BeaconText draws) also
  * carries text-substitution actions that are rebuilt on every change but
- * count as unchanged. Whether a
- * text change survives that pass depends on hash order, and on the Android 16
- * emulator it never did, so the value was never read aloud. Compose also
+ * count as unchanged. Whether a text change survives that pass depends on
+ * hash order, and on the Android 16 emulator it never did, so the value was
+ * never read aloud. Compose also
  * reports a child's layout change (a new or resized child) as a subtree change
  * of the live region that holds it, which is how the test overlay's countdown
  * is read. Keying the text on the length makes every step that kind of change.

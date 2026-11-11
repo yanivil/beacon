@@ -68,7 +68,7 @@ version to stay possible, and this keeps it so.
 |---|---|
 | Emulator | AVD `beacon-api36`, Pixel 7 profile (1080 × 2400 px, 420 dpi), run as `emulator-5554` |
 | System image | Android 16 (API 36), build `BE2A.250530.026.F3` |
-| Builds | Debug APKs of `main` at `2eb7577` and of `fix/rtl-text-direction`, each installed with `adb install -r` in turn; app data was kept |
+| Builds | Debug APKs of `main` at `2eb7577` (the merge of #14 since then changed only docs) and of `fix/rtl-text-direction`, each installed with `adb install -r` in turn; app data was kept |
 | Right-to-left | Beacon alone was given Hebrew as its language (`cmd locale set-app-locales dev.beacon --locales he-IL`, Android 13 and later). Beacon has no Hebrew strings, so it shows its English text in a right-to-left layout, as on the test phone. Forcing right-to-left with `debug.force_rtl` didn't change the layout, so it was set back. |
 | Start state | Font size 1.0, dark mode off. Notification access and "Display over other apps" off, so Home shows the "Finish setup" card. Medium speed, Custom length 10 minutes, Yellow chosen. |
 | Date | 11 November 2026 |
