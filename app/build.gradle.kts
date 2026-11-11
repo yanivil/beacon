@@ -7,11 +7,12 @@ plugins {
 
 android {
     namespace = "dev.beacon"
-    // CLAUDE.md fixes compileSdk and targetSdk at 36, so lint's reminders that
-    // 37 exists (GradleDependency here, OldTargetApi below) are silenced for
-    // these two lines only. Raise both when the owner changes that rule.
-    //noinspection GradleDependency
-    compileSdk = 36
+    // CLAUDE.md sets compileSdk at 37 and targetSdk at 36. compileSdk 37 only
+    // lets the code see Android 17's APIs, which Compose 1.12, Lifecycle 2.11
+    // and Core 1.19 need; targetSdk 36 keeps how Android 16 and later treat
+    // the app. Lint's reminder that targetSdk 37 exists (OldTargetApi below)
+    // is silenced for that line only. Raise it when the owner changes the rule.
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.beacon"

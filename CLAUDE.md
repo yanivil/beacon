@@ -9,7 +9,9 @@ hard-of-hearing seniors. Follow every rule below in every session.
 - **Stack:** Kotlin + Jetpack Compose for the app, Jetpack Glance for the
   home-screen widget. Use the design's own colours and sizes; no Material
   dynamic colour.
-- **SDK levels:** minSdk 29 (Android 10); compileSdk and targetSdk 36.
+- **SDK levels:** minSdk 29 (Android 10); compileSdk 37; targetSdk 36.
+  The owner raised compileSdk from 36 on 11 November 2026, so Compose 1.12,
+  Lifecycle 2.11 and Core 1.19 can be used. targetSdk stays at 36.
 - **Design reference:**
   https://claude.ai/code/artifact/57db235d-b0b1-4b3d-af5c-bdee1677e1f2
   (an HTML prototype on a design canvas). It is the reference for layout,
