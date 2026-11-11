@@ -68,8 +68,11 @@ clock alone.
 
 - **The widget's 1-hour pause on battery, and its resume alarm in Doze.**
   No pause was set during the check: Beacon's stored settings weren't
-  written after 12:34. Spec section 10 says the alarm waits for Doze's next
-  maintenance window, and that is still not seen on the phone.
+  written after 12:34. The owner's second cable-out check, that evening,
+  ran the pause on battery: alerts came back on time, and the widget came
+  back to ON when an alert woke the screen. The resume alarm never fired,
+  so it is still not seen in Doze
+  ([`2026-11-pause-on-battery.md`](2026-11-pause-on-battery.md)).
 - **How the second alert ended.** The records show only that its light
   stopped after about 5 seconds, not what ended it.
 - **What an alert costs in battery.** About 70 seconds of light and two
@@ -78,7 +81,8 @@ clock alone.
   push, so it may have been RCS.
 - **Alarms that Doze holds back.** Both messages came as push messages,
   which Android lets through Doze. That says nothing about Beacon's own
-  resume alarm.
+  resume alarm, which is still not seen firing in Doze (see the first
+  bullet).
 - **The lock screen showing** with the screen on: both alerts started with
   the screen off.
 - **Telegram:** it isn't installed on the test phone.
