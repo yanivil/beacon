@@ -506,7 +506,7 @@ code changed.
 - **What ran:** the phone lay off the cable, with its screen off, for more
   than three hours, mostly in Doze's deep idle. Then a WhatsApp message
   and a message to the SMS app each flashed the screen and the camera
-  light, about 2 seconds after the push reached their app. The WhatsApp
+  light, 2 to 3 seconds after the push reached their app. The WhatsApp
   alert flashed once a second and ended by itself after 1 minute.
 - **Battery:** the level stayed at 100%. The alerts' own cost is too small
   for its 1% steps.

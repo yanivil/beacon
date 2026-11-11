@@ -56,10 +56,10 @@ clock alone.
 | Check | Result |
 |---|---|
 | A WhatsApp message after more than three hours asleep on battery, in deep Doze | Tested on Redmi 15C 5G, Android 16. The screen had been off for 3 hours 13 minutes, and deep idle had started again 2 minutes 52 seconds before. The camera light started about 2 seconds after the push reached WhatsApp, and the screen woke. |
-| A message to the SMS app on battery | Tested on Redmi 15C 5G, Android 16. The camera light started about 2 seconds after the push reached Google Messages, and the screen woke. The alert ended after about 5 seconds (see Not tested). |
+| A message to the SMS app on battery | Tested on Redmi 15C 5G, Android 16. The camera light started about 3 seconds after the push reached Google Messages, and the screen woke. The alert ended after about 5 seconds (see Not tested). |
 | Speed and length | Tested on Redmi 15C 5G, Android 16. The WhatsApp alert flashed once a second, Medium's 60 blinks a minute, and ended by itself after its 1 minute. |
 | The alert screen | Tested on Redmi 15C 5G, Android 16, for both alerts: the screen woke and Beacon's alert came to the front. Its colours aren't in the records (see Not tested). |
-| No message missed | Tested on Redmi 15C 5G, Android 16, as far as the records show. The only push messages in the whole battery history are the two that alerted. Before them, WhatsApp and Google Messages ran only their own jobs, syncs and wake locks. Beacon's log shows no notification at all from 17:05 until the first alert. |
+| No message missed | Tested on Redmi 15C 5G, Android 16, as far as the records show. Before the two that alerted, the battery history shows no push message to either app. Until then, WhatsApp and Google Messages ran only their own jobs, syncs and wake locks. Beacon's log, as first read, shows no notification at all from 17:05 until the first alert. |
 | Battery on the history's 1% steps | Tested on Redmi 15C 5G, Android 16. The level stayed at 100% from 15:56:24 to 19:12:33. The charge counter read 5868 mAh at the start; its one later reading, 5874 mAh at 17:21, came before the alerts. |
 | Heat during the alerts | Tested on Redmi 15C 5G, Android 16. The battery read 26.0 to 27.0 °C. The highest reading, 29.0 °C, came at the start, as the phone left the charger. |
 
