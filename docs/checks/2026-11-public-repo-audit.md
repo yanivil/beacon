@@ -47,8 +47,8 @@ of them:
 - **How the project's token is stored:** `CLAUDE.md` describes the
   keychain entry Claude reads (its server, path and account name), not the
   token itself.
-- **The design link,** a claude.ai artifact, in `CLAUDE.md` and six docs.
-  It is private: others can't open it.
+- **The design link,** a claude.ai artifact, in `CLAUDE.md`, `README.md`
+  and the Step 2 spec. It is private: others can't open it.
 
 ## What this change adds
 
@@ -62,8 +62,13 @@ of them:
   `settings.local.json` and worktrees, and the superpowers workspace. No
   file the repository already tracks matches them.
 - **`SECURITY.md`:** how to report a problem privately, and what the
-  Beacon app reads and keeps. It was checked against the code: the release
-  build's merged manifest has no internet permission.
+  Beacon app reads and keeps. It was checked against the code, and
+  `./gradlew :app:processReleaseMainManifest` showed that the release
+  build's merged manifest
+  (`app/build/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml`)
+  asks only for `WAKE_LOCK`, `SYSTEM_ALERT_WINDOW` and
+  `dev.beacon.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, which AndroidX
+  adds for receivers registered at run time. No internet permission.
 - **`README.md`:** a Security section and a Contributing line about
   secrets.
 
@@ -71,22 +76,32 @@ of them:
 
 The repo-scoped token this project uses can't change repository settings
 (GitHub answered 403), so they are switched on in the repository's
-**Settings**. On a free account, several only exist for public
-repositories, so it goes in two steps.
+**Settings**, in a browser signed in to GitHub. On a free account, several
+only exist for public repositories, so it goes in two steps.
 
-**While still private:**
+**While still private** (done on 11 November 2026, by Claude in the
+desktop app's browser, where the owner had signed in):
 
-| Setting | Where | Why |
-|---|---|---|
-| Dependabot alerts and Dependabot security updates | Security → Advanced Security (called Code security on some accounts) | Warns about libraries with known security holes, and opens a pull request to fix them. Version updates stay off: the owner approves every version change. |
-| Actions: on, with approval for outside contributors | Actions → General: "Require approval for all outside collaborators" for fork pull requests, and "Read repository contents" as the default workflow permission | The repository has no workflows, so nothing runs. Actions stays on because Dependabot's security updates run on it. |
-| Automatically delete head branches | General → Pull Requests | Merged branches go away by themselves. |
+| Setting | Where | Why | State |
+|---|---|---|---|
+| Dependabot alerts and Dependabot security updates | Security → Advanced Security (called Code security on some accounts) | Warns about libraries with known security holes, and opens a pull request to fix them. Version updates stay off: the owner approves every version change. | On. Turning on security updates also turned on the dependency graph and the alerts. |
+| Actions: on, locked down | Actions → General | The repository has no workflows, so nothing runs. Actions stays on because Dependabot's security updates run on it. | Already set: "Read repository contents and packages permissions" as the default, Actions can't create or approve pull requests, and workflows from forks don't run. |
+| Automatically delete head branches | General → Pull Requests | Merged branches go away by themselves. | On. |
+
+GitHub's dependency graph may not see all of a Gradle project's libraries
+on its own. Its "Automatic dependency submission" (same page, now
+Disabled) builds the project on GitHub's machines to list them all, which
+is free once the repository is public. It is left off; the owner can
+switch it on after going public, so that Dependabot sees every library.
+Whether Dependabot's first security pull request really opens is still to
+be seen.
 
 **Then make it public** (General → Danger Zone → Change visibility), and
 straight away:
 
 | Setting | Where | Why |
 |---|---|---|
+| Actions: approval for outside contributors | Actions → General → Fork pull request workflows: "Require approval for all outside collaborators" (shown once the repository is public) | A stranger's pull request can't run anything without the owner's approval. |
 | Private vulnerability reporting | Security → Advanced Security | Lets people report problems privately, as `SECURITY.md` asks. |
 | Secret scanning and push protection | Same page | GitHub scans the whole history for known kinds of token, and refuses a push that contains one. Free for public repositories. Afterwards, check Security → Secret scanning: it should show no alerts. |
 | A ruleset for `main` | Rules → Rulesets → New ruleset → New branch ruleset. Enforcement status: **Active** (a new ruleset starts as Disabled). Target: Include default branch. Rules: Restrict deletions, Block force pushes, Require a pull request before merging, with 0 required approvals. Leave the bypass list empty. | Nothing reaches `main` except through a pull request, as `CLAUDE.md` requires, and its history can't be rewritten. With 0 approvals the owner can still merge their own pull requests. The empty bypass list holds the owner to it too; in an emergency, set the ruleset to Disabled for a moment. |
@@ -97,7 +112,8 @@ straight away:
   whole history and force-pushing, which breaks every existing link and
   copy. It is the owner's own name, so it was left.
 - **Old branches on GitHub.** The 25 merged `feature/` and `fix/` branches
-  are still there. Every commit on them is already in `main`, so they show
+  on GitHub are still there (this clone also keeps two more that GitHub has
+  already deleted). Every commit on them is already in `main`, so they show
   nothing new; deleting them is tidying, for the owner to decide.
 - **A licence.** Without one, the code is public to read but all rights
   stay reserved. Choosing one is the owner's decision.

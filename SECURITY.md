@@ -3,7 +3,8 @@
 Beacon is an Android app that turns incoming messages into visual alerts
 for deaf and hard-of-hearing people. It has no internet permission, so it
 can't open a network connection itself: the release build's merged
-manifest asks only for the wake lock and "Display over other apps".
+manifest asks only for the wake lock and "Display over other apps", plus a
+permission AndroidX adds for Beacon's own internal broadcasts.
 
 ## Reporting a problem
 
