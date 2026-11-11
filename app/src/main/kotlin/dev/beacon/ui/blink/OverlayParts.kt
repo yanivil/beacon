@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,6 +22,7 @@ import dev.beacon.ui.components.BeaconIcons
 import dev.beacon.ui.components.FilledButton
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -73,7 +73,7 @@ internal fun TitleCard(label: String, title: String) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         SectionHeading(label)
-        BasicText(
+        BeaconText(
             text = title,
             modifier = Modifier.semantics {
                 heading()

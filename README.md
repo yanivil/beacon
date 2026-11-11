@@ -76,12 +76,16 @@ contrast, big touch targets and plain wording.
         1.12, Lifecycle 2.11 and Core KTX 1.19, merged as yanivil/beacon#13
         on 11 November 2026. Checks:
         [`docs/checks/2026-11-compile-sdk-37.md`](docs/checks/2026-11-compile-sdk-37.md).
-      - [ ] **Phone checks:** Step 2's app on the test phone for the first
-        time, on 11 November 2026, recorded on `feature/phone-checks` and
-        not merged yet:
+      - [x] **Phone checks:** Step 2's app on the test phone for the first
+        time, on 11 November 2026, merged as yanivil/beacon#14 on
+        11 November 2026:
         [`docs/checks/2026-11-phone-checks.md`](docs/checks/2026-11-phone-checks.md).
         They found five defects (P1 to P5), and the owner made two
         decisions to build. Each fix comes in a PR of its own.
+      - [ ] **Right-to-left text (P1):** English lines read correctly on a
+        phone set to Hebrew, built on `fix/rtl-text-direction` and not
+        merged yet. Checks:
+        [`docs/checks/2026-11-rtl-text-direction.md`](docs/checks/2026-11-rtl-text-direction.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -340,7 +344,8 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
   ON, and TalkBack (by the owner's report).
 - **Defects:**
   - P1: with the phone in Hebrew, English lines are laid out right to left
-    ("minute 1", full stops at the start).
+    ("minute 1", full stops at the start). Fixed in the right-to-left text
+    PR, below.
   - P2: the Xiaomi battery step says "Battery saver", but HyperOS in Hebrew
     names the row "חשמל" (Power).
   - P3: replying from a WhatsApp notification makes Beacon flash.
@@ -353,6 +358,25 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
 - **Still not tested on the phone:** alerts on battery and in Doze, the
   resume alarm on its own, a restart during a pause, the largest text size,
   the heat stop, and "Until I stop it".
+
+## Right-to-left text
+
+The phone checks' defect P1: on a phone set to Hebrew, Beacon's English
+lines were laid out right to left, so "1 minute" read "minute 1" and full
+stops moved to the start of the line.
+
+- **The fix:** every text in the app is now drawn by one function,
+  `BeaconText`. It takes each text's direction from its own words, so
+  English reads left to right and a future Hebrew translation right to
+  left, and it keeps the text at the start edge of the mirrored layout, on
+  the right in Hebrew, where it sat before.
+- **A guard:** a test fails if any file draws text another way.
+- **Checks:** 333 unit tests pass (6 new), with no compiler warnings, and
+  lint reports no issues. On the emulator, with Beacon set to Hebrew,
+  `main`'s build shows "minute 1" and the fixed one "1 minute"; in English
+  the screens are pixel-identical to `main`'s:
+  [`docs/checks/2026-11-rtl-text-direction.md`](docs/checks/2026-11-rtl-text-direction.md).
+  Not yet run on the test phone.
 
 ## What Step 1 found
 

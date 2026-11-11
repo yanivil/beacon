@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -29,6 +28,7 @@ import dev.beacon.ui.components.OutlineButton
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.components.TextAndPillPolicy
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 import dev.beacon.ui.theme.LocalContentColour
 
@@ -82,7 +82,7 @@ fun SetupCard(status: SetupStatus, @StringRes batterySteps: Int, onOpen: (SetupI
             CompositionLocalProvider(LocalContentColour provides BeaconColors.White) {
                 SectionHeading(stringResource(R.string.setup_heading))
             }
-            BasicText(
+            BeaconText(
                 stringResource(R.string.setup_hint),
                 style = BeaconType.Body.copy(color = BeaconColors.TextSecondary),
             )
@@ -145,10 +145,10 @@ private fun SetupRow(item: SetupItem, nameRes: Int, reasonRes: Int, stepsRes: In
         Layout(
             content = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    BasicText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.White))
-                    BasicText(stringResource(reasonRes), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+                    BeaconText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.White))
+                    BeaconText(stringResource(reasonRes), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
                     if (stepsRes != null) {
-                        BasicText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
+                        BeaconText(stringResource(stepsRes), style = BeaconType.Body.copy(color = BeaconColors.White))
                     }
                 }
                 OnOffPill(on = on, modifier = Modifier.testTag(SETUP_PILL_TAG))

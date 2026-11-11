@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -39,6 +38,7 @@ import dev.beacon.alert.AlertState
 import dev.beacon.alert.BlinkClock
 import dev.beacon.alert.TEST_LENGTH_MILLIS
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -179,8 +179,8 @@ private fun CountdownCard(seconds: Int, modifier: Modifier) {
         // TalkBack a subtree change at every new second, not only when the merged text differs (D4).
         key(seconds) {
             // A bare number, written the same in Hebrew; its words come from the plural below.
-            BasicText(seconds.toString(), style = BeaconType.Countdown.copy(color = BeaconColors.White, textAlign = centred))
-            BasicText(
+            BeaconText(seconds.toString(), style = BeaconType.Countdown.copy(color = BeaconColors.White, textAlign = centred))
+            BeaconText(
                 text = pluralStringResource(R.plurals.test_seconds_left, seconds),
                 style = BeaconType.BodyStrong.copy(color = BeaconColors.White, textAlign = centred),
             )
@@ -237,11 +237,11 @@ private fun DetailRow(label: String, value: String) {
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         // The end padding keeps a 12 dp gap to the value when both just fit on one line.
-        BasicText(
+        BeaconText(
             text = label,
             modifier = Modifier.alignByBaseline().padding(end = 12.dp),
             style = BeaconType.Body.copy(color = BeaconColors.TextSecondary),
         )
-        BasicText(value, Modifier.alignByBaseline(), style = BeaconType.SmallButton.copy(color = BeaconColors.White))
+        BeaconText(value, Modifier.alignByBaseline(), style = BeaconType.SmallButton.copy(color = BeaconColors.White))
     }
 }

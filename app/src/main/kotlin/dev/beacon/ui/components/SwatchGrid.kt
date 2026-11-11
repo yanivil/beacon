@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import dev.beacon.settings.FlashColour
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -96,7 +96,7 @@ private fun Swatch(colour: FlashColour, selected: Boolean, onClick: () -> Unit, 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (selected) BeaconIcon(BeaconIcons.Check, BeaconColors.White, 22.dp)
-            BasicText(
+            BeaconText(
                 text = stringResource(colour.nameRes),
                 style = BeaconType.SmallButton.copy(color = BeaconColors.White),
             )

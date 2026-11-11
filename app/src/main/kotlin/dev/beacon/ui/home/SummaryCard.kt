@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +28,7 @@ import dev.beacon.ui.components.OutlineButton
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.durationSummary
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -59,11 +59,11 @@ fun SummaryCard(settings: BeaconSettings, onChange: () -> Unit) {
         SectionHeading(stringResource(R.string.summary_heading))
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SummaryRow(stringResource(R.string.summary_flashes_for), divider = true) {
-                BasicText(durationSummary(settings), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
+                BeaconText(durationSummary(settings), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
             }
             SummaryRow(stringResource(R.string.summary_blink_speed), divider = true) {
                 // The speed's name only; the rate is for the Alert settings screen.
-                BasicText(stringResource(settings.speed.nameRes), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
+                BeaconText(stringResource(settings.speed.nameRes), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
             }
             SummaryRow(stringResource(R.string.summary_screen_color), divider = false) {
                 if (settings.colourMode == ColourMode.SAME_FOR_ALL) {
@@ -76,10 +76,10 @@ fun SummaryCard(settings: BeaconSettings, onChange: () -> Unit) {
                                 .background(Color(settings.globalColour.argb), swatchShape)
                                 .border(2.dp, BeaconColors.White, swatchShape),
                         )
-                        BasicText(colourName(settings.globalColour), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
+                        BeaconText(colourName(settings.globalColour), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
                     }
                 } else {
-                    BasicText(stringResource(R.string.summary_per_app), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
+                    BeaconText(stringResource(R.string.summary_per_app), style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
                 }
             }
         }
@@ -115,7 +115,7 @@ private fun SummaryRow(label: String, divider: Boolean, value: @Composable () ->
             itemVerticalAlignment = Alignment.CenterVertically,
         ) {
             // The end padding keeps a 12 dp gap to the value when both just fit on one line.
-            BasicText(label, Modifier.padding(end = 12.dp), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+            BeaconText(label, Modifier.padding(end = 12.dp), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
             value()
         }
         if (divider) {

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,11 +21,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -202,7 +201,7 @@ private fun ButtonBody(
         // the button grows taller instead of cutting words off.
         val mainText = style.copy(color = content, textAlign = TextAlign.Center)
         if (secondaryText == null) {
-            BasicText(text = text, modifier = labelModifier, style = mainText)
+            BeaconText(text = text, modifier = labelModifier, style = mainText)
         } else {
             // Each line of the flow is centred, and the smaller text is centred on the main text's line.
             FlowRow(
@@ -210,13 +209,13 @@ private fun ButtonBody(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                 itemVerticalAlignment = Alignment.CenterVertically,
             ) {
-                BasicText(text = text, style = mainText)
-                // Content direction: the text's own first letter sets its direction, so an
+                BeaconText(text = text, style = mainText)
+                // BeaconText takes the direction from the text's own first letter, so an
                 // English "(3 sec)" in a right-to-left layout is laid out as the left-to-right
                 // run it was measured as, instead of wrapping as "3)" over "(sec".
-                BasicText(
+                BeaconText(
                     text = secondaryText,
-                    style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center, textDirection = TextDirection.Content),
+                    style = BeaconType.Sub.copy(color = content, textAlign = TextAlign.Center),
                 )
             }
         }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
@@ -29,6 +28,7 @@ import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.components.radioList
 import dev.beacon.ui.components.radioListItem
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -40,8 +40,9 @@ import dev.beacon.ui.theme.BeaconType
  * Why the value's text is a new node for each length: TalkBack reads a live
  * region when it gets a content-change event from it. Compose 1.11 reports a
  * changed text through a pass that keeps only the verdict of the last
- * property it compares, and a BasicText also carries text-substitution
- * actions that are rebuilt on every change but count as unchanged. Whether a
+ * property it compares, and a BasicText (which BeaconText draws) also
+ * carries text-substitution actions that are rebuilt on every change but
+ * count as unchanged. Whether a
  * text change survives that pass depends on hash order, and on the Android 16
  * emulator it never did, so the value was never read aloud. Compose also
  * reports a child's layout change (a new or resized child) as a subtree change
@@ -60,7 +61,7 @@ import dev.beacon.ui.theme.BeaconType
 fun DurationSection(settings: BeaconSettings, actions: SettingsActions) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SectionHeading(stringResource(R.string.duration_heading))
-        BasicText(stringResource(R.string.duration_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+        BeaconText(stringResource(R.string.duration_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
         val choices = DurationChoice.entries
         // A grid, so the group and each option state their list positions (see RadioList.kt).
         AdaptiveGrid(count = choices.size, modifier = Modifier.radioList(choices.size)) { index ->
@@ -132,7 +133,7 @@ private fun CustomPanel(settings: BeaconSettings, actions: SettingsActions) {
                 enabled = enabled,
             )
         }
-        BasicText(stringResource(R.string.custom_range), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+        BeaconText(stringResource(R.string.custom_range), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
     }
 }
 
@@ -151,7 +152,7 @@ private fun CustomValue(minutes: Int) {
         // the value changed (see the file comment), even when the new value is
         // exactly as wide as the old one.
         key(minutes) {
-            BasicText(
+            BeaconText(
                 text = stringResource(R.string.minutes_short, minutes),
                 modifier = Modifier.fillMaxWidth(),
                 style = BeaconType.CustomValue.copy(color = BeaconColors.Text, textAlign = TextAlign.Center),

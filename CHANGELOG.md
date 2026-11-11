@@ -608,9 +608,26 @@ and the project uses [Semantic Versioning](https://semver.org/).
   phone-checks paragraph; section 17 says a restart was checked (defect P5).
 - The "Not tested" sections of the earlier checks files point to the phone
   checks.
+- `docs/checks/2026-11-rtl-text-direction.md`, with screenshots in
+  `docs/checks/rtl-text-direction/`: the right-to-left text fix's ruling R1,
+  its tests, and an emulator comparison with Beacon set to Hebrew ("minute
+  1" on `main`, "1 minute" with the fix) and in English (pixel-identical).
+- `README.md` for the right-to-left fix: the phone checks marked merged
+  (yanivil/beacon#14), a status entry and a "Right-to-left text" section.
+- `docs/specs/2026-11-08-step2-design.md` for the right-to-left fix: the
+  status records #14's merge and the fix; section 12 says every text goes
+  through `BeaconText`; section 16 notes P1's fix.
 
 ### Fixed
 
+- English text on a phone set to Hebrew (the phone checks' P1): lines were
+  laid out right to left, so "1 minute" read "minute 1" and full stops moved
+  to the start. Every text is now drawn by the new `BeaconText`
+  (`ui/theme/BeaconText.kt`), which takes the direction from the text's own
+  words and keeps the text at the layout's start edge. The 16 files that
+  used `BasicText` use it instead; the Test alert button's "(3 sec)" no
+  longer sets its own direction. `BeaconTextTest` (6 tests) checks the
+  style, the line's position, and that no other file calls `BasicText`.
 - PR 2's carry-overs, in `app/` (Step 2's PR 4):
   - A camera light that refused mid-alert left the alert controller
     thinking it still flashed: the 30-second heat poll (when the system

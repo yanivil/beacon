@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +43,7 @@ import dev.beacon.ui.components.BeaconIcon
 import dev.beacon.ui.components.BeaconIcons
 import dev.beacon.ui.components.FilledButton
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -203,7 +203,7 @@ private fun TabItem(icon: ImageVector, @StringRes label: Int, selected: Boolean,
             BeaconIcon(icon, if (selected) BeaconColors.OnAccent else BeaconColors.White, 28.dp)
         }
         // No maxLines and no ellipsis: at large font sizes the label wraps and the bar grows.
-        BasicText(
+        BeaconText(
             text = stringResource(label),
             style = BeaconType.Sub.copy(
                 color = BeaconColors.White,

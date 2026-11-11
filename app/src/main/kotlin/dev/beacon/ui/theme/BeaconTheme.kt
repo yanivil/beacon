@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.Dp
 
 /*
  * Why locals instead of MaterialTheme: Beacon uses no Material 3. Components
- * draw text with BasicText and read these two locals, so a screen only has to
+ * draw text with BeaconText and read these two locals, so a screen only has to
  * be wrapped in BeaconTheme to get the right default font and colour.
  *
  * Why a custom ripple: material-ripple has no public ripple() (checked in
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.Dp
  * supported way for a design system to build its own ripple.
  */
 
-/** Default text style for [androidx.compose.foundation.text.BasicText] in Beacon components. */
+/** Default text style for [BeaconText] in Beacon components. */
 val LocalBeaconTextStyle = compositionLocalOf<TextStyle> { BeaconType.Body }
 
 /** Default text colour for Beacon components. */
