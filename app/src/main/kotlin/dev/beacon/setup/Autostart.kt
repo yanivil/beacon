@@ -12,6 +12,11 @@ import android.os.Process
  * checks' P5). The owner decided on 11 November 2026 that the Finish setup
  * card gets a fourth row for it on Xiaomi phones.
  *
+ * Lint has no check for this reflective call, so nothing is suppressed; the
+ * call is on Android's "unsupported" list, which Android 16 still allows
+ * (the test phone logged it as `api=unsupported`), but a later Android may
+ * block it.
+ *
  * Why a hidden method, and why it may fail: Xiaomi keeps Autostart in a
  * private app-op, 10008, with no public name (the test phone's `appops`
  * shows it as "MIUIOP(10008)"). Android's only way to read an app-op by its
@@ -74,10 +79,11 @@ internal fun hiddenOpMode(context: Context, op: Int): Int? = try {
     )
     method.invoke(ops, op, Process.myUid(), context.packageName) as? Int
 } catch (_: ReflectiveOperationException) {
-    // Blocked or missing hidden method: the state can't be read.
+    // A blocked or missing hidden method (NoSuchMethodException), or anything the method itself throws,
+    // such as an op number the phone doesn't know (wrapped in InvocationTargetException).
     null
 } catch (_: RuntimeException) {
-    // An unknown op number throws on phones that aren't Xiaomis; a failed read must never crash Home.
+    // A missing app-ops service (a null receiver) or a refused call: a failed read must never crash Home.
     null
 }
 

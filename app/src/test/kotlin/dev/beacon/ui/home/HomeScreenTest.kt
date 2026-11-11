@@ -431,6 +431,29 @@ class HomeScreenTest {
         rule.assertNoTextOverflow()
     }
 
+    /** With Autostart on and the other grants in place, Home has no setup card. */
+    @Test fun setupCardHiddenWhenAutostartIsOn() {
+        setup = SetupStatus(true, true, true, AutostartState.ON)
+        show()
+        rule.onNodeWithText("Finish setup").assertDoesNotExist()
+    }
+
+    /** With Autostart on but another grant missing, the Autostart row shows On. */
+    @Test fun autostartRowShowsOnWhenOn() {
+        setup = SetupStatus(false, true, true, AutostartState.ON)
+        show()
+        rule.onNodeWithText("Background autostart").performScrollTo()
+        rule.onNode(hasText("Background autostart") and hasStateDescription("On")).assertExists()
+    }
+
+    /** An unreadable Autostart row, drawn without its pill, at the largest font with nothing cut off. */
+    @Test fun unknownAutostartRowNoOverflowAtLargestFont() {
+        setup = SetupStatus(false, false, false, AutostartState.UNKNOWN)
+        show(fontScale = 2.0f)
+        rule.onNodeWithText("Background autostart").assertExists()
+        rule.assertNoTextOverflow()
+    }
+
     /** The card sits between the title and the alerts card. */
     @Test fun setupCardIsAboveTheAlertsCard() {
         setup = SetupStatus(false, true, true)

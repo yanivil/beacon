@@ -2,10 +2,14 @@ package dev.beacon.setup
 
 import android.app.AppOpsManager
 import android.app.Application
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -44,6 +48,17 @@ class AutostartTest {
 
     /** Reading Xiaomi's private app-op never throws, even where it doesn't exist (Robolectric's Android). */
     @Test fun readingNeverThrows() {
-        hiddenOpMode(app, MIUI_OP_AUTO_START)
+        val mode = hiddenOpMode(app, MIUI_OP_AUTO_START)
+        // Robolectric's Android may answer anything for an op it doesn't know, or nothing; it must not throw.
+        assertTrue(mode == null || mode in AppOpsManager.MODE_ALLOWED..AppOpsManager.MODE_FOREGROUND)
+    }
+
+    /** With no app-ops service at all, the read gives up quietly instead of crashing Home. */
+    @Test fun noAppOpsServiceGivesNull() {
+        val noService = object : ContextWrapper(app) {
+            override fun getSystemService(name: String): Any? =
+                if (name == Context.APP_OPS_SERVICE) null else super.getSystemService(name)
+        }
+        assertNull(hiddenOpMode(noService, MIUI_OP_AUTO_START))
     }
 }

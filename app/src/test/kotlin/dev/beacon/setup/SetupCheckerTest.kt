@@ -85,4 +85,13 @@ class SetupCheckerTest {
     @Test fun checkerReportsNoAutostartOnOtherPhones() {
         assertEquals(AutostartState.NOT_XIAOMI, SetupChecker(app).check().autostart)
     }
+
+    /** Only an unreadable Autostart has no known state; the other rows always do. */
+    @Test fun stateKnownExceptForAnUnreadableAutostart() {
+        val status = SetupStatus(false, false, false)
+        assertTrue(status.stateKnown(SetupItem.NOTIFICATIONS))
+        assertTrue(status.copy(autostart = AutostartState.OFF).stateKnown(SetupItem.AUTOSTART))
+        assertTrue(status.copy(autostart = AutostartState.ON).stateKnown(SetupItem.AUTOSTART))
+        assertFalse(status.copy(autostart = AutostartState.UNKNOWN).stateKnown(SetupItem.AUTOSTART))
+    }
 }

@@ -6,7 +6,7 @@ import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 
 /*
- * Why three plain yes/no checks: Beacon can only flash for a message when the
+ * Why plain yes/no checks: Beacon can only flash for a message when the
  * person has granted three things in Android's own Settings (spec section 9).
  * On Xiaomi phones a fourth, Background autostart, keeps Beacon listening
  * after a restart; its state may be unreadable (see Autostart.kt).
@@ -31,7 +31,7 @@ enum class SetupItem {
 }
 
 /**
- * Which of the three grants are in place.
+ * Which grants are in place: the three every phone needs, and Xiaomi's Background autostart.
  *
  * @property notificationAccess true when Beacon may listen for notifications.
  * @property displayOverApps true when Beacon may draw over other apps.

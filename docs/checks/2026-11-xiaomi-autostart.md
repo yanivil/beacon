@@ -54,7 +54,11 @@ All of it was read from the test phone, without changing anything there.
     when it is done.
   - Other phones have no row.
   - Cost if wrong: on a Xiaomi with an unreadable state, the row is seen
-    only while another grant is missing.
+    only while another grant is missing, so once the other three are on,
+    nothing prompts for Autostart there and P5 can come back. This is a
+    known limit, stated in the spec and the README.
+  - A phone made by Xiaomi without HyperOS's app-op gets the unknown row,
+    and its button falls back to App info.
 - **R3. The words follow HyperOS's own page.**
   - The title is "Background autostart". The reason is "So Beacon works
     again by itself after the phone restarts." The steps are "Find Beacon
@@ -67,8 +71,8 @@ All of it was read from the test phone, without changing anything there.
 
 | Check | Result |
 |---|---|
-| New tests | 12 tests. `AutostartTest` (4): other phones have no Autostart and aren't asked; on a Xiaomi allowed is ON and ignored is OFF; an unreadable or other mode is UNKNOWN; reading never throws. `SetupCheckerTest` (3): Autostart OFF keeps the card open, while ON, UNKNOWN and other phones don't; the row only on a Xiaomi; the checker on a phone that isn't a Xiaomi. `SetupIntentsTest` (1): the page's action. `HomeScreenTest` (4): the row with its state, steps and button on a Xiaomi; no pill or spoken state when unknown; no row on other phones; all four rows at the largest font with nothing cut off. Against placeholder code, 8 failed; the other 4 are guards. All pass. |
-| `./gradlew :app:testDebugUnitTest` | 368 tests, 0 failures: the 356 before, and the 12 new ones. |
+| New tests | 17 tests. `AutostartTest` (5): other phones have no Autostart and aren't asked; on a Xiaomi allowed is ON and ignored is OFF; an unreadable or other mode is UNKNOWN; reading never throws; with no app-ops service the read gives null. `SetupCheckerTest` (4): Autostart OFF keeps the card open, while ON, UNKNOWN and other phones don't; the row only on a Xiaomi; the checker on a phone that isn't a Xiaomi; only an unreadable Autostart has no known state. `SetupIntentsTest` (1): the page's action. `HomeScreenTest` (7): the row with OFF, its steps and button on a Xiaomi; the row with On; no pill or spoken state when unknown; no row on other phones; no card once Autostart is on and the rest are granted; all four rows at the largest font, with an OFF row and with an unknown one, nothing cut off. The first 12, written against placeholder code, included 8 that failed; the rest are guards. All pass. |
+| `./gradlew :app:testDebugUnitTest` | 373 tests, 0 failures: the 356 before, and the 17 new ones. |
 | `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:lintDebug --rerun-tasks --warning-mode all` | No Kotlin compiler warnings, and lint reports "No issues found". |
 
 ## The test phone
@@ -81,7 +85,7 @@ and the owner accepted HyperOS's install prompt.
 | Reading Autostart, off | Tested on Redmi 15C 5G, Android 16. With the other three grants on, the Finish setup card came back, with a fourth row: "Background autostart", its reason and steps, an OFF pill, and "Open settings". |
 | The button | Tested on Redmi 15C 5G, Android 16. It opened HyperOS's "הפעלה אוטומטית ברקע" page (`AutoStartManagementActivity`). |
 | Reading Autostart, on | Tested on Redmi 15C 5G, Android 16. The owner turned on Beacon's switch there. `appops` then answered `MIUIOP(10008): allow`, and Beacon's Home opened on "Visual alerts ON" with no setup card. |
-| A restart with Autostart on | Tested on Redmi 15C 5G, Android 16. After the restart the listener couldn't start until the phone was first unlocked (15:25:57 and 15:26:11, "not found": Beacon isn't direct-boot aware). At 15:26:27 Android started Beacon for its listener by itself, with no refusal, and nobody opened Beacon. A WhatsApp message at 15:26:41 and the owner's SMS at 15:27:08.801 each flashed with the screen off. The SMS was decided `Alert(source=SMS)` 258 ms after it arrived, and the screen woke. |
+| One restart with Autostart on | Tested on Redmi 15C 5G, Android 16, once. After the restart the listener couldn't start until the phone was first unlocked (15:25:57 and 15:26:11, "not found": Beacon isn't direct-boot aware). At 15:26:27 Android started Beacon for its listener by itself, with no refusal, and nobody opened Beacon. A WhatsApp message at 15:26:41 and the owner's SMS at 15:27:08.801 each flashed with the screen off. The SMS was decided `Alert(source=SMS)` 258 ms after it arrived, and the screen woke. |
 
 Seen on the phone with this build, which carries every fix merged that day:
 the Xiaomi battery row reads "Tap Power (or Battery), then No

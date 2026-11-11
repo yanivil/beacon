@@ -474,13 +474,16 @@ until someone opens it.
 - **The fix:** on Xiaomi phones the Finish setup card has a fourth row,
   "Background autostart", whose button opens HyperOS's own list, where the
   person turns on Beacon's switch. Beacon reads the setting through a hidden
-  Android method; if a phone blocks it, the row shows its steps without
-  ON/OFF.
+  Android method.
+- **A known limit:** if a phone blocks that method, the row shows its steps
+  without ON/OFF, and only while another setup row is missing, so once the
+  other three are on, nothing prompts for Autostart there.
 - **On the test phone:** the row showed OFF, its button opened the right
-  page, and after the owner turned the switch on the card went away. After
-  a restart Beacon came back by itself, and an SMS flashed without anyone
-  opening it.
-- **Checks:** 368 unit tests pass (12 new), with no compiler warnings, and
+  page, and after the owner turned the switch on the card went away. In one
+  restart with Autostart on, Android connected Beacon's listener by itself
+  once the phone was first unlocked, and an SMS flashed without anyone
+  opening Beacon.
+- **Checks:** 373 unit tests pass (17 new), with no compiler warnings, and
   lint reports no issues:
   [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
 
@@ -523,7 +526,9 @@ Added in the Step 2 spec:
 
 - **Finish setup:** a card on Home, shown only while notification access,
   "Display over other apps" or the battery setting "No restrictions" is
-  missing, or, on Xiaomi phones, Background autostart is off. Each shows ON or OFF and opens the right settings page.
+  missing, or, on Xiaomi phones, Background autostart is off. Each row
+  shows ON or OFF, except an Autostart that Beacon can't read, and opens
+  the right settings page.
 - **Alert screen:** "New message" and the app's name over the blinking
   colour, with a big Stop button. It never shows who sent the message or
   what it says.

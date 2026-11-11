@@ -14,9 +14,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   reads Xiaomi's private app-op 10008 through the hidden
   `AppOpsManager.checkOpNoThrow`, as ON, OFF or, when that fails, UNKNOWN;
   OFF keeps the card open, and an unknown row shows no pill. Its button
-  opens HyperOS's list (`miui.intent.action.OP_AUTO_START`). 12 tests. On
-  the test phone it read OFF and then ON, and after a restart Beacon came
-  back by itself.
+  opens HyperOS's list (`miui.intent.action.OP_AUTO_START`). 17 tests. On
+  the test phone it read OFF and then ON, and in one restart with
+  Autostart on the listener connected by itself after the first unlock.
+  If a phone blocks the hidden method, the row can't keep the card open.
 - `CLAUDE.md` with the rules every session follows: WCAG AAA accessibility,
   blink-safety limits (30/60/90 blinks a minute, never over 3 flashes a
   second), the branch and PR workflow, code-comment and docs requirements,
