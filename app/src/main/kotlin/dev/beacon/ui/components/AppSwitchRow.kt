@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -90,7 +90,7 @@ fun AppSwitchRow(
                 contentAlignment = Alignment.Center,
             ) { icon() }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                BasicText(
+                BeaconText(
                     text = name,
                     modifier = Modifier.testTag(APP_ROW_NAME_TAG),
                     style = BeaconType.RowTitle.copy(color = BeaconColors.Text),
@@ -180,6 +180,6 @@ private fun FlashLine(text: String, swatch: Color?) {
                     .border(2.dp, BeaconColors.White, swatchShape),
             )
         }
-        BasicText(text = text, style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+        BeaconText(text = text, style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
     }
 }

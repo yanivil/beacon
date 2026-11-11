@@ -1,10 +1,10 @@
 package dev.beacon.ui.components
 
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 import dev.beacon.ui.theme.LocalContentColour
 
@@ -23,7 +23,7 @@ import dev.beacon.ui.theme.LocalContentColour
  */
 @Composable
 fun ScreenTitle(text: String, modifier: Modifier = Modifier) {
-    BasicText(
+    BeaconText(
         text = text,
         modifier = modifier.semantics { heading() },
         style = BeaconType.ScreenTitle.copy(color = LocalContentColour.current),
@@ -38,7 +38,7 @@ fun ScreenTitle(text: String, modifier: Modifier = Modifier) {
  */
 @Composable
 fun SectionHeading(text: String, modifier: Modifier = Modifier) {
-    BasicText(
+    BeaconText(
         text = text,
         modifier = modifier.semantics { heading() },
         style = BeaconType.Heading.copy(color = LocalContentColour.current),

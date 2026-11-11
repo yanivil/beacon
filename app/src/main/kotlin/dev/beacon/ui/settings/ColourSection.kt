@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +34,7 @@ import dev.beacon.ui.components.OutlineButton
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.components.SwatchGrid
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -61,7 +61,7 @@ private const val SideBySideMinWidth = 250f
 fun ColourSection(settings: BeaconSettings, editingApp: MessageSource?, actions: SettingsActions) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SectionHeading(stringResource(R.string.colour_heading))
-        BasicText(stringResource(R.string.colour_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+        BeaconText(stringResource(R.string.colour_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             listOf(
                 ColourMode.SAME_FOR_ALL to R.string.colour_mode_same,
@@ -118,7 +118,7 @@ private fun AppColourCard(source: MessageSource, settings: BeaconSettings, open:
         // The name and its colour line, shared by the side-by-side and the stacked layouts.
         val title: @Composable (Modifier) -> Unit = { modifier ->
             Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                BasicText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
+                BeaconText(name, style = BeaconType.RowTitle.copy(color = BeaconColors.Text))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     val swatchShape = RoundedCornerShape(6.dp)
                     // Only a picture: the colour's name beside it carries the meaning.
@@ -129,7 +129,7 @@ private fun AppColourCard(source: MessageSource, settings: BeaconSettings, open:
                             .background(Color(colour.argb), swatchShape)
                             .border(2.dp, BeaconColors.White, swatchShape),
                     )
-                    BasicText(colourName(colour), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+                    BeaconText(colourName(colour), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
                 }
             }
         }

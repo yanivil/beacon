@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -25,6 +24,7 @@ import dev.beacon.ui.components.BeaconIcons
 import dev.beacon.ui.components.FilledButton
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 import dev.beacon.ui.theme.LocalContentColour
 
@@ -69,7 +69,7 @@ private fun OnCard(onPause: () -> Unit) {
             }
             StateLine(BeaconIcons.Bolt, BeaconColors.OnAccent, stringResource(R.string.alerts_on))
         }
-        BasicText(
+        BeaconText(
             stringResource(R.string.alerts_on_body),
             style = BeaconType.BodyStrong.copy(color = BeaconColors.OnAccent),
         )
@@ -112,13 +112,13 @@ private fun PausedCard(resumeTime: String?, onResume: () -> Unit) {
             }
             StateLine(BeaconIcons.Pause, BeaconColors.White, stringResource(R.string.alerts_paused))
         }
-        BasicText(
+        BeaconText(
             stringResource(R.string.alerts_paused_body),
             style = BeaconType.BodyStrong.copy(color = BeaconColors.White),
         )
         // Only a timed pause comes back by itself; an open one stays paused until the user acts.
         if (resumeTime != null) {
-            BasicText(
+            BeaconText(
                 stringResource(R.string.alerts_back_on_at, resumeTime),
                 style = BeaconType.BodyStrong.copy(color = BeaconColors.White),
             )
@@ -153,7 +153,7 @@ private fun StateLine(icon: ImageVector, colour: Color, word: String) {
         itemVerticalAlignment = Alignment.CenterVertically,
     ) {
         BeaconIcon(icon, colour, 48.dp)
-        BasicText(word, style = BeaconType.State.copy(color = colour))
+        BeaconText(word, style = BeaconType.State.copy(color = colour))
     }
 }
 
@@ -175,7 +175,7 @@ fun PausedBanner() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         BeaconIcon(BeaconIcons.Pause, BeaconColors.White, 24.dp)
-        BasicText(
+        BeaconText(
             stringResource(R.string.apps_paused_banner),
             modifier = Modifier.weight(1f),
             style = BeaconType.Body.copy(color = BeaconColors.White, fontWeight = FontWeight.ExtraBold),

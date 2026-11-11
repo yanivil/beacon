@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -104,11 +104,11 @@ fun OptionButton(
 @Composable
 private fun OptionTexts(label: String, sub: List<String>, selected: Boolean, labelStyle: TextStyle, modifier: Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        BasicText(
+        BeaconText(
             text = label,
             style = labelStyle.copy(color = if (selected) BeaconColors.OnAccent else BeaconColors.Text),
         )
         val subColour = if (selected) BeaconColors.OnAccent else BeaconColors.TextSecondary
-        sub.forEach { line -> BasicText(text = line, style = BeaconType.Sub.copy(color = subColour)) }
+        sub.forEach { line -> BeaconText(text = line, style = BeaconType.Sub.copy(color = subColour)) }
     }
 }

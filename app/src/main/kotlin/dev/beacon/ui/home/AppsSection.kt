@@ -2,7 +2,6 @@ package dev.beacon.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -14,6 +13,7 @@ import dev.beacon.ui.colourName
 import dev.beacon.ui.components.AppSwitchRow
 import dev.beacon.ui.components.SectionHeading
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -37,7 +37,7 @@ fun AppsSection(settings: BeaconSettings, paused: Boolean, onToggle: (MessageSou
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             SectionHeading(stringResource(R.string.apps_heading))
-            BasicText(stringResource(R.string.apps_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
+            BeaconText(stringResource(R.string.apps_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
         }
         if (paused) PausedBanner()
         // Declaration order is the design's order: SMS, WhatsApp, Telegram.

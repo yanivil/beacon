@@ -78,6 +78,8 @@ Made during the session, on 11 November 2026:
   Hebrew translation yet, so they read English laid out right to left.
 - **Fix:** each text's direction should follow its own words, which keeps a
   future Hebrew translation right to left.
+- **Fixed** in the right-to-left text PR: see
+  [`2026-11-rtl-text-direction.md`](2026-11-rtl-text-direction.md).
 
 ### P2. The Xiaomi battery step names the wrong row on Hebrew HyperOS
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import dev.beacon.R
 import dev.beacon.ui.theme.BeaconColors
+import dev.beacon.ui.theme.BeaconText
 import dev.beacon.ui.theme.BeaconType
 
 /*
@@ -72,7 +72,7 @@ fun OnOffPill(on: Boolean, modifier: Modifier = Modifier) {
  */
 @Composable
 private fun PillWord(on: Boolean) {
-    BasicText(
+    BeaconText(
         text = stringResource(if (on) R.string.switch_on else R.string.switch_off),
         modifier = Modifier.padding(horizontal = 4.dp),
         style = BeaconType.SmallButton.copy(color = if (on) BeaconColors.OnAccent else BeaconColors.White),
