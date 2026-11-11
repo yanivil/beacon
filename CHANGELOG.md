@@ -277,6 +277,16 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `beacon-api36`, Android 16) the speed lines read as before. It also lists
   what stays not tested: TalkBack on a device, backup on Android 10 and
   11, and every phone check.
+- `docs/checks/2026-11-dependency-versions.md`, with a screenshot in
+  `docs/checks/dependency-versions/`: the dependency-version PR's rulings
+  V1 to V4, each with what it costs if wrong, and its checks. 327 unit
+  tests pass with no compiler warnings, and lint reports 0 errors and 6
+  warnings. The APK's manifest and resources match `main`'s, and the only
+  library the app ships that changes is `kotlin-stdlib`. With the other
+  four bumps, the build stops on 13 libraries that need compileSdk 37. On
+  the emulator (AVD `beacon-api36`, Android 16), Home, Alert settings and
+  the test alert run as before. It also lists what stays not tested: the
+  widget and a real message alert on the emulator, and every phone check.
 
 ### Changed
 
@@ -508,6 +518,35 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - Section 12: the blink speeds' line is a plural, and no Beacon string
     takes a library resource's name.
   - Section 16: PR 4 merged, and a paragraph for the lint clean-up.
+- The dependency versions, as the owner asked on 11 November 2026 (no
+  change anyone sees or hears):
+  - The Gradle wrapper goes from 9.8.2 to 9.9.1: `gradle-wrapper.properties`
+    and `gradle-wrapper.jar`, whose SHA-256 matches Gradle's published one.
+    The Step 1 test app keeps its own wrapper at 9.8.2.
+  - Kotlin goes from 2.2.10 to 2.4.21, through the Compose compiler plugin.
+    AGP 9.5.1's built-in Kotlin moves up to the same version, and the app's
+    `kotlin-stdlib` goes from 2.2.20 to 2.4.21.
+  - Compose (BOM 2026.06.01, UI test libraries 1.11.4), Lifecycle 2.10.0
+    and Core KTX 1.18.0 stay. Their newer releases need compileSdk 37, and
+    `CLAUDE.md` fixes compileSdk at 36. Comments in
+    `gradle/libs.versions.toml` say why each version is where it is, and
+    those four versions now sit together under their comment.
+  - `SettingsRepositoryTest`: the bare `Unit` at the end of
+    `updatePauseFailsOnUnreadableStore` did nothing, and Kotlin 2.4.21
+    reports it as an unused expression, so it is removed.
+  - Lint now reports 0 errors and 6 warnings, all about those three
+    libraries, left for the owner's decision on compileSdk 37.
+- `README.md`: the lint clean-up marked merged (yanivil/beacon#11, on
+  10 November 2026). The dependency versions built on
+  `fix/dependency-versions`, with a link to their checks and a "The
+  dependency versions" section. "Tech stack" names the Gradle, AGP and
+  Kotlin versions, and "Building" says which 6 lint warnings to expect.
+- `docs/specs/2026-11-08-step2-design.md`, for the dependency versions:
+  - Status: the lint clean-up merged; the dependency versions built.
+  - Section 4: the build's Gradle and Kotlin versions, and why Compose,
+    Lifecycle and Core KTX stay.
+  - Section 16: the lint clean-up merged, and a paragraph for the
+    dependency versions.
 
 ### Fixed
 
