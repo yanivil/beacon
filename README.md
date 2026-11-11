@@ -510,9 +510,10 @@ code changed.
   alert flashed once a second and ended by itself after 1 minute.
 - **Battery:** the level stayed at 100%. The alerts' own cost is too small
   for its 1% steps.
+- **The colours:** right, by the owner's report.
 - **Still not tested:** the widget's 1-hour pause on battery and its resume
-  alarm in Doze, since no pause was set; the blink's colours on the phone;
-  and a plain SMS, as the second message may have been RCS.
+  alarm in Doze, since no pause was set, and a plain SMS, as the second
+  message may have been RCS.
 - **Checks:** read from the phone's battery history and Beacon's log:
   [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
 
