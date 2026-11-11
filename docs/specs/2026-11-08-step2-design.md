@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), built on `fix/compile-sdk-37`. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ran on 11 November 2026 ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)); their defects P1 to P5 and the owner's two decisions (a real alert flashes only with the screen off or locked; a smaller widget state word) are not built yet, and each will change this spec in its own PR. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -1291,7 +1291,7 @@ rulings and checks are in
 Lint then reports 0 errors and 6 warnings, all about those three
 libraries, until the owner decides about compileSdk 37.
 
-compileSdk 37: built on `fix/compile-sdk-37`, after the owner raised
+compileSdk 37: merged as yanivil/beacon#13 on 11 November 2026, after the owner raised
 compileSdk from 36 to 37 in `CLAUDE.md` on 11 November 2026. targetSdk
 stays at 36. Its rulings and checks are in
 [`docs/checks/2026-11-compile-sdk-37.md`](../checks/2026-11-compile-sdk-37.md).
@@ -1304,10 +1304,30 @@ stays at 36. Its rulings and checks are in
 
 Lint then reports no issues.
 
+Phone checks: on 11 November 2026 Step 2's app ran on the test phone for
+the first time, with the owner at the phone. The results, defects and the
+owner's decisions are in
+[`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md).
+- Five defects: P1, English lines laid out right to left on a Hebrew phone
+  (section 12); P2, the Xiaomi battery step names a row HyperOS in Hebrew
+  calls "חשמל" (section 9); P3, a flash for the owner's own reply from a
+  WhatsApp notification, which carries the owner's name but no key
+  (section 6); P4, the widget hiding the resume time at text size 1.45
+  (section 10); P5, no alerts after a restart with HyperOS Autostart off
+  until Beacon is opened (section 13).
+- The owner's decisions: a real alert flashes only when the screen is off
+  or the lock screen is showing, and Beacon does nothing while the phone
+  is unlocked and in use (section 7); the widget's state word is 40 sp
+  (PAUSED) and 48 sp (ON), with 12 dp of padding (section 10).
+- Each defect and decision is built in a PR of its own, which also changes
+  the sections named here.
+
 ## 17. Not tested at the end of Step 2 (expected)
 
 - Telegram and WhatsApp Business detection.
 - Any phone other than the Redmi 15C 5G, and Android 10 to 15.
-- Restarting the phone, swiping Beacon away, and the system killing it.
+- Swiping Beacon away, and the system killing it. A restart was checked on
+  the phone on 11 November 2026: with HyperOS Autostart off, Beacon hears
+  nothing until it's opened (the phone checks' defect P5).
 - Real launcher cell sizes other than the test phone's.
 - Installing from Google Play.

@@ -62,6 +62,9 @@ Launcher's mark for a predicted app, not part of Beacon's icon.
 
 ## Not tested
 
+The phone checks on 11 November 2026 ran many of these on the test phone:
+see [`2026-11-phone-checks.md`](2026-11-phone-checks.md).
+
 - Any launcher other than the emulator's Pixel Launcher, including
   HyperOS's on the Redmi 15C 5G.
 - Themed icons on HyperOS.

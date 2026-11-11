@@ -132,6 +132,9 @@ was left on Home, with `/sdcard/ui.xml` removed.
 
 ## Not tested
 
+The phone checks on 11 November 2026 ran many of these on the test phone:
+see [`2026-11-phone-checks.md`](2026-11-phone-checks.md).
+
 - **The widget on the emulator:** none is placed on the emulator's home
   screen. Its unit tests pass through Glance's test library.
 - **A real message alert on the emulator:** notification access is off.

@@ -297,6 +297,17 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `main`'s build at font size 1.0 and 2.0, and the test alert runs as
   before. It also lists what stays not tested: TalkBack on a device, the
   widget and a real message alert on the emulator, and every phone check.
+- `docs/checks/2026-11-phone-checks.md`, with screenshots in
+  `docs/checks/phone-checks/`: Step 2's app on the test phone (Redmi 15C 5G,
+  Android 16, HyperOS 3) for the first time, on 11 November 2026, with the
+  owner at the phone. It records what passed (the screens at the owner's
+  text size, contrast, the camera light, setup, SMS and WhatsApp alerts
+  unlocked and locked, ignored backups, the widget, TalkBack by the owner's
+  report), five defects (P1 right-to-left text, P2 the Xiaomi battery row's
+  name, P3 a flash for the owner's own WhatsApp reply, P4 the widget hiding
+  the resume time, P5 no alerts after a restart until Beacon is opened),
+  five observations, the owner's decisions (flash only with the screen off
+  or locked; a smaller widget state word), and what is still not tested.
 
 ### Changed
 
@@ -588,6 +599,15 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/checks/2026-11-dependency-versions.md`: a pointer to the
   compileSdk 37 checks, where the Compose, Lifecycle and Core KTX versions
   it held were bumped.
+- `README.md` for the phone checks: compileSdk 37 marked merged
+  (yanivil/beacon#13, on 11 November 2026), a "Phone checks" status entry, a
+  "The phone checks" section, and the lines that said nothing had run on
+  the test phone now point to it.
+- `docs/specs/2026-11-08-step2-design.md` for the phone checks: the status
+  says compileSdk 37 merged and records the phone checks; section 16 gets a
+  phone-checks paragraph; section 17 says a restart was checked (defect P5).
+- The "Not tested" sections of the earlier checks files point to the phone
+  checks.
 
 ### Fixed
 

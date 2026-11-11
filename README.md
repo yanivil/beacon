@@ -31,8 +31,8 @@ contrast, big touch targets and plain wording.
         yanivil/beacon#6 on 9 November 2026. Emulator checks:
         [`docs/checks/2026-11-step2-pr1.md`](docs/checks/2026-11-step2-pr1.md).
         Five of the six defects they found are fixed and re-checked on the
-        emulator; the sixth needs TalkBack on the phone. Nothing in it has
-        run on the test phone yet.
+        emulator; the sixth needs TalkBack on the phone. It first ran on
+        the test phone on 11 November 2026 (see the phone checks below).
       - [x] **PR 2:** the alert engine, merged as yanivil/beacon#7 on
         9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr2-alert-engine.md`](docs/plans/2026-11-09-step2-pr2-alert-engine.md).
@@ -41,7 +41,8 @@ contrast, big touch targets and plain wording.
         They found two defects, both fixed and re-checked on the emulator:
         an alert that started while the screen was off ended at once, and
         Android's one-time "Viewing full screen" panel covered the first
-        alert. Nothing in it has run on the test phone yet.
+        alert. It first ran on the test phone on 11 November 2026 (see the
+        phone checks below).
       - [x] **PR 3:** the widget and the timed pause, merged as
         yanivil/beacon#8 on 9 November 2026. Plan:
         [`docs/plans/2026-11-09-step2-pr3-widget.md`](docs/plans/2026-11-09-step2-pr3-widget.md).
@@ -51,7 +52,8 @@ contrast, big touch targets and plain wording.
         emulator: after only a font-size change the widget stayed clipped
         until Glance drew it afresh, the launcher let it shrink to 3 × 2,
         and at 3 × 2 "PAUSED" broke and the resume time was cut off.
-        Nothing in it has run on the test phone yet.
+        It first ran on the test phone on 11 November 2026 (see the phone
+        checks below).
       - [x] **App icon:** Beacon's own launcher icon, a black bolt on the
         design's yellow, merged as yanivil/beacon#9 on 9 November 2026.
         Emulator checks:
@@ -61,7 +63,8 @@ contrast, big touch targets and plain wording.
         [`docs/plans/2026-11-09-step2-pr4-carryovers.md`](docs/plans/2026-11-09-step2-pr4-carryovers.md).
         Emulator checks:
         [`docs/checks/2026-11-step2-pr4.md`](docs/checks/2026-11-step2-pr4.md).
-        Nothing in it has run on the test phone yet.
+        It first ran on the test phone on 11 November 2026 (see the phone
+        checks below).
       - [x] **Lint clean-up:** lint's ten warnings about Beacon's own code
         and resources, merged as yanivil/beacon#11 on 10 November 2026.
         Checks:
@@ -69,10 +72,16 @@ contrast, big touch targets and plain wording.
       - [x] **Dependency versions:** Gradle 9.9.1 and Kotlin 2.4.21, merged
         as yanivil/beacon#12 on 11 November 2026. Checks:
         [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
-      - [ ] **compileSdk 37:** the owner's raise of compileSdk, and Compose
-        1.12, Lifecycle 2.11 and Core KTX 1.19, built on
-        `fix/compile-sdk-37` and not merged yet. Checks:
+      - [x] **compileSdk 37:** the owner's raise of compileSdk, and Compose
+        1.12, Lifecycle 2.11 and Core KTX 1.19, merged as yanivil/beacon#13
+        on 11 November 2026. Checks:
         [`docs/checks/2026-11-compile-sdk-37.md`](docs/checks/2026-11-compile-sdk-37.md).
+      - [ ] **Phone checks:** Step 2's app on the test phone for the first
+        time, on 11 November 2026, recorded on `feature/phone-checks` and
+        not merged yet:
+        [`docs/checks/2026-11-phone-checks.md`](docs/checks/2026-11-phone-checks.md).
+        They found five defects (P1 to P5), and the owner made two
+        decisions to build. Each fix comes in a PR of its own.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -288,7 +297,7 @@ The owner asked for lint's 8 newer-version warnings to be dealt with on
   `main`'s. On the emulator, Home, Alert settings and the test alert run
   as before:
   [`docs/checks/2026-11-dependency-versions.md`](docs/checks/2026-11-dependency-versions.md).
-  Nothing has run on the test phone.
+  It ran on the test phone in the phone checks below.
 
 ## compileSdk 37
 
@@ -313,7 +322,37 @@ bumped. targetSdk stays at 36, so Android treats Beacon as before.
   in the same place on both builds is pixel-identical to `main`'s, at font
   size 1.0 and 2.0. The test alert runs as before:
   [`docs/checks/2026-11-compile-sdk-37.md`](docs/checks/2026-11-compile-sdk-37.md).
-  Nothing has run on the test phone.
+  It ran on the test phone in the phone checks below.
+
+## The phone checks
+
+On 11 November 2026 Step 2's app ran on the test phone (Redmi 15C 5G,
+Android 16, HyperOS 3) for the first time, with the owner at the phone:
+[`docs/checks/2026-11-phone-checks.md`](docs/checks/2026-11-phone-checks.md).
+Nothing in the code changed; each defect is fixed in a PR of its own.
+
+- **What works:** installing, the icon, every screen at the owner's text
+  size (1.45) in portrait and landscape, contrast measured from the screen,
+  the camera light's timing, the three setup permissions, SMS and WhatsApp
+  alerts with the phone unlocked or asleep and locked (plugged in), the
+  1-minute end, Stop, ignoring WhatsApp's backup and group summaries,
+  reconnecting the listener when Beacon is opened, the widget's pause and
+  ON, and TalkBack (by the owner's report).
+- **Defects:**
+  - P1: with the phone in Hebrew, English lines are laid out right to left
+    ("minute 1", full stops at the start).
+  - P2: the Xiaomi battery step says "Battery saver", but HyperOS in Hebrew
+    names the row "חשמל" (Power).
+  - P3: replying from a WhatsApp notification makes Beacon flash.
+  - P4: at the owner's text size the widget hides the resume time.
+  - P5: after a restart (HyperOS Autostart off), Beacon hears nothing until
+    it's opened.
+- **The owner's decisions:** a real alert flashes only when the screen is
+  off or locked, and does nothing while the phone is in use; the widget
+  uses a smaller state word (40 and 48 sp) and 12 dp of padding.
+- **Still not tested on the phone:** alerts on battery and in Doze, the
+  resume alarm on its own, a restart during a pause, the largest text size,
+  the heat stop, and "Until I stop it".
 
 ## What Step 1 found
 
