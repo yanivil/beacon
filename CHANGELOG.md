@@ -636,9 +636,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - The Xiaomi battery step named the wrong row (the phone checks' P2). It
-  now says "Tap Power (or Battery), then No restrictions.", the row's name
-  on HyperOS 3 and on older versions, read from HyperOS's Security app on
-  the test phone. A test pins the wording.
+  now says "Tap Power (or Battery), then No restrictions.": "Power" is the
+  row's name on the test phone, and "Battery" an older title for it, both
+  read from HyperOS's Security app copied off the phone. A test pins the
+  wording.
 - The owner's own reply typed into a WhatsApp notification made Beacon
   flash (the phone checks' P3). WhatsApp sets no Person keys and marks the
   reply with a sender named as the owner, so `NotificationReader`'s new

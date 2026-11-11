@@ -701,7 +701,7 @@ Each names the labels in the order the person taps them.
 | 13 (33) | "Tap App battery usage, then Unrestricted." | Android's Settings source | Not tested |
 | 12 and 12L (31 and 32) | "Tap Battery, then Unrestricted." (the steps PR 2 showed on every other phone) | Android's Settings source | Not tested |
 | 10 and 11 (29 and 30) | "Tap Advanced, then Battery, then Battery optimization. Choose All apps, tap Beacon, then Don’t optimize, then Done." | Android's Settings source | Not tested |
-| Xiaomi, any version | "Tap Power (or Battery), then No restrictions." | HyperOS's Security app 12.8.6 on the test phone: the App info row is "Power" on HyperOS 3 and "Battery" before; the option is "No restrictions" (the phone checks' P2) | Not tested |
+| Xiaomi, any version | "Tap Power (or Battery), then No restrictions." | HyperOS's Security app 12.8.6, copied off the test phone: the App info row is "Power" there ("חשמל", as the phone showed), and the app carries an older title for it, "Battery"; the option is "No restrictions" (the phone checks' P2) | Not tested |
 
 - **Android's Settings source:** the App info and battery-page layouts and
   their strings in AOSP's `platform/packages/apps/Settings`, at each

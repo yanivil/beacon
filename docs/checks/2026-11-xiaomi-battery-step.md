@@ -19,29 +19,35 @@ phone checks didn't know whether English HyperOS used "Battery saver".
 
 The labels come from HyperOS's Security app (`com.miui.securitycenter`
 12.8.6-260915.1.1), which draws App info and the battery page. Its package
-was copied off the test phone with `adb pull` and read with `aapt2 dump
-resources`. Nothing on the phone was changed (Tested on Redmi 15C 5G,
-Android 16, 11 November 2026).
+was copied off the test phone with `adb pull`, which only reads it, and its
+strings were read on the Mac with `aapt2 dump resources` on 11 November
+2026. These are the app's strings, not a screen; what the phone itself
+showed is in the phone checks.
 
 | Where | Resource | English | Hebrew |
 |---|---|---|---|
 | App info: the row Beacon's step must name | `app_manager_details_electric_title_new` | **Power** | חשמל |
-| The same row in older versions | `app_manager_details_electric_title` | Battery | |
+| An older title for the same row, also in the app | `app_manager_details_electric_title` | Battery | סוללה |
 | The value under the row | `app_manager_details_electric_title_value` | Battery usage %s | ניצול סוללה %s |
 | The next page's title | `pc_battery_detail` | Battery details | פרטי הסוללה |
 | Its heading | `app_manager_permission_power_saving_title` | Battery saver | חסכון בסוללה |
 | The option to choose | `app_manager_powerkeeper_no_restrict` | **No restrictions** | אין הגבלות |
 
-So the row was misnamed in English as well: "Battery saver" is the next
-page's heading.
+The phone showed the row as "חשמל" with "ניצול סוללה 0.0%" under it
+(the phone checks, Tested on Redmi 15C 5G, Android 16). That is the
+`_new` title, not the older "סוללה", so in English the same row reads
+"Power". The row was misnamed in English as well: "Battery saver" is the
+next page's heading. The strings alone don't say which HyperOS versions
+use the older title.
 
 ## Ruling
 
 - **R1. The Xiaomi step says "Tap Power (or Battery), then No
   restrictions."**
-  - "Power" is the row's name on HyperOS 3, from HyperOS's own strings.
-    "Battery" is the older name of the same row, which the same app still
-    carries, so phones on older versions find it too.
+  - "Power" is the row's name on the test phone's HyperOS, from HyperOS's
+    own strings and the Hebrew the phone showed. "Battery" is the older
+    title for the same row, which the same app still carries; it is
+    added so a phone showing that title finds the row too.
   - "No restrictions" is unchanged: it is the option's name.
   - A comment by the string records where the names come from, with the
     Hebrew labels for a future translation.
@@ -63,6 +69,6 @@ page's heading.
   emulator isn't one. The next build installed there will show it.
 - **HyperOS in English**, seen on the phone rather than read from the
   Security app.
-- **Older Xiaomi phones** (MIUI, HyperOS 1 and 2), where the row may be
-  "Battery".
+- **Which phones show the older title, "Battery"** (older MIUI or
+  HyperOS versions, perhaps): the strings don't say.
 - **Other Xiaomi brands' skins** (Redmi and POCO run the same HyperOS).

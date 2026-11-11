@@ -412,10 +412,10 @@ The phone checks' defect P2: on Xiaomi phones the "Battery: No
 restrictions" row said "Tap Battery saver", but the row to tap on App info
 isn't called that.
 
-- **Evidence:** HyperOS's own Security app, read off the test phone, names
-  the App info row "Power" on HyperOS 3 ("חשמל" in Hebrew) and "Battery" on
-  older versions. "Battery saver" is the next page's heading, and "No
-  restrictions" its option.
+- **Evidence:** HyperOS's own Security app, copied off the test phone,
+  names the App info row "Power" ("חשמל" in Hebrew, which the phone
+  showed), and also carries an older title for it, "Battery". "Battery
+  saver" is the next page's heading, and "No restrictions" its option.
 - **The fix:** "Tap Power (or Battery), then No restrictions."
 - **Checks:** 342 unit tests pass (1 new), and lint reports no issues:
   [`docs/checks/2026-11-xiaomi-battery-step.md`](docs/checks/2026-11-xiaomi-battery-step.md).
