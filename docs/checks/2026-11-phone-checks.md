@@ -21,7 +21,7 @@ Nothing here changes Beacon's code. Each defect is fixed in a PR of its own.
 | Android | 16 (API 36), build `BP2A.250605.031.A3` |
 | HyperOS | `OS3.0.306.0.WPOMIXM` |
 | The owner's settings, left as they were | Language Hebrew (right-to-left). Text size 1.45. Display size 336 dpi (the default is 320), so the screen is 343 dp wide. 3-button navigation. Light theme. Auto-rotate on. Google Messages is the SMS app. WhatsApp is installed, Telegram isn't. Beacon's Autostart (a HyperOS permission) is off, its default. |
-| Power | Plugged into the Mac for every check. The cable was never out. |
+| Power | Connected to the Mac by USB, and so charging, for every check. The USB link dropped for about three minutes around 12:01, during the backup check, until the owner replugged it. No alert ran on battery. |
 | Date | 11 November 2026 |
 
 ## Builds
@@ -41,11 +41,12 @@ Made during the session, on 11 November 2026:
 
 1. **Flash only when the screen is off or locked.** The owner found the
    flash disruptive while using the phone ("everything turns flashing
-   yellow"). A real alert should flash only when the screen is off, or when
-   it's on but showing the lock screen. While the phone is unlocked and in
-   use, Beacon does nothing at all: no screen flash and no camera light. The
-   message app's own notification is the cue then. The test alert is not
-   affected. Not built yet: it needs a spec change and a PR.
+   yellow", translated from Hebrew). A real alert should flash only when
+   the screen is off, or when it's on but showing the lock screen. While
+   the phone is unlocked and in use, Beacon does nothing at all: no screen
+   flash and no camera light. The message app's own notification is the cue
+   then. The test alert is not affected. Not built yet: it needs a spec
+   change and a PR.
 2. **The widget's new look.** "PAUSED" at 40 sp and "ON" at 48 sp, instead
    of the design's 52 and 64, and 12 dp of padding instead of 16, so the
    resume time fits at 4 × 2 (defect P4). The owner chose this from preview
@@ -185,7 +186,7 @@ Made during the session, on 11 November 2026:
 
 ### Real messages
 
-All with the phone plugged in.
+All with the phone connected to the Mac by USB, so charging.
 
 | Check | Result |
 |---|---|
@@ -194,9 +195,9 @@ All with the phone plugged in.
 | SMS, phone asleep and locked | Tested on Redmi 15C 5G, Android 16, three times, as above. |
 | The 1-minute default | Tested on Redmi 15C 5G, Android 16. Alerts left alone ended 60.0 s after they started. |
 | A message during an alert | Tested on Redmi 15C 5G, Android 16. It doesn't start a second alert or lengthen the one running. |
-| A second quick tap on Stop | Tested on Redmi 15C 5G, Android 16. Phone locked (twice): the second tap lands on the lock screen and does nothing. Phone unlocked: the owner reports it pressed a home-screen icon, which they accept (decision 3). |
+| A second quick tap on Stop | Tested on Redmi 15C 5G, Android 16. Phone locked (twice): the second tap lands on the lock screen and does nothing. Phone unlocked: the owner reports it pressed a home-screen icon (the owner's report, not seen in the log), which they accept (decision 3). |
 | The owner's own reply from a WhatsApp notification | Tested on Redmi 15C 5G, Android 16: it flashes. Defect P3. |
-| WhatsApp's backup | Tested on Redmi 15C 5G, Android 16. A manual backup updated WhatsApp's ongoing notification 64 times in 33 seconds. Each was ignored as ongoing, and nothing flashed. |
+| WhatsApp's backup | Tested on Redmi 15C 5G, Android 16, with a manual backup and the screen on (preview 2 build). The backup updated WhatsApp's ongoing notification 64 times in 33 seconds. Each was ignored as ongoing, and nothing flashed. |
 | Google Messages' notification while it receives | Tested on Redmi 15C 5G, Android 16. Its ongoing notification is ignored. |
 | The camera app opened over a running alert | Tested on Redmi 15C 5G, Android 16. Opening another app counts as leaving the alert, so it ends and the light goes off within 1 ms, as designed. So the case where the camera is taken while the alert stays in front wasn't reached. |
 
@@ -204,7 +205,7 @@ All with the phone plugged in.
 
 | Check | Result |
 |---|---|
-| After an update | Tested on Redmi 15C 5G, Android 16. HyperOS refused to reconnect the listener (P5). Opening Beacon reconnected it within 4 s, after each of the three updates. |
+| After an update | Tested on Redmi 15C 5G, Android 16. HyperOS refused to reconnect the listener (P5). Opening Beacon reconnected it each time: within 4 s after the diagnostic update, and before the next check after each preview. |
 | After a restart | Tested on Redmi 15C 5G, Android 16: no alerts until Beacon is opened (P5). |
 
 ### The widget
@@ -225,7 +226,7 @@ All with the phone plugged in.
 
 ## Not tested
 
-- **Alerts on battery:** the cable was never out, so Doze, and the resume
+- **Alerts on battery:** no alert ran on battery, so Doze, and the resume
   alarm in Doze, weren't reached. This is the next phone check.
 - **The resume alarm firing on its own:** the pause was ended by a tap.
 - **A restart during a timed pause:** there was no pause when the phone
@@ -240,6 +241,10 @@ All with the phone plugged in.
   listener.
 - **"Until I stop it," Custom lengths, other speeds,** and the hourly
   wake-lock renewal.
+- **TalkBack on Alert settings:** the owner went through Home, the test
+  alert and the widget.
+- **WhatsApp's automatic nightly backup with the screen off.** Only a
+  manual backup with the screen on was run.
 - **An SMS app that posts with `when == 0` and no messaging layout.**
   Google Messages uses the messaging layout with real times.
 - **Google Messages' own replies** from its notification.
@@ -262,11 +267,14 @@ All with the phone plugged in.
 | Text size, display size | 1.45, 336 | Unchanged | 1.45, 336 |
 | The phone | Running | Restarted by the owner | Running |
 | WhatsApp | | One manual backup, made by the owner | |
-| `/sdcard/ui.xml` | None | Written by each screen dump | Deleted |
+| `/sdcard/ui.xml` | Not checked | Written by each screen dump | Deleted at 12:41, and checked gone |
 
-Nothing was changed on the phone over adb. The owner granted every
-permission and changed every setting by hand. Adb only installed builds,
-opened Beacon and settings pages, took screenshots and read logs.
+No setting was changed over adb: the owner granted every permission and
+changed every setting by hand. Adb installed the builds, opened, scrolled
+and tapped Beacon's own screens and test alerts, opened settings pages and
+the widget picker to read them, opened the camera app once during an alert,
+took screenshots and read logs. One stray adb tap opened a menu on an old
+settings page; it was closed with Back.
 
 **Privacy:** some screenshots and logs from the session show the owner's
 contacts, groups and messages. None of them is in this repository.
