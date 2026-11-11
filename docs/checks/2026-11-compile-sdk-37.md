@@ -105,6 +105,9 @@ size, which is back at 1.0. The emulator was left on Home, with
 
 ## Not tested
 
+The phone checks on 11 November 2026 ran many of these on the test phone:
+see [`2026-11-phone-checks.md`](2026-11-phone-checks.md).
+
 - **TalkBack on a device.** The unit tests read the node info TalkBack
   gets, and they pass on the new libraries.
 - **The widget on the emulator.** None is placed. Glance 1.2.0 itself

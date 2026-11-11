@@ -122,6 +122,9 @@ was left on Home, with `/sdcard/ui.xml` removed.
 
 ## Not tested
 
+The phone checks on 11 November 2026 ran many of these on the test phone:
+see [`2026-11-phone-checks.md`](2026-11-phone-checks.md).
+
 - **TalkBack reading "On" and "Off" on a device:** covered by the unit test
   through the node info TalkBack gets, but not heard on the emulator or the
   phone.
