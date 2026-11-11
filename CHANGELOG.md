@@ -8,6 +8,20 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-pause-on-battery.md`: the owner's second cable-out
+  check on the test phone, on 11 November 2026: the widget's 1-hour pause
+  with the phone locked on battery, mostly in Doze's deep idle, read from
+  the battery history, Android's log and alarm records, and Beacon's file
+  times. The first message after the hour flashed while the pause was
+  still stored, so alerts came back by the clock; the screen-on catch-up
+  then set the pause and the widget back to ON, and a screenshot shows ON.
+  The resume alarm never fired: the catch-up cancelled it first, so it is
+  still not seen in Doze. The first alert's light came on about 4 seconds
+  after its push, while Android's wake lock waited for the phone to wake.
+  `README.md` gets a status entry and lines in its Alerts on battery
+  section, the spec's status and sections 10, 13, 15 and 16 point to it,
+  and the first cable-out check, the phone checks and PR 3's checks link
+  it.
 - `docs/checks/2026-11-alerts-on-battery.md`: the owner's cable-out check
   on the test phone, on 11 November 2026, read from the phone's battery
   history and Beacon's log. After more than three hours asleep on battery,

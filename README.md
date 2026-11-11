@@ -111,6 +111,9 @@ contrast, big touch targets and plain wording.
       - [x] **Alerts on battery:** the owner's cable-out check on the test
         phone, on 11 November 2026. Checks:
         [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
+      - [x] **The widget's pause on battery:** the owner's second cable-out
+        check, that evening. Checks:
+        [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -385,8 +388,9 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
   uses a smaller state word (40 and 48 sp) and 12 dp of padding.
 - **Still not tested on the phone:** the resume alarm on its own (on
   battery too), a restart during a pause, the largest text size, the heat
-  stop, and "Until I stop it". Alerts on battery and in Doze ran later the
-  same day (see Alerts on battery, below).
+  stop, and "Until I stop it". Alerts on battery and in Doze, and the
+  widget's pause on battery, ran later the same day (see Alerts on battery,
+  below); the resume alarm didn't fire there either.
 
 ## Right-to-left text
 
@@ -511,11 +515,23 @@ code changed.
 - **Battery:** the level stayed at 100%. The alerts' own cost is too small
   for its 1% steps.
 - **The colours:** right, by the owner's report.
-- **Still not tested:** the widget's 1-hour pause on battery and its resume
-  alarm in Doze, since no pause was set, and a plain SMS, as the second
-  message may have been RCS.
-- **Checks:** read from the phone's battery history and Beacon's log:
-  [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
+- **The widget's pause, in a second check that evening:** one tap on the
+  widget paused alerts for 1 hour, and the phone lay locked on battery,
+  mostly in deep idle. The first message after the hour flashed: Beacon
+  checks the pause's end time on each message, so alerts came back on time
+  without the resume alarm. When the alert woke the screen, Beacon set the
+  stored pause and the widget back to ON within a second.
+- **Seen once:** in the second check the first alert's light came on about
+  4 seconds after its push, because the phone was just going to sleep and
+  Android took 2.9 seconds to give Beacon its wake lock.
+- **Still not tested:** the resume alarm firing in Doze (it never fired:
+  the screen-on catch-up cancelled it first), a message during the pause,
+  and a plain SMS, as the messages to the SMS app may have been RCS.
+- **Checks:** read from the phone's battery history, Android's log and
+  alarm records, and Beacon's files:
+  [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md)
+  and
+  [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
 
 ## What Step 1 found
 
