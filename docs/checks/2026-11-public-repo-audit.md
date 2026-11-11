@@ -97,14 +97,20 @@ Whether Dependabot's first security pull request really opens is still to
 be seen.
 
 **Then make it public** (General → Danger Zone → Change visibility), and
-straight away:
+straight away. The owner said yes, and on 11 November 2026, at about
+21:43 Israel time, Claude made the repository public in the same browser
+and switched these on; GitHub's public API then reported it as `public`.
 
-| Setting | Where | Why |
-|---|---|---|
-| Actions: approval for outside contributors | Actions → General → Fork pull request workflows: "Require approval for all outside collaborators" (shown once the repository is public) | A stranger's pull request can't run anything without the owner's approval. |
-| Private vulnerability reporting | Security → Advanced Security | Lets people report problems privately, as `SECURITY.md` asks. |
-| Secret scanning and push protection | Same page | GitHub scans the whole history for known kinds of token, and refuses a push that contains one. Free for public repositories. Afterwards, check Security → Secret scanning: it should show no alerts. |
-| A ruleset for `main` | Rules → Rulesets → New ruleset → New branch ruleset. Enforcement status: **Active** (a new ruleset starts as Disabled). Target: Include default branch. Rules: Restrict deletions, Block force pushes, Require a pull request before merging, with 0 required approvals. Leave the bypass list empty. | Nothing reaches `main` except through a pull request, as `CLAUDE.md` requires, and its history can't be rewritten. With 0 approvals the owner can still merge their own pull requests. The empty bypass list holds the owner to it too; in an emergency, set the ruleset to Disabled for a moment. |
+| Setting | Where | Why | State |
+|---|---|---|---|
+| Actions: approval for outside contributors | Actions → General → "Approval for running fork pull request workflows from contributors": "Require approval for all external contributors" (shown once the repository is public) | A stranger's pull request can't run anything without the owner's approval. | On. |
+| Private vulnerability reporting | Security → Advanced Security | Lets people report problems privately, as `SECURITY.md` asks. | On. |
+| Secret scanning and push protection | Same page, under Secret Protection | GitHub scans the whole history for known kinds of token, and refuses a push that contains one. Free for public repositories. | On. Security → Secret scanning then showed "No secrets found", and Dependabot showed no open alerts. |
+| A ruleset for `main` | Rules → Rulesets → New ruleset → New branch ruleset. Enforcement status: **Active** (a new ruleset starts as Disabled). Target: Include default branch. Rules: Restrict deletions, Block force pushes, Require a pull request before merging, with 0 required approvals. Leave the bypass list empty. | Nothing reaches `main` except through a pull request, as `CLAUDE.md` requires, and its history can't be rewritten. With 0 approvals the owner can still merge their own pull requests. The empty bypass list holds the owner to it too; in an emergency, set the ruleset to Disabled for a moment. | On, as "Protect main". GitHub's public API lists its rules on `main`: deletion, non-fast-forward (force pushes) and pull request, with 0 approvals. This record's own pull request was the first to go through it. |
+
+Left as GitHub set them: CodeQL code scanning (it would build the project
+on GitHub's machines), malware alerts, the AI scans, and automatic
+dependency submission. Any of them can be switched on later.
 
 ## Not done
 

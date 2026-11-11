@@ -684,14 +684,17 @@ The full rules are in [`CLAUDE.md`](CLAUDE.md). In short:
 
 ## Security
 
-The repository is public. Report a security or privacy problem privately
-through the Security tab's "Report a vulnerability", as
-[`SECURITY.md`](SECURITY.md) explains; it also lists what Beacon reads and
-keeps. Before going public, the whole history and the pull requests were
-checked for secrets and private data, and none was found. A few personal
-details stay on purpose, such as the owner's name on merge commits and the
-test phone's model. The record also lists the GitHub settings to switch
-on: [`docs/checks/2026-11-public-repo-audit.md`](docs/checks/2026-11-public-repo-audit.md).
+The repository is public since 11 November 2026. Report a security or
+privacy problem privately through the Security tab's "Report a
+vulnerability", as [`SECURITY.md`](SECURITY.md) explains; it also lists
+what Beacon reads and keeps. GitHub's secret scanning and push
+protection, Dependabot, and a ruleset that keeps `main` behind pull
+requests are on. Before going public, the whole history and the pull
+requests were checked for secrets and private data, and none was found.
+A few personal details stay on purpose, such as the owner's name on merge
+commits and the test phone's model. The record lists the check and each
+setting:
+[`docs/checks/2026-11-public-repo-audit.md`](docs/checks/2026-11-public-repo-audit.md).
 
 ## Contributing
 
