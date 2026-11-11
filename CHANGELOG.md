@@ -8,6 +8,15 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-alerts-on-battery.md`: the owner's cable-out check
+  on the test phone, on 11 November 2026, read from the phone's battery
+  history and Beacon's log. After more than three hours asleep on battery,
+  mostly in Doze's deep idle, a WhatsApp message and an SMS each flashed;
+  the WhatsApp alert ran at Medium and ended after 1 minute. No battery
+  drop shows. The widget's pause and its resume alarm in Doze weren't run.
+  `README.md` gets a status entry and a section, the spec's status and
+  section 16 point to it, and the phone checks and PR 2's and PR 3's
+  checks link it.
 - A Background autostart row in the Finish setup card, on Xiaomi phones
   only (the phone checks' P5): without it, HyperOS doesn't reconnect
   Beacon's listener after a restart until Beacon is opened. `Autostart.kt`

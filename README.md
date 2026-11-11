@@ -108,6 +108,9 @@ contrast, big touch targets and plain wording.
         flashes "when a message arrives and you aren’t using the phone",
         merged as yanivil/beacon#21 on 11 November 2026. The test phone now
         runs `main`'s build at `d3675d8`, and shows that line.
+      - [x] **Alerts on battery:** the owner's cable-out check on the test
+        phone, on 11 November 2026. Checks:
+        [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -380,9 +383,10 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
 - **The owner's decisions:** a real alert flashes only when the screen is
   off or locked, and does nothing while the phone is in use; the widget
   uses a smaller state word (40 and 48 sp) and 12 dp of padding.
-- **Still not tested on the phone:** alerts on battery and in Doze, the
-  resume alarm on its own, a restart during a pause, the largest text size,
-  the heat stop, and "Until I stop it".
+- **Still not tested on the phone:** the resume alarm on its own (on
+  battery too), a restart during a pause, the largest text size, the heat
+  stop, and "Until I stop it". Alerts on battery and in Doze ran later the
+  same day (see Alerts on battery, below).
 
 ## Right-to-left text
 
@@ -492,6 +496,23 @@ until someone opens it.
 - **Checks:** 373 unit tests pass (17 new), with no compiler warnings, and
   lint reports no issues:
   [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
+
+## Alerts on battery
+
+The owner's cable-out check on the test phone, on 11 November 2026, with
+`main`'s build at `d3675d8` and Beacon's default settings. Nothing in the
+code changed.
+
+- **What ran:** the phone lay off the cable, with its screen off, for more
+  than three hours, mostly in Doze's deep idle. Then a WhatsApp message
+  and an SMS each flashed the screen and the camera light, about 2 seconds
+  after their app woke. The WhatsApp alert flashed once a second and ended
+  by itself after 1 minute.
+- **Battery:** the level read 100% at both ends, so no drop shows.
+- **Still not tested:** the widget's 1-hour pause on battery and its resume
+  alarm in Doze, since no pause was set.
+- **Checks:** read from the phone's battery history and Beacon's log:
+  [`docs/checks/2026-11-alerts-on-battery.md`](docs/checks/2026-11-alerts-on-battery.md).
 
 ## What Step 1 found
 
