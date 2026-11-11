@@ -54,7 +54,10 @@ The design doesn't say whether an alert flashes while the phone is in use.
 This follows the owner's decision. Home's line "Your screen and camera
 light will flash when a message arrives." was left to the owner, who then
 asked for it to say so: it ends "…and you aren’t using the phone." since
-the follow-up on `fix/home-in-use-wording`.
+the follow-up on `fix/home-in-use-wording` (yanivil/beacon#21). On the test
+phone, with `main`'s build at `d3675d8`, Home's ON card shows that line in
+full, with its full stop at the end in the phone's Hebrew (Tested on Redmi
+15C 5G, Android 16, 11 November 2026).
 
 ## Build machine
 

@@ -691,6 +691,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   (yanivil/beacon#20), adds a status entry and a line in the in-use
   section; the spec's section 8 text, section 3 row 19, status and section
   16; and the in-use checks file.
+- The final phone re-check, on `main`'s build at `d3675d8`: the Autostart
+  checks record that, with Autostart on, the listener reconnected by itself
+  after an update; the in-use checks that Home's new line shows on the
+  phone. `README.md` and the spec mark #21 merged.
 - The Xiaomi battery step named the wrong row (the phone checks' P2). It
   now says "Tap Power (or Battery), then No restrictions.": "Power" is the
   row's name on the test phone, and "Battery" an older title for it, both
