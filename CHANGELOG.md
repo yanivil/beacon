@@ -578,14 +578,16 @@ and the project uses [Semantic Versioning](https://semver.org/).
   11 November 2026). compileSdk 37 built on `fix/compile-sdk-37`, with a
   link to its checks and a "compileSdk 37" section. "Tech stack" says
   compileSdk 37 and the library versions, and "Building" names SDK platform
-  37 and says lint should find no issues.
+  37 and says lint should find no issues. "What PR 1 delivers" notes that
+  compileSdk is 37 now.
 - `docs/specs/2026-11-08-step2-design.md`, for compileSdk 37:
   - Status: the dependency versions merged; compileSdk 37 built.
   - Section 4: the library versions, the ripple row and the SDK row.
   - Section 16: the dependency versions merged, and a paragraph for
     compileSdk 37.
 - `docs/checks/2026-11-dependency-versions.md`: a pointer to the
-  compileSdk 37 checks, where the six versions it held were bumped.
+  compileSdk 37 checks, where the Compose, Lifecycle and Core KTX versions
+  it held were bumped.
 
 ### Fixed
 

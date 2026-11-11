@@ -10,8 +10,8 @@ Every emulator result is labelled **"Tested on emulator beacon-api36,
 Android 16"** or **"Not tested"**. Nothing on this page was run on the real
 phone.
 
-Afterwards the owner raised compileSdk to 37, and the six versions held
-here were bumped: see
+Afterwards the owner raised compileSdk to 37, and the Compose, Lifecycle
+and Core KTX versions held here were bumped: see
 [`2026-11-compile-sdk-37.md`](2026-11-compile-sdk-37.md).
 
 ## What lint reported

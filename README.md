@@ -82,7 +82,8 @@ is not part of Beacon.
 ## What PR 1 delivers
 
 - **Project setup:** the `app` module with exact library versions, minSdk
-  29, compileSdk and targetSdk 36, no internet permission and Android backup
+  29, compileSdk and targetSdk 36 (compileSdk is 37 since the compileSdk 37
+  PR), no internet permission and Android backup
   off.
 - **Settings:** the settings model and its defaults, saved on the phone with
   DataStore.
@@ -292,8 +293,8 @@ The owner asked for lint's 8 newer-version warnings to be dealt with on
 ## compileSdk 37
 
 On 11 November 2026 the owner raised compileSdk from 36 to 37 in
-`CLAUDE.md`, so the six held versions could be bumped. targetSdk stays at
-36, so Android treats Beacon as before.
+`CLAUDE.md`, so the held Compose, Lifecycle and Core KTX versions could be
+bumped. targetSdk stays at 36, so Android treats Beacon as before.
 
 - **What compileSdk 37 means:** the code is compiled against Android 17's
   APIs (SDK platform `android-37.0`). It doesn't change how Android 10 to
