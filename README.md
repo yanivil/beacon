@@ -82,10 +82,14 @@ contrast, big touch targets and plain wording.
         [`docs/checks/2026-11-phone-checks.md`](docs/checks/2026-11-phone-checks.md).
         They found five defects (P1 to P5), and the owner made two
         decisions to build. Each fix comes in a PR of its own.
-      - [ ] **Right-to-left text (P1):** English lines read correctly on a
-        phone set to Hebrew, built on `fix/rtl-text-direction` and not
-        merged yet. Checks:
+      - [x] **Right-to-left text (P1):** English lines read correctly on a
+        phone set to Hebrew, merged as yanivil/beacon#15 on 11 November
+        2026. Checks:
         [`docs/checks/2026-11-rtl-text-direction.md`](docs/checks/2026-11-rtl-text-direction.md).
+      - [ ] **The owner's own WhatsApp reply (P3):** a reply typed into a
+        WhatsApp notification no longer flashes, built on
+        `fix/own-whatsapp-reply` and not merged yet. Checks:
+        [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -348,7 +352,8 @@ Nothing in the code changed; each defect is fixed in a PR of its own.
     PR, below.
   - P2: the Xiaomi battery step says "Battery saver", but HyperOS in Hebrew
     names the row "חשמל" (Power).
-  - P3: replying from a WhatsApp notification makes Beacon flash.
+  - P3: replying from a WhatsApp notification makes Beacon flash. Fixed in
+    the own-reply PR, below.
   - P4: at the owner's text size the widget hides the resume time.
   - P5: after a restart (HyperOS Autostart off), Beacon hears nothing until
     it's opened.
@@ -377,6 +382,24 @@ stops moved to the start of the line.
   the screens are pixel-identical to `main`'s:
   [`docs/checks/2026-11-rtl-text-direction.md`](docs/checks/2026-11-rtl-text-direction.md).
   Not yet run on the test phone.
+
+## The owner's own WhatsApp reply
+
+The phone checks' defect P3: replying to a WhatsApp message from inside its
+notification made Beacon flash for the owner's own reply.
+
+- **Why:** Beacon took a message as the owner's only if it had no sender,
+  or its sender's key was the owner's. WhatsApp sets no keys, and marks the
+  reply with a sender named as the owner.
+- **The fix:** for WhatsApp, when neither the sender nor the owner has a
+  key, Beacon compares their names. The names are compared in memory only;
+  Beacon keeps only the yes/no answer and logs nothing. Keys still decide
+  when either side has one, and blank names never match. Other apps keep
+  the old rule, because a wrong match would silently drop a real alert.
+- **Checks:** 341 unit tests pass (8 new), with no compiler warnings, and
+  lint reports no issues:
+  [`docs/checks/2026-11-own-whatsapp-reply.md`](docs/checks/2026-11-own-whatsapp-reply.md).
+  Not yet run on the test phone, the only place with WhatsApp.
 
 ## What Step 1 found
 
