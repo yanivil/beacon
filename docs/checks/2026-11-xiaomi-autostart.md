@@ -86,6 +86,7 @@ and the owner accepted HyperOS's install prompt.
 | The button | Tested on Redmi 15C 5G, Android 16. It opened HyperOS's "הפעלה אוטומטית ברקע" page (`AutoStartManagementActivity`). |
 | Reading Autostart, on | Tested on Redmi 15C 5G, Android 16. The owner turned on Beacon's switch there. `appops` then answered `MIUIOP(10008): allow`, and Beacon's Home opened on "Visual alerts ON" with no setup card. |
 | One restart with Autostart on | Tested on Redmi 15C 5G, Android 16, once. After the restart the listener couldn't start until the phone was first unlocked (15:25:57 and 15:26:11, "not found": Beacon isn't direct-boot aware). At 15:26:27 Android started Beacon for its listener by itself, with no refusal, and nobody opened Beacon. A WhatsApp message at 15:26:41 and the owner's SMS at 15:27:08.801 each flashed with the screen off. The SMS was decided `Alert(source=SMS)` 258 ms after it arrived, and the screen woke. |
+| An update with Autostart on | Tested on Redmi 15C 5G, Android 16. `main`'s build at `d3675d8` was installed over it at 15:53:39 (the owner accepted the prompt). The update ended the listener's binding, as any update does. Eight seconds later it was among the live listeners again, without Beacon being opened and with no "Reject service" line. With Autostart off, the morning's update had left it unbound until Beacon was opened. |
 
 Seen on the phone with this build, which carries every fix merged that day:
 the Xiaomi battery row reads "Tap Power (or Battery), then No

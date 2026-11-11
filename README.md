@@ -104,9 +104,10 @@ contrast, big touch targets and plain wording.
       - [x] **Background autostart on Xiaomi (P5):** a fourth setup row,
         merged as yanivil/beacon#20 on 11 November 2026. Checks:
         [`docs/checks/2026-11-xiaomi-autostart.md`](docs/checks/2026-11-xiaomi-autostart.md).
-      - [ ] **Home's wording for the in-use rule:** the ON card says Beacon
+      - [x] **Home's wording for the in-use rule:** the ON card says Beacon
         flashes "when a message arrives and you aren’t using the phone",
-        built on `fix/home-in-use-wording` and not merged yet.
+        merged as yanivil/beacon#21 on 11 November 2026. The test phone now
+        runs `main`'s build at `d3675d8`, and shows that line.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
