@@ -537,11 +537,12 @@ from the phone's own records. Nothing in the code changed.
   widget back at the end of a pause, but that alarm never got its turn.
   When the alert lit up the screen, Beacon switched the widget back to ON
   itself, within a second, and cancelled the alarm.
-- **A message during a pause:** later that evening, with a second pause
-  on and the phone locked and asleep, a WhatsApp message didn't flash, and
-  Beacon's log gives the pause as the reason. An earlier message, sent with
-  the phone unlocked, didn't flash either, but because the phone was in
-  use.
+- **A message during a pause:** later that evening the owner paused
+  alerts again and locked the phone. A WhatsApp message then didn't flash,
+  and Beacon's log gives the pause as the reason. The screen did light up,
+  but only to show WhatsApp's own notification on the lock screen, as the
+  phone does for any message. An earlier message, sent with the phone
+  unlocked, didn't flash either, but because the phone was in use.
 - **Seen once:** the first alert's light came on about 4 seconds after the
   message reached WhatsApp. The likely cause is the phone going to sleep
   just as Beacon asked to keep it awake.

@@ -17,8 +17,8 @@ tested"**.
 The owner ran the check alone: tap the widget, leave the
 phone locked on battery for more than an hour, then send a message. They
 reported only that it worked. The tap came 6 seconds before the phone left
-the cable, and the screen went off, on and off again in the next few
-seconds.
+the cable, and the power button put the phone to sleep a few seconds after
+that.
 
 The evidence was then read from the phone over adb, without changing
 anything there:
@@ -55,12 +55,12 @@ the log's clock. Delays are measured on one clock.
 |---|---|
 | 19:34:15.732 | The widget was tapped, with the phone still on the cable: the launcher sent the tap to Beacon. At 19:34:15.771 Android logged Beacon's resume alarm (`RTC_WAKEUP`), set for 20:34:15.748, one hour on. Beacon sets this alarm for the end of the pause it has just stored, so the stored pause was a 1-hour pause. At 19:34:16.1 the widget was redrawn. |
 | 19:34:21 † | The phone came off the cable, at 100%. |
-| 19:34:29 † | The screen went off, after a short off and on at 19:34:26. The phone stayed locked until 20:43:45. |
+| 19:34:26.7 | The power button put the phone to sleep. The display lit briefly at 19:34:27.3 without the phone waking, and went off for good at 19:34:30.7. The phone stayed locked until 20:43:45. |
 | 19:37:09 to 20:37:08 †, and 20:37:38 to 20:43:45 † | Doze's deep idle (`device_idle=full`), the phone's deepest sleep. Between the two stretches came a 30-second maintenance window. The screen waking for the first alert didn't end deep idle; the unlock did. |
 | 19:34:21 to 20:34:53 † | No push message reached WhatsApp or Google Messages, and Beacon logged no decision: no message came during the pause. |
 | 20:34:15.748 | The pause's end, and the start of the resume alarm's 10-minute window, which runs to 20:44:15.748. |
 | 20:34:53.6 † | A push message reached WhatsApp. |
-| 20:34:55.797 | Beacon decided `Alert(source=WHATSAPP)`, 40 seconds after the pause's end. Nothing had cleaned up the stored pause yet (that came at 20:34:59.131), so the alert didn't wait for a clean-up. By Beacon's code it checks the pause's end time on each message (rule 8 in `MessageClassifier`); no message came during the pause to show that check holding one back. |
+| 20:34:55.797 | Beacon decided `Alert(source=WHATSAPP)`, 40 seconds after the pause's end. Nothing had cleaned up the stored pause yet (that came at 20:34:59.131), so the alert didn't wait for a clean-up. By Beacon's code it checks the pause's end time on each message (rule 8 in `MessageClassifier`). No message came during this pause; a second pause later showed that check holding one back ([below](#a-message-during-a-pause-later-that-evening)). |
 | 20:34:55.799 to 20:34:58.732 | Beacon asked for the alert's wake lock 2 ms after deciding, and waited 2.9 seconds for it. Android logged `Excessive delay in acquire_wake_lock(), duration=2932ms`, together with the end of a 2.7-second sleep. |
 | 20:34:58.745 | The camera light came on, 4.2 seconds after the push. At 20:34:58.8 the alert screen came to the front and the screen woke. |
 | 20:34:59.131 | Beacon's stored pause became ON. At 20:34:59.165 the resume alarm, which hadn't fired, was cancelled (`alarm_cancelled`), and at 20:34:59.620 the widget was redrawn. |
@@ -97,9 +97,7 @@ the settings, skips a write when the new value equals the stored one (from
 its source; not seen on the phone). Of the clean-up's rules, only one
 changes the stored value: a timed pause that is over becomes ON. The
 widget was also redrawn, which the clean-up does only when the stored pause
-changed. At the screen's short off and on at 19:34:26, with the pause still
-running, the widget wasn't redrawn: Android logged widget redraws only at
-19:34:16.1 and 20:34:59.620.
+changed.
 
 ## Results
 
@@ -126,10 +124,13 @@ running, the widget wasn't redrawn: Android logged widget redraws only at
 ## A message during a pause, later that evening
 
 The owner set a second 1-hour pause and sent messages during it: first
-with the phone unlocked, then with it locked. They reported that the
-message didn't flash. The evidence comes from the same records. The battery
-history starts again at 21:06:47, when the phone came off the cable once
-more; this time its clock and the log agree to within a tenth of a second.
+with the phone unlocked and still on the cable, then, after it came off the
+cable 106 seconds after the tap, with it locked. They first reported that a
+message didn't flash, and then that the check with the phone locked was
+done. The evidence comes from the same records. The battery history starts
+again at 21:06:47, when the phone came off the cable once more. This time
+its clock and the log agree to within about a tenth of a second (0.03 to
+0.11 seconds).
 
 | Time | Event |
 |---|---|
@@ -148,18 +149,23 @@ more; this time its clock and the log agree to within a tenth of a second.
 Beacon decides `PAUSED` only after a notification has passed its earlier
 checks: it comes from a message app, it is a new message and not the
 person's own, and the phone isn't in use. So the message at 21:13:30 was a
-new incoming WhatsApp message that would otherwise have flashed.
+new incoming WhatsApp message. WhatsApp's own switch is checked only after
+the pause, so the log can't show it was ON. But the settings hold nothing
+but the pause, so every app is at its default, and WhatsApp messages
+flashed at 20:34 and 20:43 with the same settings. So it would otherwise
+have flashed.
 
 The resume alarm set again at 21:13:31.6 came about half a second after
 the screen woke. That is what the screen-on catch-up does while a pause is
-still running: it keeps the pause and sets the alarm again. Beacon's Home
-didn't come to the front, and nothing in the log points to a time,
+still running: it keeps the pause and sets the alarm again. The log doesn't
+name the catch-up, but nothing else could have set the alarm: Beacon's
+Home didn't come to the front, and nothing in the log points to a time,
 time-zone or language change.
 
 | Check | Result |
 |---|---|
 | A message during a pause, with the phone locked, asleep and on battery | Tested on Redmi 15C 5G, Android 16. A WhatsApp message was ignored as `PAUSED`, in deep idle, and nothing flashed. |
-| The screen-on catch-up while a pause is still running | Tested on Redmi 15C 5G, Android 16. It set the resume alarm again for the same time, didn't change the stored pause, and didn't redraw the widget. |
+| The screen-on catch-up while a pause is still running | Tested on Redmi 15C 5G, Android 16, by timing and by ruling out the other triggers. It set the resume alarm again for the same time, didn't change the stored pause, and didn't redraw the widget. |
 
 ## Not tested
 
