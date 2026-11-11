@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), built on `feature/widget-larger-text-fit`. Defect P5 and the owner's decision that a real alert flashes only with the screen off or locked are not built yet, and each will change this spec in its own PR. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), merged on 11 November 2026 (yanivil/beacon#18). The owner's decision that a real alert flashes only with the screen off or locked (sections 6 and 7) is built on `feature/flash-only-when-not-in-use`. Defect P5 is not built yet. |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -307,8 +307,12 @@ otherwise the first reason that fails:
    name in the notification: WhatsApp marks the owner's reply that way (the
    phone checks' P3). Other apps keep the key rule alone, because a wrong
    match silently drops a real alert.
-7. Alerts aren't paused at this moment. Otherwise `PAUSED`.
-8. That source's switch is ON. Otherwise `APP_OFF`.
+7. The phone isn't in use: its screen is off, or it is on and showing the
+   lock screen. Otherwise `IN_USE`. The owner decided this on 11 November
+   2026: while the person is using the phone, the message app's own banner
+   is the cue, and a flash only disrupts.
+8. Alerts aren't paused at this moment. Otherwise `PAUSED`.
+9. That source's switch is ON. Otherwise `APP_OFF`.
 
 ### The "already handled" record
 
@@ -344,6 +348,10 @@ otherwise the first reason that fails:
   cold start it may switch the listener off and on once for nothing.
 
 ## 7. The alert
+
+A real alert starts only for a message that passed every rule in section 6,
+so never while the phone is in use (rule 7). The test alert starts from its
+button and isn't affected.
 
 ### AlertController
 
@@ -1349,9 +1357,12 @@ owner's decisions are in
   [`docs/checks/2026-11-own-whatsapp-reply.md`](../checks/2026-11-own-whatsapp-reply.md).
 - P2 is merged as yanivil/beacon#17 (section 9):
   [`docs/checks/2026-11-xiaomi-battery-step.md`](../checks/2026-11-xiaomi-battery-step.md).
-- P4, with the owner's widget sizes, is built on
-  `feature/widget-larger-text-fit` (sections 3 and 10):
+- P4, with the owner's widget sizes, is merged as yanivil/beacon#18
+  (sections 3 and 10):
   [`docs/checks/2026-11-widget-text-size.md`](../checks/2026-11-widget-text-size.md).
+- The owner's decision 1, a flash only with the screen off or locked, is
+  built on `feature/flash-only-when-not-in-use` (sections 6 and 7):
+  [`docs/checks/2026-11-flash-when-not-in-use.md`](../checks/2026-11-flash-when-not-in-use.md).
 
 ## 17. Not tested at the end of Step 2 (expected)
 

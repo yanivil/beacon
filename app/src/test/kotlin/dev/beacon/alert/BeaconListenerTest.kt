@@ -1,6 +1,7 @@
 package dev.beacon.alert
 
 import android.app.NotificationManager
+import android.os.PowerManager
 import org.junit.Rule
 import dev.beacon.widget.NoWidgetRefreshRule
 import android.app.Notification
@@ -111,6 +112,9 @@ class BeaconListenerTest {
     /** A WhatsApp message from another person, posted to the listener, starts a real WhatsApp alert. */
     @Test fun postedNotificationStartsAnAlert() {
         val app = context as BeaconApp
+        // Robolectric's screen is on and unlocked, which counts as the phone in use (no flash); a real
+        // alert is for a phone that isn't in use, so the screen is off here.
+        shadowOf(app.getSystemService(PowerManager::class.java)).turnScreenOn(false)
         // The watcher waits for the saved settings; load them first so the decision runs at once.
         app.settingsState
         idleMainUntil { app.settingsState.value != null }

@@ -13,7 +13,7 @@ import dev.beacon.settings.isPausedAt
  */
 
 /** Why a notification did not start an alert, named after the rule that failed. */
-enum class IgnoreReason { NOT_A_SOURCE, ONGOING, GROUP_SUMMARY, NOT_A_MESSAGE, ALREADY_HANDLED, OWN_MESSAGE, PAUSED, APP_OFF }
+enum class IgnoreReason { NOT_A_SOURCE, ONGOING, GROUP_SUMMARY, NOT_A_MESSAGE, ALREADY_HANDLED, OWN_MESSAGE, IN_USE, PAUSED, APP_OFF }
 
 /** The classifier's answer for one notification. */
 sealed interface Decision {
@@ -94,6 +94,7 @@ object MessageClassifier {
      * @param nowEpochMillis the current time, for the pause check.
      * @param defaultSmsPackage the phone's default SMS app, or null.
      * @param seen the already-handled record; updated here.
+     * @param phoneInUse whether the person is using the phone now: its screen is on and unlocked.
      * @return [Decision.Alert] when every rule passes, otherwise [Decision.Ignore] with the first failing rule.
      */
     fun decide(
@@ -102,14 +103,19 @@ object MessageClassifier {
         nowEpochMillis: Long,
         defaultSmsPackage: String?,
         seen: HandledRecord,
+        phoneInUse: Boolean,
     ): Decision {
         val source = sourceOf(facts.packageName, defaultSmsPackage) ?: return Decision.Ignore(IgnoreReason.NOT_A_SOURCE)
         notAMessageReason(facts)?.let { return Decision.Ignore(it) }
         val time = timeOf(facts)
         if (!seen.isNew(facts.key, time)) return Decision.Ignore(IgnoreReason.ALREADY_HANDLED)
-        // Record before rules 6 to 8 so paused, OFF and own messages are never alerted on a re-post.
+        // Record before rules 6 to 9 so own, in-use, paused and OFF messages are never alerted on a re-post.
         seen.record(facts.key, time)
         if (facts.hasMessagingStyle && facts.newestFromOwner == true) return Decision.Ignore(IgnoreReason.OWN_MESSAGE)
+        // The owner's decision (11 November 2026): no flash while the person is using the phone. The
+        // message app's own banner is the cue then, and the message stays handled, so it can't flash
+        // later when the screen goes off.
+        if (phoneInUse) return Decision.Ignore(IgnoreReason.IN_USE)
         if (settings.pause.isPausedAt(nowEpochMillis)) return Decision.Ignore(IgnoreReason.PAUSED)
         // A missing map entry falls back to the app's default, as in the settings model.
         if (!(settings.apps[source]?.enabled ?: source.defaultEnabled)) return Decision.Ignore(IgnoreReason.APP_OFF)
