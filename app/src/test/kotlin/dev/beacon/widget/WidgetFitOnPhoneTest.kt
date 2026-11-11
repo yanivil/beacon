@@ -13,7 +13,10 @@ import org.junit.Test
  * it showed only "PAUSED": the resume time didn't fit (the phone checks'
  * P4). The heights below are what the widget's own StaticLayout measure
  * returned on that phone (a diagnostic build logged them), so these cases
- * pin the fit to the phone the owner looked at, not to an estimate.
+ * pin the fit to the phone the owner looked at, not to an estimate. With
+ * the design's 52 sp and 16 dp of padding, "PAUSED" (71.5 dp: its drawn
+ * 69.5 dp box and the measure's 2 dp margin) and the resume line needed
+ * 144.6 dp of the 122.69 inside, so only the word was kept.
  */
 
 /** Widget size on the test phone at 4 × 2, in dp. */
@@ -21,12 +24,15 @@ private const val PHONE_W = 301.83f
 private const val PHONE_H = 154.69f
 
 /**
- * Line heights the test phone measured, in dp, margin included. PAUSED at 52 sp is its drawn box
- * (69.5 dp) plus the measure's 2 dp margin; the resume line wraps to two rows at this width.
+ * Line heights the test phone measured, in dp, margin included, keyed by line type and the state's
+ * size, not by the text. They were measured at the widget's width with the state icon shown, and the
+ * resume line wraps to two rows there; they don't follow the width they are asked about.
  */
 private class PhoneMeasure : LineMeasure {
     /**
-     * Converts sp to dp at the phone's text size, for the icon's width only.
+     * Converts sp to dp at the phone's text size, for the icon's width only. A linear 1.45 is an
+     * approximation (Android 14 and later scale large text less), and it can't change a result,
+     * because [heightDp] doesn't depend on the width.
      *
      * @param sp the text size in sp.
      * @return the size in dp.
@@ -48,7 +54,6 @@ private class PhoneMeasure : LineMeasure {
         STATE -> when (spec.textSp) {
             40f -> 55.3f
             48f -> 66.3f
-            52f -> 71.5f
             else -> throw IllegalArgumentException("no phone height for ${spec.textSp} sp")
         }
     }

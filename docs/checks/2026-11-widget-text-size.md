@@ -41,8 +41,10 @@ at 48 sp, and 12 dp of padding.
     "PAUSED" at 52 sp was drawn 69.5 dp tall, so 71.5 dp with the measure's
     margin.
   - `WidgetFitOnPhoneTest` runs the fit at the phone's 301.83 × 154.69 dp
-    with those heights. Both its tests failed with the old sizes and
-    padding, and pass with the new ones.
+    with those heights. With the old sizes and padding, the PAUSED test
+    failed on the fit itself (only the word was kept), and the ON test
+    failed because the phone measured no height for a 64 sp "ON". Both
+    pass with the new values.
   - Cost if wrong: none at run time; the heights belong to this phone and
     this text size only.
 - **W3. Four tests that pinned the old sizes are updated.**
