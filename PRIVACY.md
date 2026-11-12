@@ -1,6 +1,6 @@
 # Beacon privacy policy
 
-Last updated: 11 November 2026
+Last updated: 12 November 2026
 
 Beacon is an Android app that flashes the screen and the camera light when
 a message arrives, for people who are deaf or hard of hearing. It is
@@ -67,6 +67,13 @@ aren't copied anywhere either. Uninstalling Beacon deletes them.
 
 Beacon is meant for adults and isn't directed at children.
 
+## Where to find this policy
+
+On Google Play, in Beacon's store listing. In Beacon itself: open the
+"Alert settings" tab and scroll to the end, to "Privacy", and tap "Read
+the privacy policy". The page opens in your web browser; Beacon itself
+doesn't go online.
+
 ## Changes
 
 If this policy changes, the new version is published at this same address
@@ -74,7 +81,12 @@ with a new date. The history of every change is kept in this repository.
 
 ## Contact
 
-Beacon is published by Bernhard Software. To report a privacy or security
-problem privately, use "Report a vulnerability" on this repository's
-[Security tab](https://github.com/yanivil/beacon/security). For other
-questions, open an [issue](https://github.com/yanivil/beacon/issues).
+Beacon is published by Bernhard Software. Email:
+[bernhardsoftware@gmail.com](mailto:bernhardsoftware@gmail.com), the same
+contact as on Google Play.
+
+You can also report a privacy or security problem privately with "Report a
+vulnerability" on this repository's
+[Security tab](https://github.com/yanivil/beacon/security), or ask other
+questions in an [issue](https://github.com/yanivil/beacon/issues). Both
+need a GitHub account; email doesn't.

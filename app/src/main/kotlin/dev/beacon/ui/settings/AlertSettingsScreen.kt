@@ -16,8 +16,9 @@ import dev.beacon.ui.components.ScreenTitle
 
 /*
  * Why the screen only wires sections together: each section (duration,
- * speed, colour) owns its layout and its radio group, so the screen holds
- * just the title and the 40 dp rhythm between sections, as the design does.
+ * speed, colour, privacy) owns its layout and its radio group, so the screen
+ * holds just the title and the 40 dp rhythm between sections, as the design
+ * does. The privacy section is the Play release's addition, not the design's.
  * The actions are plain callbacks so the screen can be tested without a
  * view model.
  */
@@ -46,7 +47,7 @@ data class SettingsActions(
 
 /**
  * The Alert settings tab: the title, then "How long to flash", "Blink
- * speed" and "Screen flash color".
+ * speed", "Screen flash color" and "Privacy".
  *
  * @param settings the current settings.
  * @param editingApp the app whose colour grid is open in per-app mode, or null.
@@ -59,5 +60,6 @@ fun AlertSettingsScreen(settings: BeaconSettings, editingApp: MessageSource?, ac
         DurationSection(settings, actions)
         SpeedSection(settings, actions)
         ColourSection(settings, editingApp, actions)
+        PrivacySection()
     }
 }

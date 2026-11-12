@@ -8,6 +8,17 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A "Privacy" section at the end of Alert settings (`PrivacySection.kt`),
+  because Google Play's User Data policy asks for the privacy policy within
+  the app too. It has the line "Beacon keeps your settings on this phone
+  and sends nothing anywhere.", a full-width "Read the privacy policy"
+  button (64 dp) and the note "Opens in your web browser.". The button
+  opens `PRIVACY.md`'s GitHub page with a browsable `ACTION_VIEW`, so the
+  browser loads it and Beacon keeps no internet permission; with no
+  browser, a toast says so instead of crashing. Four new tests (378 in
+  all) cover the texts, the intent, the no-browser message and the largest
+  font size. On the emulator, the release build handed the address to
+  Chrome.
 - `LICENSE.md`: Beacon is licensed under the PolyForm Strict License 1.0.0
   (copyright 2026 Bernhard Software), as the owner chose: free for
   non-commercial use, no changes or sharing, and no liability as far as the
@@ -415,7 +426,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- The version is 1.0.0 (versionCode 1), the first one for Google Play.
+- Version 1.0.1 (versionCode 2), for the in-app privacy link. 1.0.0
+  (versionCode 1) is on Play's internal testing track; 1.0.1 goes there
+  next, before the changes go to Google's review.
+- `PRIVACY.md` (dated 12 November 2026): the contact email
+  bernhardsoftware@gmail.com, the same as on Google Play, so a person
+  without a GitHub account can write; and where the policy is found in
+  Beacon. `docs/store/release-checklist.md` section 1 marks both done, and
+  both specs describe the Privacy section.
 - `docs/checks/2026-11-pause-on-battery.md`: a message during a pause, on
   the test phone later on 11 November 2026. With a second 1-hour pause on
   and the phone locked in deep idle on battery, a WhatsApp message was

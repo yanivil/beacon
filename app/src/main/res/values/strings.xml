@@ -69,6 +69,13 @@
     <string name="colour_done">Done</string>
     <string name="colour_change_for">Change color for %1$s</string>
     <string name="colour_done_for">Done choosing color for %1$s</string>
+    <!-- The privacy section at the end of Alert settings (Google Play's User
+         Data policy wants the privacy policy reachable inside the app). -->
+    <string name="privacy_heading">Privacy</string>
+    <string name="privacy_hint">Beacon keeps your settings on this phone and sends nothing anywhere.</string>
+    <string name="privacy_button">Read the privacy policy</string>
+    <string name="privacy_opens_in_browser">Opens in your web browser.</string>
+    <string name="privacy_no_browser">No web browser on this phone.</string>
     <string name="state_expanded">Expanded</string>
     <string name="state_collapsed">Collapsed</string>
     <string name="test_button">Test alert</string>

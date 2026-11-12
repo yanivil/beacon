@@ -56,6 +56,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import android.app.Application
+import android.content.Intent
+import org.junit.Assert.assertNotNull
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowToast
 
 /*
  * Why these tests: Alert settings is where a senior changes how alerts look,
@@ -312,5 +317,50 @@ class AlertSettingsScreenTest {
                 assertTrue("\"$text\" breaks mid-word at line $line", text[end - 1].isWhitespace() || text[end].isWhitespace())
             }
         }
+    }
+
+    /*
+     * The privacy section (the Play release's in-app privacy link): Google
+     * Play's User Data policy wants the privacy policy reachable inside the
+     * app too, so it sits at the end of Alert settings with a real button.
+     */
+
+    /** The section has a "Privacy" heading, its hint, a "Read the privacy policy" button and the browser note. */
+    @Test fun privacySectionShowsHeadingButtonAndNotes() {
+        show()
+        rule.onNodeWithText("Privacy").performScrollTo().assert(isHeading())
+        rule.onNodeWithText("Beacon keeps your settings on this phone and sends nothing anywhere.").performScrollTo()
+        rule.onNodeWithText("Read the privacy policy").performScrollTo().assert(hasRole(Role.Button))
+        rule.onNodeWithText("Opens in your web browser.").performScrollTo()
+    }
+
+    /** A tap opens the published privacy policy in a browser: a browsable VIEW of its GitHub address. */
+    @Test fun privacyButtonOpensThePolicyInABrowser() {
+        show()
+        rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        val started = shadowOf(app).nextStartedActivity
+        assertNotNull("an activity was started", started)
+        assertEquals(Intent.ACTION_VIEW, started.action)
+        assertEquals("https://github.com/yanivil/beacon/blob/main/PRIVACY.md", started.dataString)
+        assertTrue("browsable", started.hasCategory(Intent.CATEGORY_BROWSABLE))
+    }
+
+    /** With no app that can open a web page, the tap shows a short message instead of crashing. */
+    @Test fun privacyButtonWithoutBrowserShowsAMessage() {
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        // Robolectric then throws ActivityNotFoundException, as a phone with no browser does.
+        shadowOf(app).checkActivities(true)
+        show()
+        rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
+        assertEquals("No web browser on this phone.", ShadowToast.getTextOfLatestToast())
+    }
+
+    /** The button is at least 64 dp tall, and the section isn't cut off at the largest font. */
+    @Test fun privacySectionFitsAtLargestFont() {
+        show(fontScale = 2.0f)
+        val button = rule.onNodeWithText("Read the privacy policy").performScrollTo().fetchSemanticsNode()
+        assertTrue("64 dp tall", button.boundsInRoot.height >= with(rule.density) { 64.dp.toPx() } - 0.5f)
+        rule.assertNoTextOverflow()
     }
 }
