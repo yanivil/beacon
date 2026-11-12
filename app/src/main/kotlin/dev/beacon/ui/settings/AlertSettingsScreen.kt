@@ -34,6 +34,8 @@ import dev.beacon.ui.components.ScreenTitle
  * @property setGlobalColour sets the colour used for all apps.
  * @property setAppColour sets one app's own colour.
  * @property setEditingApp opens one app's colour grid, or closes it with null.
+ * @property openPrivacyPolicy opens the privacy policy in the browser; returns false if nothing
+ *   could open it, so the screen can say so.
  */
 data class SettingsActions(
     val setDuration: (DurationChoice) -> Unit,
@@ -43,6 +45,7 @@ data class SettingsActions(
     val setGlobalColour: (FlashColour) -> Unit,
     val setAppColour: (MessageSource, FlashColour) -> Unit,
     val setEditingApp: (MessageSource?) -> Unit,
+    val openPrivacyPolicy: () -> Boolean,
 )
 
 /**
@@ -60,6 +63,6 @@ fun AlertSettingsScreen(settings: BeaconSettings, editingApp: MessageSource?, ac
         DurationSection(settings, actions)
         SpeedSection(settings, actions)
         ColourSection(settings, editingApp, actions)
-        PrivacySection()
+        PrivacySection(actions.openPrivacyPolicy)
     }
 }

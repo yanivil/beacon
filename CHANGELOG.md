@@ -8,6 +8,20 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `PrivacyPolicyIntentTest`: the policy opens as a browsable VIEW, from
+  an activity in its task and from any other context in a new one, goes
+  to the browser even when an app claims GitHub links, leaves the choice
+  to Android when no browser is known, never takes Android's own package
+  for a browser, tries again without naming the browser if it won't start,
+  and returns false when nothing can open it. `AppShellTest` checks the
+  shell's wiring of the button.
+- `docs/checks/2026-11-play-release.md`: 1.0.2 on the emulator (checks 13
+  to 15): the intent names Chrome, and TalkBack says "Double-tap to open in
+  your web browser" on the button and opens Chrome with a double tap.
+- `docs/store/listing.md`: a "Shown on" column in the claims table (Phone,
+  Emulator, Unit tests or Rule), so no claim reads stronger than its
+  evidence. Both "Done means" sources now name the Step 2 spec, and the
+  TalkBack row no longer cites a decision that covered only Autostart.
 - `docs/checks/2026-11-play-release.md`: the Play Console setup (11 and 12
   November 2026), the internal testing releases 1.0.0 (1) and 1.0.1 (2)
   with their warnings, the 8 changes sent for Google's review, and Beacon
@@ -19,6 +33,45 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Version 1.0.2 (versionCode 3), with the fixes below; the next upload.
+- The privacy section, from the review of PR #33:
+  - the button names the phone's browser (the default one, or the only
+    one), so the GitHub app, which claims github.com links, can't take the
+    page and "Opens in your web browser." stays true. A `<queries>` entry
+    for https links lets Beacon see the browsers; it needs no permission.
+    Android's own package (its chooser and work-profile forwarder) is never
+    taken for a browser, and if the named browser won't start, Beacon tries
+    once more without naming it;
+  - the message when nothing can open the page is now "Couldn't open a web
+    browser on this phone.", true for every failure, and a later tap that
+    works clears it;
+  - the button uses the 24 sp `Button` style, like the other full-width
+    buttons;
+  - on the button, TalkBack says "Double-tap to open in your web browser"
+    (a click label; `OutlineButton` gets an optional `onClickLabel`). A
+    traversal index meant to read the note first worked in the unit tests
+    but not with TalkBack on the emulator, so it was dropped;
+  - the screen asks the shell through `SettingsActions.openPrivacyPolicy`,
+    like the other screens, instead of reading the context itself.
+- `PRIVACY.md`: for every notification that uses Android's message layout,
+  from any app, Beacon checks whether the newest message has a sender (none
+  means it's yours) and compares the sender's key with yours, in memory, so
+  your own replies don't flash; the WhatsApp name check is only for when
+  there are no keys.
+- The store's feature graphic says "See when messages arrive" instead of
+  "See every message" (the owner's choice, 12 November 2026), since Beacon
+  can miss a message. Screenshot 5 shows the widget on a black background
+  instead of the emulator's stock wallpaper. The full description spells
+  "color" the US way, like the app. These go to Play Console after Google's
+  current review.
+- `docs/store/play-console-answers.md` no longer shows the Play developer
+  account ID.
+- `README.md`: on a fresh clone without the upload key, `./gradlew build`
+  and `./gradlew assemble` stop at the release signing check; use the
+  debug commands.
+- Specs: the Step 2 spec's versionName line and section 14 (sender keys);
+  the Play spec's feature graphic line, screenshot background and status
+  bar; a note in the Play plan that the screenshots became 1080 × 1920.
 - `README.md`'s Google Play section and the Play release spec's status:
   internal testing is done, the changes are in Google's review, and the
   next step is the closed test in `docs/store/release-checklist.md`.

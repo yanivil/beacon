@@ -288,7 +288,7 @@ It deletes its intermediate PNGs, and runs from any folder.
 Prepare:
 
 ```bash
-adb -s emulator-5554 shell wm size 1080x2160
+adb -s emulator-5554 shell wm size 1080x2160   # later 1080x1920: Play takes only 16:9 or 9:16 (PR #31)
 adb -s emulator-5554 shell settings put system font_scale 1.0
 adb -s emulator-5554 shell settings put global sysui_demo_allowed 1
 adb -s emulator-5554 shell am broadcast -a com.android.systemui.demo -e command enter

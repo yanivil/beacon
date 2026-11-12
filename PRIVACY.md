@@ -26,16 +26,23 @@ uses only:
 - its key, so the same message doesn't flash twice;
 - its kind, so it flashes only for new messages and not for things like
   backups or progress bars;
-- its times.
+- its times;
+- whether the newest message is your own, so a reply you send doesn't
+  flash. In Android's message layout, a message with no sender is your
+  own, and a sender can have a key, an identifier the message app chooses.
+  For every notification that uses this layout, from any app, Beacon
+  checks whether the newest message has a sender and compares that
+  sender's key with yours, in memory. Only the yes-or-no answer is kept.
 
 Android also hands over the rest of each notification, such as titles and
 message text. Beacon ignores them. It doesn't store them, show them or
 write them to a log.
 
 One exception: WhatsApp marks a reply you type into its notification only
-by your name. So, for WhatsApp alone, Beacon compares the name of the
-newest message's sender with yours, in memory, so that your own reply
-doesn't flash. Only the yes-or-no answer is kept, and nothing is logged.
+by your name, with no key. So, for WhatsApp alone and only when there are
+no keys, Beacon compares the name of the newest message's sender with
+yours, in memory, so that your own reply doesn't flash. Only the
+yes-or-no answer is kept, and nothing is logged.
 
 The alert screen shows "New message" and the app's name. It never shows
 who sent the message or what it says.

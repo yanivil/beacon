@@ -46,6 +46,7 @@ import dev.beacon.ui.home.HomeActions
 import dev.beacon.ui.home.HomeScreen
 import dev.beacon.ui.settings.AlertSettingsScreen
 import dev.beacon.ui.settings.SettingsActions
+import dev.beacon.ui.settings.openPrivacyPolicy
 import dev.beacon.ui.blink.TestAlertOverlay
 import dev.beacon.ui.blink.testColour
 import dev.beacon.ui.theme.BeaconColors
@@ -239,19 +240,23 @@ private fun TabContent(
                         ),
                     )
                 }
-                Tab.SETTINGS -> AlertSettingsScreen(
-                    settings,
-                    editingApp,
-                    SettingsActions(
-                        setDuration = viewModel::setDuration,
-                        stepCustom = viewModel::stepCustomLength,
-                        setSpeed = viewModel::setSpeed,
-                        setColourMode = viewModel::setColourMode,
-                        setGlobalColour = viewModel::setGlobalColour,
-                        setAppColour = viewModel::setAppColour,
-                        setEditingApp = setEditingApp,
-                    ),
-                )
+                Tab.SETTINGS -> {
+                    val context = LocalContext.current
+                    AlertSettingsScreen(
+                        settings,
+                        editingApp,
+                        SettingsActions(
+                            setDuration = viewModel::setDuration,
+                            stepCustom = viewModel::stepCustomLength,
+                            setSpeed = viewModel::setSpeed,
+                            setColourMode = viewModel::setColourMode,
+                            setGlobalColour = viewModel::setGlobalColour,
+                            setAppColour = viewModel::setAppColour,
+                            setEditingApp = setEditingApp,
+                            openPrivacyPolicy = { openPrivacyPolicy(context) },
+                        ),
+                    )
+                }
             }
         }
         trailing?.invoke()

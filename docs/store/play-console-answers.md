@@ -9,7 +9,7 @@ asks something this page doesn't cover, Claude stops and asks.
 | | |
 |---|---|
 | Status | Approved by the owner in chat, 11 November 2026 |
-| Developer account | "Bernhard Software" (personal), account ID 4816272390393932551 |
+| Developer account | "Bernhard Software" (personal). Its account ID stays in Play Console. |
 
 ## 1. Create app
 

@@ -95,6 +95,21 @@ this Android 16 phone, while the bundle's is 29 (Play Console shows "API
 build for newer Android versions; a phone with Android 10 or 11 wasn't
 tried.
 
+## Version 1.0.2: the privacy link's fixes, on the emulator
+
+| | |
+|---|---|
+| Emulator | `beacon-api36` (`emulator-5554`), Android 16, font scale 1.0, Chrome installed (its first-run screen not accepted) |
+| Build | `./gradlew :app:assembleRelease` on `fix/deferred-minors`: versionName 1.0.2, versionCode 3, signed with the upload key, no `INTERNET` permission; the merged manifest has the new VIEW/https `<queries>` entry |
+| TalkBack | Android Accessibility Suite 16.0.0.738667889, read from its verbose log and driven through the emulator console, as in [`2026-11-step2-pr1.md`](2026-11-step2-pr1.md); the log level was set back to ERROR and TalkBack switched off afterwards |
+| Date | 12 November 2026, about 11:09 to 11:35 |
+
+| Check | Result |
+|---|---|
+| 13. The button names the browser | Tested on emulator beacon-api36, Android 16. A tap logged `START u0 {act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://github.com/... pkg=com.android.chrome ...}`; 1.0.1 started the same intent with no package. The label is 24 sp. |
+| 14. TalkBack on the Privacy section | Tested on emulator beacon-api36, Android 16. Touching the summary line, then swiping right: "Beacon keeps your settings on this phone and sends nothing anywhere.", then "Read the privacy policy. Button. Double-tap to open in your web browser", then "Opens in your web browser.". A TalkBack double tap on the button opened Chrome (`pkg=com.android.chrome`). |
+| 15. A traversal index for the note | Tested on emulator beacon-api36, Android 16, and dropped. A first version gave the note `traversalIndex = -1` in a traversal group; Robolectric showed the order changed, but TalkBack still read the button first. So the button's click label carries "open in your web browser" instead. |
+
 ## Not tested
 
 - **Telegram,** as in every check so far.
@@ -103,3 +118,6 @@ tried.
 - **Google's review:** sent on 12 November; the result isn't in yet.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
+- **1.0.2 with the GitHub app installed:** neither the test phone nor the
+  emulator has it; `PrivacyPolicyIntentTest` covers it with a fake app.
+- **1.0.2 on the test phone:** it isn't on Play yet.

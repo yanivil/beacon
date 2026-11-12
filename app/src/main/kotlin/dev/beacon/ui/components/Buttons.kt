@@ -110,6 +110,8 @@ fun FilledButton(
  * @param trailingIcon an optional decorative icon after the text, in the same
  *   colour, or null; an auto-mirrored icon such as the chevron flips in
  *   right-to-left layouts.
+ * @param onClickLabel what a tap does, for TalkBack's hint ("Double-tap to <label>"), or null for
+ *   its plain "Double-tap to activate".
  */
 @Composable
 fun OutlineButton(
@@ -123,11 +125,13 @@ fun OutlineButton(
     cornerRadius: Dp = 18.dp,
     enabled: Boolean = true,
     trailingIcon: ImageVector? = null,
+    onClickLabel: String? = null,
 ) {
     val colour = if (enabled) content else BeaconColors.Disabled
     ButtonBody(
         text, onClick, Color.Transparent, colour, BorderStroke(3.dp, colour),
         icon, minHeight, style, cornerRadius, modifier, enabled, dashedBorder = !enabled, trailingIcon = trailingIcon,
+        onClickLabel = onClickLabel,
     )
 }
 
@@ -150,6 +154,7 @@ fun OutlineButton(
  * @param dashedBorder true to draw [border] dashed instead of solid (see [drawDashedBorder]).
  * @param secondaryText the smaller text after [text], or null.
  * @param trailingIcon the decorative icon after the text (28 dp), or null.
+ * @param onClickLabel TalkBack's label for the tap action, or null for its default.
  */
 @Composable
 private fun ButtonBody(
@@ -167,6 +172,7 @@ private fun ButtonBody(
     dashedBorder: Boolean = false,
     secondaryText: String? = null,
     trailingIcon: ImageVector? = null,
+    onClickLabel: String? = null,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
     // The border is drawn inside the bounds, so the padding grows by its width
@@ -184,7 +190,7 @@ private fun ButtonBody(
                     else -> Modifier.border(border, shape)
                 },
             )
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(enabled = enabled, onClickLabel = onClickLabel, role = Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp + inset, vertical = 12.dp + inset),
         horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,

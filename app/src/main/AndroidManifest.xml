@@ -26,7 +26,8 @@
         tools:node="remove" />
 
     <!-- Package visibility (Android 11+): lets the app load the icons of the
-         messaging apps it flashes for, and find the default SMS app. -->
+         messaging apps it flashes for, find the default SMS app, and find the
+         web browser that opens the privacy policy (no permission needed). -->
     <queries>
         <package android:name="com.whatsapp" />
         <package android:name="com.whatsapp.w4b" />
@@ -35,6 +36,11 @@
         <intent>
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
         </intent>
     </queries>
 
