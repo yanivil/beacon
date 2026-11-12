@@ -587,6 +587,22 @@ From top to bottom:
      - The selected swatch has a dark and white ring, and a check in its
        label.
 
+5. **"Privacy"** (added for Google Play in 1.0.1, 12 November 2026; not in
+   the design). Play's User Data policy asks for the privacy policy within
+   the app as well as on the store listing.
+   - The line "Beacon keeps your settings on this phone and sends nothing
+     anywhere."
+   - A full-width outline button, "Read the privacy policy", at least
+     64 dp tall, with no icon. It opens
+     `https://github.com/yanivil/beacon/blob/main/PRIVACY.md` with a
+     browsable `ACTION_VIEW`, so the browser loads it and Beacon keeps no
+     internet permission.
+   - With no browser, the line "No web browser on this phone." appears
+     under the button (`BodyStrong`, `Text` on `Page`, a polite live region
+     so TalkBack reads it). It isn't a toast, whose small text and
+     unchecked colours would break the 20 sp and 7:1 rules.
+   - The line "Opens in your web browser."
+
 **Option styling.** A selected option has a yellow fill, dark text and a
 check icon (a black circle with a yellow tick). An unselected option is
 `#1B1B20` with a `#A1A1AA` border and an empty circle. The state never
@@ -1150,6 +1166,9 @@ reaches TalkBack as a subtree change of the live region:
   classifier's decision and reason, never titles, names or text.
 - **What's saved:** settings are the only saved data, and they never leave
   the phone (section 5, backup off).
+- **Privacy policy in the app:** from 1.0.1, Alert settings ends with a
+  Privacy section whose button opens `PRIVACY.md` in the browser (section
+  8). Beacon hands the address to the browser and sends nothing itself.
 
 ## 15. Testing
 

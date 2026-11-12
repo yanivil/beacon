@@ -123,6 +123,9 @@ contrast, big touch targets and plain wording.
       release. The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
       Plan: [`docs/plans/2026-11-11-play-release.md`](docs/plans/2026-11-11-play-release.md).
+      Version 1.0.1 adds a Privacy section to Alert settings, with a
+      button that opens the privacy policy in the browser, as Play's User
+      Data policy asks before Google's review.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -566,8 +569,8 @@ from the phone's own records. Nothing in the code changed.
 
 ## Google Play
 
-Beacon 1.0.0 is being prepared for Google Play's internal testing track,
-for a few testers first
+Beacon 1.0.0 is on Google Play's internal testing track, for a few
+testers first, and 1.0.1 (the in-app privacy link) follows it there
 ([spec](docs/specs/2026-11-11-play-release-design.md),
 [plan](docs/plans/2026-11-11-play-release.md)).
 
@@ -580,7 +583,11 @@ for a few testers first
   each claim's source. They name SMS and WhatsApp only, since Telegram
   hasn't been tested on a phone.
 - **Privacy policy:** [`PRIVACY.md`](PRIVACY.md): Beacon collects and
-  shares nothing and has no internet access.
+  shares nothing and has no internet access. From 1.0.1 (versionCode 2),
+  the Privacy section at the end of Alert settings opens it in the
+  browser, as Play's User Data policy asks. On the emulator the button
+  handed the address to Chrome:
+  [`docs/checks/2026-11-play-release.md`](docs/checks/2026-11-play-release.md).
 - **After internal testing:** a closed test with at least 12 testers for
   14 days, then Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
@@ -632,6 +639,14 @@ Added in the Step 2 spec:
   what it says.
 - **No internet:** Beacon has no internet permission, and settings never
   leave the phone.
+
+Added for Google Play (1.0.1):
+
+- **Privacy:** a section at the end of Alert settings, with the line
+  "Beacon keeps your settings on this phone and sends nothing anywhere."
+  and a "Read the privacy policy" button that opens
+  [`PRIVACY.md`](PRIVACY.md) in the phone's web browser. The browser loads
+  the page, so Beacon still needs no internet permission.
 
 ## Tech stack
 
