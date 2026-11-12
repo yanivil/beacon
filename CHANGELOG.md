@@ -428,6 +428,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- `PRIVACY.md`: a "Google Play's protection" section. The owner kept
+  Play's automatic protection on, so Google adds an installer check to the
+  copy Play delivers, which asks people who got Beacon elsewhere to get it
+  from Google Play; Google says it works without a data connection.
+  `docs/store/play-console-answers.md` records the choice and the 1.0.1
+  release name and notes.
 - Version 1.0.1 (versionCode 2), for the in-app privacy link. 1.0.0
   (versionCode 1) is on Play's internal testing track; 1.0.1 goes there
   next, before the changes go to Google's review.
