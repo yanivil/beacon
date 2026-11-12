@@ -596,8 +596,11 @@ From top to bottom:
      64 dp tall, with no icon. It opens
      `https://github.com/yanivil/beacon/blob/main/PRIVACY.md` with a
      browsable `ACTION_VIEW`, so the browser loads it and Beacon keeps no
-     internet permission. With no browser, a toast says "No web browser
-     on this phone."
+     internet permission.
+   - With no browser, the line "No web browser on this phone." appears
+     under the button (`BodyStrong`, `Text` on `Page`, a polite live region
+     so TalkBack reads it). It isn't a toast, whose small text and
+     unchecked colours would break the 20 sp and 7:1 rules.
    - The line "Opens in your web browser."
 
 **Option styling.** A selected option has a yellow fill, dark text and a

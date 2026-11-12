@@ -69,10 +69,15 @@ Beacon is meant for adults and isn't directed at children.
 
 ## Where to find this policy
 
-On Google Play, in Beacon's store listing. In Beacon itself: open the
-"Alert settings" tab and scroll to the end, to "Privacy", and tap "Read
-the privacy policy". The page opens in your web browser; Beacon itself
-doesn't go online.
+On Google Play, in Beacon's store listing. In Beacon itself, from version
+1.0.1: open the "Alert settings" tab, scroll to the end, to "Privacy", and
+tap "Read the privacy policy".
+
+This page is kept on GitHub, in Beacon's public repository. Beacon itself
+doesn't go online: it asks your phone to open the page, and your web
+browser (or the GitHub app, if you have it) loads it from GitHub. GitHub
+then sees what any website sees, such as your IP address, under
+[GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
 
 ## Changes
 

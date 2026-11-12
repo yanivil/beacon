@@ -569,8 +569,8 @@ from the phone's own records. Nothing in the code changed.
 
 ## Google Play
 
-Beacon 1.0.0 is being prepared for Google Play's internal testing track,
-for a few testers first
+Beacon 1.0.0 is on Google Play's internal testing track, for a few
+testers first, and 1.0.1 (the in-app privacy link) follows it there
 ([spec](docs/specs/2026-11-11-play-release-design.md),
 [plan](docs/plans/2026-11-11-play-release.md)).
 

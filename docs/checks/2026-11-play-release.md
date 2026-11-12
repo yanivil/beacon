@@ -50,7 +50,7 @@ Play on the test phone will.
 | 7. The button opens the policy in the browser | Tested on emulator beacon-api36, Android 16. One tap: `ActivityTaskManager` logged `START u0 {act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://github.com/...}` to Chrome, from uid 10214, which is `dev.beacon`. This emulator's Chrome had never been opened, so it showed its own first-run screen; its terms weren't accepted, so the page itself wasn't seen in Chrome. Back returned to Beacon. The address, `https://github.com/yanivil/beacon/blob/main/PRIVACY.md`, answered HTTP 200 from the Mac. |
 
 The unit tests check the rest: the intent's action, address and category,
-the toast when no browser is installed, and the section at font scale 2.0
+the message under the button when no browser is installed (and no toast), and the section at font scale 2.0
 with no clipped text (378 tests in all).
 
 ## Not tested

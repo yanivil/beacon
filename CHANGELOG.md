@@ -14,8 +14,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   and sends nothing anywhere.", a full-width "Read the privacy policy"
   button (64 dp) and the note "Opens in your web browser.". The button
   opens `PRIVACY.md`'s GitHub page with a browsable `ACTION_VIEW`, so the
-  browser loads it and Beacon keeps no internet permission; with no
-  browser, a toast says so instead of crashing. Four new tests (378 in
+  browser loads it and Beacon keeps no internet permission. With no
+  browser, the line "No web browser on this phone." appears under the
+  button (22 sp, announced by TalkBack) instead of a crash; a system toast
+  would break the 20 sp and 7:1 rules. Four new tests (378 in
   all) cover the texts, the intent, the no-browser message and the largest
   font size. On the emulator, the release build handed the address to
   Chrome.

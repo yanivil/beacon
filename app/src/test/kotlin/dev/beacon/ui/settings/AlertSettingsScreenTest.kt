@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
@@ -59,6 +60,7 @@ import org.robolectric.annotation.GraphicsMode
 import android.app.Application
 import android.content.Intent
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowToast
 
@@ -346,14 +348,23 @@ class AlertSettingsScreenTest {
         assertTrue("browsable", started.hasCategory(Intent.CATEGORY_BROWSABLE))
     }
 
-    /** With no app that can open a web page, the tap shows a short message instead of crashing. */
+    /**
+     * With no app that can open a web page, the tap shows Beacon's own message under the button,
+     * in Beacon's type and colours and announced by TalkBack, instead of crashing. A system toast
+     * would be small, unchecked for contrast and gone in seconds.
+     */
     @Test fun privacyButtonWithoutBrowserShowsAMessage() {
         val app = ApplicationProvider.getApplicationContext<Application>()
         // Robolectric then throws ActivityNotFoundException, as a phone with no browser does.
         shadowOf(app).checkActivities(true)
         show()
+        rule.onNodeWithText("No web browser on this phone.").assertDoesNotExist()
         rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
-        assertEquals("No web browser on this phone.", ShadowToast.getTextOfLatestToast())
+        rule.onNodeWithText("No web browser on this phone.", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        assertNull("no system toast", ShadowToast.getTextOfLatestToast())
     }
 
     /** The button is at least 64 dp tall, and the section isn't cut off at the largest font. */
