@@ -125,7 +125,7 @@ on it.
 | Library versions | Compose BOM 2026.09.00 (Compose 1.12.1), core-ktx 1.19.1 and lifecycle 2.11.0, since the compileSdk 37 PR. From PR 1 until then: Compose BOM 2026.06.01 (Compose 1.11.4), core-ktx 1.18.0 and lifecycle 2.10.0, because the newer ones need compileSdk 37 (their AAR metadata says `minCompileSdk=37`) and the project rules fixed compileSdk at 36. |
 | Ripple | material-ripple has no `ripple()` function (1.11.4, and 1.12.1 has none either), so `BeaconTheme` builds its white press ripple with the public `createRippleModifierNode`. |
 | Unit tests | On JDK 21, Robolectric needs the JVM flag `--add-exports=java.base/jdk.internal.access=ALL-UNNAMED`, which the app's test tasks set. |
-| SDK | minSdk 29, compileSdk 37 (36 until the owner raised it on 11 November 2026), targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` |
+| SDK | minSdk 29, compileSdk 37 (36 until the owner raised it on 11 November 2026), targetSdk 36, applicationId `dev.beacon`, versionName `0.1.0` during Step 2 (1.0.0 for Google Play from 11 November 2026, then 1.0.1 and 1.0.2; see the Play release spec, section 4) |
 
 ### Data flow
 
@@ -593,15 +593,22 @@ From top to bottom:
    - The line "Beacon keeps your settings on this phone and sends nothing
      anywhere."
    - A full-width outline button, "Read the privacy policy", at least
-     64 dp tall, with no icon. It opens
-     `https://github.com/yanivil/beacon/blob/main/PRIVACY.md` with a
-     browsable `ACTION_VIEW`, so the browser loads it and Beacon keeps no
-     internet permission.
-   - With no browser, the line "No web browser on this phone." appears
-     under the button (`BodyStrong`, `Text` on `Page`, a polite live region
-     so TalkBack reads it). It isn't a toast, whose small text and
-     unchecked colours would break the 20 sp and 7:1 rules.
-   - The line "Opens in your web browser."
+     64 dp tall, with no icon, in the `Button` style (24 sp) like the other
+     full-width buttons. Through `SettingsActions.openPrivacyPolicy`, the
+     shell opens `https://github.com/yanivil/beacon/blob/main/PRIVACY.md`
+     with a browsable `ACTION_VIEW`, so the browser loads it and Beacon
+     keeps no internet permission. The intent names the phone's browser
+     (the default one, or the only one) when Beacon can tell, because the
+     GitHub app claims github.com links; this needs a `<queries>` entry for
+     https links, and no permission. Otherwise Android chooses.
+   - If nothing can open it, the line "Couldn't open a web browser on this
+     phone." appears under the button (`BodyStrong`, `Text` on `Page`, a
+     polite live region so TalkBack reads it) until a later tap works. It
+     isn't a toast, whose small text and unchecked colours would break the
+     20 sp and 7:1 rules.
+   - The line "Opens in your web browser." under the button. TalkBack reads
+     it before the button (a traversal group with the note first), so the
+     person hears where the button leads before reaching it.
 
 **Option styling.** A selected option has a yellow fill, dark text and a
 check icon (a black circle with a yellow tick). An unselected option is
@@ -1158,6 +1165,9 @@ reaches TalkBack as a subtree change of the live region:
 - **No internet:** Beacon has no `INTERNET` permission. The merged manifest
   is checked for it.
 - **No message content:** content is never stored, logged or shown.
+- **Sender keys:** for every message app, the owner check (section 6, rule
+  6) compares the newest sender's key with the owner's, in memory; only the
+  yes/no answer is kept. `PRIVACY.md` says so.
 - **Names:** for WhatsApp, the owner check (section 6, rule 6) may compare
   the newest sender's name with the owner's, when neither has a key. The
   names are read only for that comparison, in memory; only the yes/no

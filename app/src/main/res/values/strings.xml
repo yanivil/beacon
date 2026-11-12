@@ -75,7 +75,7 @@
     <string name="privacy_hint">Beacon keeps your settings on this phone and sends nothing anywhere.</string>
     <string name="privacy_button">Read the privacy policy</string>
     <string name="privacy_opens_in_browser">Opens in your web browser.</string>
-    <string name="privacy_no_browser">No web browser on this phone.</string>
+    <string name="privacy_no_browser">Couldn\'t open a web browser on this phone.</string>
     <string name="state_expanded">Expanded</string>
     <string name="state_collapsed">Collapsed</string>
     <string name="test_button">Test alert</string>

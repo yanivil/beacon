@@ -22,6 +22,13 @@ Before the closed test, which Google reviews:
   final review of the Play release branch, I1.)
 - **Done, 12 November 2026: a contact that needs no GitHub account** in
   `PRIVACY.md`: the public contact email from the store listing.
+- **After Google's first review, with the owner's yes:** upload 1.0.2
+  (versionCode 3) to internal testing, and update the store listing in
+  Play Console from [`docs/store/`](.): the feature graphic
+  (`feature-1024x500.jpg`, now "See when messages arrive"), screenshot 5
+  (`05-widget.jpg`, on a black background) and the full description from
+  [`listing.md`](listing.md) ("color", US spelling). A store listing
+  change goes to Google's review again.
 
 - In Play Console: Test and release → Testing → Closed testing → create a
   track (for example "Beacon closed test").

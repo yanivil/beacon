@@ -31,6 +31,10 @@ import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import android.content.Intent
+import androidx.compose.ui.test.performScrollTo
+import org.robolectric.Shadows
+import org.junit.Assert.assertEquals
 
 /*
  * Why the real activity: the shell's job is wiring (view model, saved tab,
@@ -123,6 +127,15 @@ class AppShellTest {
             ).fetchSemanticsNodes()
             assertTrue("Tab ${it + 1} put focus in the shell: $inShell", inShell.isEmpty())
         }
+    }
+
+    /** The shell connects Alert settings' privacy button to the browser: a tap starts a VIEW of the policy. */
+    @Test fun privacyButtonOpensThePolicy() {
+        rule.onNode(hasRole(Role.Tab) and hasText("Alert settings")).performClick().assertIsSelected()
+        rule.onNode(hasText("Read the privacy policy") and hasRole(Role.Button)).performScrollTo().performClick()
+        val started = Shadows.shadowOf(rule.activity).nextStartedActivity
+        assertEquals(Intent.ACTION_VIEW, started?.action)
+        assertEquals("https://github.com/yanivil/beacon/blob/main/PRIVACY.md", started?.dataString)
     }
 
     /** A keyboard user who starts the test from the shell's Test alert button has focus moved to Stop, and Tab can't leave it. */

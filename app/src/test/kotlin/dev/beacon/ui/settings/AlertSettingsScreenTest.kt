@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -58,8 +59,6 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import android.app.Application
-import android.content.Intent
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowToast
@@ -72,6 +71,9 @@ import org.robolectric.shadows.ShadowToast
  * fake actions write into state, so the screen redraws as it does in the app.
  */
 
+/** The message under the privacy button when the policy can't be opened. */
+private const val NO_BROWSER = "Couldn't open a web browser on this phone."
+
 /** Robolectric Compose tests for the Alert settings screen. */
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
@@ -81,6 +83,12 @@ class AlertSettingsScreenTest {
 
     /** The settings the screen shows now; the fake actions and tests change it. */
     private var last by mutableStateOf(BeaconSettings.DEFAULT)
+
+    /** How many times the screen asked to open the privacy policy. */
+    private var policyTaps = 0
+
+    /** What the fake privacy action answers: true as if a browser opened, false as if none could. */
+    private var policyOpens = true
 
     /** The app whose colour grid is open now, or null. */
     private var editing by mutableStateOf<MessageSource?>(null)
@@ -99,6 +107,7 @@ class AlertSettingsScreenTest {
             last = last.copy(apps = last.apps + (source to current.copy(colour = colour)))
         },
         setEditingApp = { editing = it },
+        openPrivacyPolicy = { policyTaps++; policyOpens },
     )
 
     /**
@@ -336,35 +345,62 @@ class AlertSettingsScreenTest {
         rule.onNodeWithText("Opens in your web browser.").performScrollTo()
     }
 
-    /** A tap opens the published privacy policy in a browser: a browsable VIEW of its GitHub address. */
-    @Test fun privacyButtonOpensThePolicyInABrowser() {
+    /** A tap asks the shell to open the policy once; the screen itself starts nothing. */
+    @Test fun privacyButtonCallsTheAction() {
         show()
         rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
+        assertEquals(1, policyTaps)
         val app = ApplicationProvider.getApplicationContext<Application>()
-        val started = shadowOf(app).nextStartedActivity
-        assertNotNull("an activity was started", started)
-        assertEquals(Intent.ACTION_VIEW, started.action)
-        assertEquals("https://github.com/yanivil/beacon/blob/main/PRIVACY.md", started.dataString)
-        assertTrue("browsable", started.hasCategory(Intent.CATEGORY_BROWSABLE))
+        assertNull("the screen starts no activity itself", shadowOf(app).nextStartedActivity)
     }
 
     /**
-     * With no app that can open a web page, the tap shows Beacon's own message under the button,
-     * in Beacon's type and colours and announced by TalkBack, instead of crashing. A system toast
-     * would be small, unchecked for contrast and gone in seconds.
+     * When the policy can't be opened, the tap shows Beacon's own message under the button,
+     * in Beacon's type and colours and announced by TalkBack. A system toast would be small,
+     * unchecked for contrast and gone in seconds. A later tap that works clears it.
      */
-    @Test fun privacyButtonWithoutBrowserShowsAMessage() {
-        val app = ApplicationProvider.getApplicationContext<Application>()
-        // Robolectric then throws ActivityNotFoundException, as a phone with no browser does.
-        shadowOf(app).checkActivities(true)
+    @Test fun privacyButtonThatCantOpenShowsAMessage() {
+        policyOpens = false
         show()
-        rule.onNodeWithText("No web browser on this phone.").assertDoesNotExist()
+        rule.onNodeWithText(NO_BROWSER).assertDoesNotExist()
         rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
-        rule.onNodeWithText("No web browser on this phone.", useUnmergedTree = true)
+        rule.onNodeWithText(NO_BROWSER, useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
         assertNull("no system toast", ShadowToast.getTextOfLatestToast())
+        policyOpens = true
+        rule.onNodeWithText("Read the privacy policy").performScrollTo().performClick()
+        rule.onNodeWithText(NO_BROWSER).assertDoesNotExist()
+    }
+
+    /** The button label uses the 24 sp button style, like the other full-width buttons. */
+    @Test fun privacyButtonUsesTheButtonStyle() {
+        show()
+        val results = mutableListOf<TextLayoutResult>()
+        rule.onNodeWithText("Read the privacy policy", useUnmergedTree = true).performScrollTo().fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        assertEquals(24f, results.first().layoutInput.style.fontSize.value)
+    }
+
+    /** TalkBack reads "Opens in your web browser." before the button, so the person knows before tapping. */
+    @Test fun browserNoteComesBeforeTheButtonForTalkBack() {
+        show()
+        val button = rule.onNode(hasText("Read the privacy policy") and hasRole(Role.Button)).fetchSemanticsNode()
+        val note = rule.onNodeWithText("Opens in your web browser.").fetchSemanticsNode()
+        val buttonIndex = button.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
+        val noteIndex = note.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
+        assertTrue("the note ($noteIndex) comes before the button ($buttonIndex)", noteIndex < buttonIndex)
+        val parent = button.parent
+        assertTrue("the note and the button share a parent", parent != null && parent.id == note.parent?.id)
+        assertEquals(true, parent!!.config.getOrNull(SemanticsProperties.IsTraversalGroup))
+    }
+
+    /** At the normal font size the button still meets the 64 dp floor. */
+    @Test fun privacyButtonIs64DpAtNormalFont() {
+        show()
+        val button = rule.onNodeWithText("Read the privacy policy").performScrollTo().fetchSemanticsNode()
+        assertTrue("64 dp tall", button.boundsInRoot.height >= with(rule.density) { 64.dp.toPx() } - 0.5f)
     }
 
     /** The button is at least 64 dp tall, and the section isn't cut off at the largest font. */

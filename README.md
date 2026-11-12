@@ -602,6 +602,12 @@ testers see the temporary name "dev.beacon (unreviewed)".
   check (`com.android.vending.CHECK_LICENSE`). With the phone locked, an
   SMS woke the screen to the alert and flashed the camera light until
   Stop, and the Privacy button opened the policy in Chrome (same record).
+- **Next version:** 1.0.2 (versionCode 3) on `main`, with the privacy
+  link's review fixes, is the next upload. The store's feature graphic
+  ("See when messages arrive"), the widget screenshot (on a black
+  background) and the US spelling "color" in the full description are
+  updated in [`docs/store/`](docs/store) and go to Play Console after
+  Google's current review, with the owner's yes.
 - **After internal testing:** a closed test with at least 12 testers for
   14 days, then Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
@@ -660,7 +666,9 @@ Added for Google Play (1.0.1):
   "Beacon keeps your settings on this phone and sends nothing anywhere."
   and a "Read the privacy policy" button that opens
   [`PRIVACY.md`](PRIVACY.md) in the phone's web browser. The browser loads
-  the page, so Beacon still needs no internet permission.
+  the page, so Beacon still needs no internet permission. From 1.0.2 the
+  button names the browser, so the GitHub app can't take the page, and
+  TalkBack reads "Opens in your web browser." before the button.
 
 ## Tech stack
 
@@ -728,7 +736,11 @@ Build the bundle for Play (it goes to
 ```
 
 Without the four properties, a release build stops at once and names the
-missing ones. Debug builds and the unit tests don't need them. Code
+missing ones. Debug builds and the unit tests don't need them. On a fresh
+clone without the key, this includes `./gradlew build` and
+`./gradlew assemble`, which build the release too: use the debug commands
+above instead (`:app:assembleDebug`, `:app:testDebugUnitTest`,
+`:app:lintDebug`). Code
 shrinking is off for release builds (see
 [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md),
 section 4).

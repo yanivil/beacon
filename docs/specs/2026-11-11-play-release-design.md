@@ -71,7 +71,8 @@ tracks.
 `versionName` 1.0.0 and `versionCode` 1 in `app/build.gradle.kts`. Every
 later upload to Play needs a higher `versionCode`. 1.0.1 (versionCode 2,
 12 November 2026) adds the in-app privacy link (section 11) before the
-changes go to Google's review.
+changes go to Google's review. 1.0.2 (versionCode 3) holds the fixes from
+that link's review and is the next upload.
 
 ### Upload key
 
@@ -151,8 +152,8 @@ formats. No new software. They live in
 | Asset | Size and format | Content |
 |---|---|---|
 | App icon | 512 × 512, 32-bit PNG | The launcher icon: the black bolt on the design's yellow. |
-| Feature graphic | 1024 × 500, JPEG (Play takes JPEG or a 24-bit PNG; neither has transparency) | "Beacon" and the bolt on the yellow, with one short line such as "See every message", in the app's colours. |
-| Phone screenshots | 5, JPEG, no transparency, **9:16** (Play Console asks for 16:9 or 9:16, each side 320 to 3,840 pixels; at least 4 of at least 1,080 pixels on each side for promotion) | From the emulator at the default text size, in English, with its screen set to 1080 × 1920: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the home screen with only the widget (the launcher's app suggestions turned off, so no other app's icon shows). |
+| Feature graphic | 1024 × 500, JPEG (Play takes JPEG or a 24-bit PNG; neither has transparency) | "Beacon" and the bolt on the yellow, with one short line, "See when messages arrive" (the owner, 12 November 2026; it was "See every message" until the review found that Beacon can miss a message), in the app's colours. |
+| Phone screenshots | 5, JPEG, no transparency, **9:16** (Play Console asks for 16:9 or 9:16, each side 320 to 3,840 pixels; at least 4 of at least 1,080 pixels on each side for promotion) | From the emulator at the default text size, in English, with its screen set to 1080 × 1920: Home with alerts ON, Alert settings, the test alert, the Finish setup card, and the home screen with only the widget (the launcher's app suggestions turned off, so no other app's icon shows, and the wallpaper dimmed to black with `adb shell cmd wallpaper set-dim-amount 1`, so no stock wallpaper shows). The status bar is Android's demo mode: 12:00, full battery and Wi-Fi, no notifications. |
 
 The screenshots come from the emulator, so they contain no personal data.
 Contrast and text sizes are the app's own, which already meet the project's
