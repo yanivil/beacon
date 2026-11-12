@@ -117,10 +117,14 @@ contrast, big touch targets and plain wording.
         widget's own alarm never fired. A message during a second pause,
         with the phone locked, didn't flash. Checks:
         [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
-- [ ] **Google Play (in progress):** Beacon 1.0.0 on Play's internal
-      testing track for a few testers first, with the store listing,
-      graphics, privacy policy and Play forms prepared for the public
-      release. The spec is approved (11 November 2026):
+- [ ] **Google Play (in progress):** internal testing is done. Beacon
+      1.0.1 is on Play's internal testing track for a few testers, was
+      installed from Play on the test phone and flashed for a message
+      with the phone locked (12 November 2026). The store listing and
+      Play forms were sent for Google's review the same day. Next: the
+      closed test in
+      [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
+      The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
       Plan: [`docs/plans/2026-11-11-play-release.md`](docs/plans/2026-11-11-play-release.md).
       Version 1.0.1 adds a Privacy section to Alert settings, with a
@@ -569,10 +573,13 @@ from the phone's own records. Nothing in the code changed.
 
 ## Google Play
 
-Beacon 1.0.0 is on Google Play's internal testing track, for a few
-testers first, and 1.0.1 (the in-app privacy link) follows it there
+Beacon is on Google Play's internal testing track, for a few testers:
+1.0.0 (versionCode 1) since 12 November 2026 at 09:49, and 1.0.1
+(versionCode 2, the in-app privacy link) since 10:22 the same day
 ([spec](docs/specs/2026-11-11-play-release-design.md),
-[plan](docs/plans/2026-11-11-play-release.md)).
+[plan](docs/plans/2026-11-11-play-release.md)). The store listing and the
+Play forms were sent for Google's review at about 10:27; until it's done,
+testers see the temporary name "dev.beacon (unreviewed)".
 
 - **Release build:** signed with the upload key from outside the
   repository (see "Release builds for Google Play" under Building). On the
@@ -590,6 +597,11 @@ testers first, and 1.0.1 (the in-app privacy link) follows it there
   browser, as Play's User Data policy asks. On the emulator the button
   handed the address to Chrome:
   [`docs/checks/2026-11-play-release.md`](docs/checks/2026-11-play-release.md).
+- **From Play on the test phone:** 1.0.1 installed by the Play Store, with
+  no internet permission; automatic protection added only Play's licence
+  check (`com.android.vending.CHECK_LICENSE`). With the phone locked, an
+  SMS woke the screen to the alert and flashed the camera light until
+  Stop, and the Privacy button opened the policy in Chrome (same record).
 - **After internal testing:** a closed test with at least 12 testers for
   14 days, then Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
