@@ -383,17 +383,15 @@ class AlertSettingsScreenTest {
         assertEquals(24f, results.first().layoutInput.style.fontSize.value)
     }
 
-    /** TalkBack reads "Opens in your web browser." before the button, so the person knows before tapping. */
-    @Test fun browserNoteComesBeforeTheButtonForTalkBack() {
+    /**
+     * TalkBack says where the button leads on the button itself: "Double-tap to open in your web
+     * browser". On the emulator TalkBack ignored a traversal index and read the note after the
+     * button, so the click label carries it instead.
+     */
+    @Test fun privacyButtonTellsTalkBackWhereItLeads() {
         show()
         val button = rule.onNode(hasText("Read the privacy policy") and hasRole(Role.Button)).fetchSemanticsNode()
-        val note = rule.onNodeWithText("Opens in your web browser.").fetchSemanticsNode()
-        val buttonIndex = button.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
-        val noteIndex = note.config.getOrNull(SemanticsProperties.TraversalIndex) ?: 0f
-        assertTrue("the note ($noteIndex) comes before the button ($buttonIndex)", noteIndex < buttonIndex)
-        val parent = button.parent
-        assertTrue("the note and the button share a parent", parent != null && parent.id == note.parent?.id)
-        assertEquals(true, parent!!.config.getOrNull(SemanticsProperties.IsTraversalGroup))
+        assertEquals("open in your web browser", button.config[SemanticsActions.OnClick].label)
     }
 
     /** At the normal font size the button still meets the 64 dp floor. */

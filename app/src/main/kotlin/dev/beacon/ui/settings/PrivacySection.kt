@@ -15,10 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import dev.beacon.R
@@ -61,6 +59,9 @@ const val PRIVACY_POLICY_URL = "https://github.com/yanivil/beacon/blob/main/PRIV
  */
 private const val ANY_WEB_PAGE = "https://example.com"
 
+/** The system's own package, which answers for its chooser and work-profile forwarder; never a browser. */
+private const val SYSTEM_PACKAGE = "android"
+
 /**
  * The privacy section: a "Privacy" heading, a one-line summary, a full-width
  * "Read the privacy policy" button and a note that it opens in the browser.
@@ -76,35 +77,30 @@ fun PrivacySection(openPolicy: () -> Boolean, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(16.dp)) {
         SectionHeading(stringResource(R.string.privacy_heading))
         BeaconText(stringResource(R.string.privacy_hint), style = BeaconType.Body.copy(color = BeaconColors.TextSecondary))
-        // A traversal group, so TalkBack can read the note before the button while the note stays below it.
-        Column(
-            Modifier.semantics { isTraversalGroup = true },
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            OutlineButton(
-                text = stringResource(R.string.privacy_button),
-                onClick = { cantOpen = !openPolicy() },
-                content = BeaconColors.White,
-                icon = null,
-                minHeight = 64.dp,
-                style = BeaconType.Button,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            if (cantOpen) {
-                BeaconText(
-                    stringResource(R.string.privacy_no_browser),
-                    // Polite: TalkBack reads it after the button's own click feedback.
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                    style = BeaconType.BodyStrong.copy(color = BeaconColors.Text),
-                )
-            }
+        OutlineButton(
+            text = stringResource(R.string.privacy_button),
+            onClick = { cantOpen = !openPolicy() },
+            content = BeaconColors.White,
+            icon = null,
+            minHeight = 64.dp,
+            style = BeaconType.Button,
+            modifier = Modifier.fillMaxWidth(),
+            // TalkBack reads the note below only after the button, so the button says where it leads:
+            // "Double-tap to open in your web browser".
+            onClickLabel = stringResource(R.string.privacy_button_action),
+        )
+        if (cantOpen) {
             BeaconText(
-                stringResource(R.string.privacy_opens_in_browser),
-                // Read first in this group: the person hears where the button leads before reaching it.
-                modifier = Modifier.semantics { traversalIndex = -1f },
-                style = BeaconType.Body.copy(color = BeaconColors.TextSecondary),
+                stringResource(R.string.privacy_no_browser),
+                // Polite: TalkBack reads it after the button's own click feedback.
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                style = BeaconType.BodyStrong.copy(color = BeaconColors.Text),
             )
         }
+        BeaconText(
+            stringResource(R.string.privacy_opens_in_browser),
+            style = BeaconType.Body.copy(color = BeaconColors.TextSecondary),
+        )
     }
 }
 
@@ -117,16 +113,27 @@ fun PrivacySection(openPolicy: () -> Boolean, modifier: Modifier = Modifier) {
  */
 fun openPrivacyPolicy(context: Context): Boolean {
     val intent = Intent(Intent.ACTION_VIEW, PRIVACY_POLICY_URL.toUri()).addCategory(Intent.CATEGORY_BROWSABLE)
-    browserPackage(context)?.let { intent.setPackage(it) }
     // Only an activity can start another activity in its own task; any other context needs a new one.
     if (context !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    return try {
-        context.startActivity(intent)
-        true
-    } catch (_: RuntimeException) {
-        // ActivityNotFoundException (no browser) and SecurityException: a tap must never crash Beacon.
-        false
-    }
+    val browser = browserPackage(context)
+    if (browser != null && tryStart(context, Intent(intent).setPackage(browser))) return true
+    // No browser found, or it wouldn't start: let Android choose, as before 1.0.2.
+    return tryStart(context, intent)
+}
+
+/**
+ * Starts one activity without ever crashing Beacon.
+ *
+ * @param context where to start it from.
+ * @param intent what to start.
+ * @return true if it started, false if Android refused.
+ */
+private fun tryStart(context: Context, intent: Intent): Boolean = try {
+    context.startActivity(intent)
+    true
+} catch (_: RuntimeException) {
+    // ActivityNotFoundException (no browser) and SecurityException: a tap must never crash Beacon.
+    false
 }
 
 /**
@@ -141,6 +148,8 @@ internal fun browserPackage(context: Context): String? {
     val pm = context.packageManager
     val browsers = pm.queryIntentActivities(probe, PackageManager.MATCH_DEFAULT_ONLY)
         .map { it.activityInfo.packageName }
+        // "android" is the system itself: its chooser, or the forwarder to a work profile's browser.
+        .filter { it != SYSTEM_PACKAGE }
         .distinct()
     // With no default set, Android answers with its own chooser, which isn't one of the browsers.
     val default = pm.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.packageName

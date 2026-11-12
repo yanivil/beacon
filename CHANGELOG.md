@@ -11,8 +11,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `PrivacyPolicyIntentTest`: the policy opens as a browsable VIEW, from
   an activity in its task and from any other context in a new one, goes
   to the browser even when an app claims GitHub links, leaves the choice
-  to Android when no browser is known, and returns false when nothing can
-  open it. `AppShellTest` checks the shell's wiring of the button.
+  to Android when no browser is known, never takes Android's own package
+  for a browser, tries again without naming the browser if it won't start,
+  and returns false when nothing can open it. `AppShellTest` checks the
+  shell's wiring of the button.
+- `docs/checks/2026-11-play-release.md`: 1.0.2 on the emulator (checks 13
+  to 15): the intent names Chrome, and TalkBack says "Double-tap to open in
+  your web browser" on the button and opens Chrome with a double tap.
 - `docs/store/listing.md`: a "Shown on" column in the claims table (Phone,
   Emulator, Unit tests or Rule), so no claim reads stronger than its
   evidence. Both "Done means" sources now name the Step 2 spec, and the
@@ -33,18 +38,26 @@ and the project uses [Semantic Versioning](https://semver.org/).
   - the button names the phone's browser (the default one, or the only
     one), so the GitHub app, which claims github.com links, can't take the
     page and "Opens in your web browser." stays true. A `<queries>` entry
-    for https links lets Beacon see the browsers; it needs no permission;
+    for https links lets Beacon see the browsers; it needs no permission.
+    Android's own package (its chooser and work-profile forwarder) is never
+    taken for a browser, and if the named browser won't start, Beacon tries
+    once more without naming it;
   - the message when nothing can open the page is now "Couldn't open a web
     browser on this phone.", true for every failure, and a later tap that
     works clears it;
   - the button uses the 24 sp `Button` style, like the other full-width
     buttons;
-  - TalkBack reads "Opens in your web browser." before the button;
+  - on the button, TalkBack says "Double-tap to open in your web browser"
+    (a click label; `OutlineButton` gets an optional `onClickLabel`). A
+    traversal index meant to read the note first worked in the unit tests
+    but not with TalkBack on the emulator, so it was dropped;
   - the screen asks the shell through `SettingsActions.openPrivacyPolicy`,
     like the other screens, instead of reading the context itself.
-- `PRIVACY.md`: for every message app, Beacon compares the newest sender's
-  key with yours, in memory, so your own replies don't flash; the WhatsApp
-  name check is only for when there are no keys.
+- `PRIVACY.md`: for every notification that uses Android's message layout,
+  from any app, Beacon checks whether the newest message has a sender (none
+  means it's yours) and compares the sender's key with yours, in memory, so
+  your own replies don't flash; the WhatsApp name check is only for when
+  there are no keys.
 - The store's feature graphic says "See when messages arrive" instead of
   "See every message" (the owner's choice, 12 November 2026), since Beacon
   can miss a message. Screenshot 5 shows the widget on a black background

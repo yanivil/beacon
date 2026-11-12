@@ -2,7 +2,9 @@ package dev.beacon.ui.settings
 
 import android.app.Activity
 import android.app.Application
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.test.core.app.ApplicationProvider
@@ -82,10 +84,31 @@ class PrivacyPolicyIntentTest {
         assertEquals("com.example.browser", shadowOf(app).nextStartedActivity.`package`)
     }
 
-    /** When Beacon can't tell which app is the browser, it leaves the choice to Android. */
+    /** When no browser is found, even with an app for GitHub links installed, it leaves the choice to Android. */
     @Test fun withNoBrowserFoundAndroidChooses() {
+        installWebApp("com.github.android", host = "github.com")
         assertTrue(openPrivacyPolicy(app))
         assertNull(shadowOf(app).nextStartedActivity.`package`)
+    }
+
+    /** Android's own forwarder (package "android", for work profiles) is never taken for the browser. */
+    @Test fun androidsOwnForwarderIsNotABrowser() {
+        installWebApp("android")
+        assertNull(browserPackage(app))
+    }
+
+    /** If the named browser won't start, it tries once more without naming it, as before 1.0.2. */
+    @Test fun triesAgainWithoutTheBrowserWhenItFails() {
+        installWebApp("com.example.browser")
+        val tried = mutableListOf<Intent>()
+        val context = object : ContextWrapper(app) {
+            override fun startActivity(intent: Intent) {
+                tried += Intent(intent)
+                if (intent.`package` != null) throw ActivityNotFoundException("the named browser refused")
+            }
+        }
+        assertTrue(openPrivacyPolicy(context))
+        assertEquals(listOf("com.example.browser", null), tried.map { it.`package` })
     }
 
     /** When nothing can open the page, it reports false instead of crashing. */

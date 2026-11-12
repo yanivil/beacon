@@ -600,15 +600,19 @@ From top to bottom:
      keeps no internet permission. The intent names the phone's browser
      (the default one, or the only one) when Beacon can tell, because the
      GitHub app claims github.com links; this needs a `<queries>` entry for
-     https links, and no permission. Otherwise Android chooses.
+     https links, and no permission. The package `android` (the chooser,
+     the work-profile forwarder) is never a browser. Otherwise, or if the
+     named browser won't start, Android chooses.
    - If nothing can open it, the line "Couldn't open a web browser on this
      phone." appears under the button (`BodyStrong`, `Text` on `Page`, a
      polite live region so TalkBack reads it) until a later tap works. It
      isn't a toast, whose small text and unchecked colours would break the
      20 sp and 7:1 rules.
-   - The line "Opens in your web browser." under the button. TalkBack reads
-     it before the button (a traversal group with the note first), so the
-     person hears where the button leads before reaching it.
+   - The line "Opens in your web browser." under the button. TalkBack
+     reads it after the button, so the button's click label says it too:
+     TalkBack says "Read the privacy policy, Button, Double-tap to open in
+     your web browser". (A traversal index to read the note first passed
+     the unit tests but TalkBack on the emulator ignored it.)
 
 **Option styling.** A selected option has a yellow fill, dark text and a
 check icon (a black circle with a yellow tick). An unselected option is
@@ -1165,9 +1169,11 @@ reaches TalkBack as a subtree change of the live region:
 - **No internet:** Beacon has no `INTERNET` permission. The merged manifest
   is checked for it.
 - **No message content:** content is never stored, logged or shown.
-- **Sender keys:** for every message app, the owner check (section 6, rule
-  6) compares the newest sender's key with the owner's, in memory; only the
-  yes/no answer is kept. `PRIVACY.md` says so.
+- **Sender keys:** for every notification with a MessagingStyle layout,
+  from any app (the facts are read before the source check), the owner
+  check (section 6, rule 6) looks at whether the newest message has a
+  sender and compares the sender's key with the owner's, in memory; only
+  the yes/no answer is kept. `PRIVACY.md` says so.
 - **Names:** for WhatsApp, the owner check (section 6, rule 6) may compare
   the newest sender's name with the owner's, when neither has a key. The
   names are read only for that comparison, in memory; only the yes/no

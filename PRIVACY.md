@@ -28,9 +28,11 @@ uses only:
   backups or progress bars;
 - its times;
 - whether the newest message is your own, so a reply you send doesn't
-  flash. Android's message layout gives each sender a key, an identifier
-  the message app chooses. Beacon compares the newest sender's key with
-  yours, in memory, and keeps only the yes-or-no answer.
+  flash. In Android's message layout, a message with no sender is your
+  own, and a sender can have a key, an identifier the message app chooses.
+  For every notification that uses this layout, from any app, Beacon
+  checks whether the newest message has a sender and compares that
+  sender's key with yours, in memory. Only the yes-or-no answer is kept.
 
 Android also hands over the rest of each notification, such as titles and
 message text. Beacon ignores them. It doesn't store them, show them or

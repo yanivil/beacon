@@ -667,8 +667,10 @@ Added for Google Play (1.0.1):
   and a "Read the privacy policy" button that opens
   [`PRIVACY.md`](PRIVACY.md) in the phone's web browser. The browser loads
   the page, so Beacon still needs no internet permission. From 1.0.2 the
-  button names the browser, so the GitHub app can't take the page, and
-  TalkBack reads "Opens in your web browser." before the button.
+  button names the browser when Beacon can tell which app it is (the
+  default browser, or the only one), so the GitHub app can't take the
+  page; otherwise Android chooses, as before. On the button, TalkBack says
+  "Double-tap to open in your web browser".
 
 ## Tech stack
 
