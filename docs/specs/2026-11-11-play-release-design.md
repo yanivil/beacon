@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 11 November 2026: the design in chat, then this written spec. |
+| Status | Approved by the owner, 11 November 2026: the design in chat, then this written spec. Internal testing done, 12 November 2026: 1.0.0 (1) and 1.0.1 (2) on the internal testing track, 1.0.1 checked from Play on the test phone, and the store listing and forms sent for Google's review ([record](../checks/2026-11-play-release.md)). Next: [`release-checklist.md`](../store/release-checklist.md), section 1. |
 | Plan | [`docs/plans/2026-11-11-play-release.md`](../plans/2026-11-11-play-release.md) |
 | Date | 11 November 2026 |
 | Builds on | Step 2 ([`2026-11-08-step2-design.md`](2026-11-08-step2-design.md)), whose section 2 left Google Play, release signing and the store listing out of Step 2 |

@@ -8,6 +8,27 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-play-release.md`: the Play Console setup (11 and 12
+  November 2026), the internal testing releases 1.0.0 (1) and 1.0.1 (2)
+  with their warnings, the 8 changes sent for Google's review, and Beacon
+  1.0.1 installed from Play on the test phone (Redmi 15C 5G, Android 16).
+  The Play copy has no internet permission; Play's automatic protection
+  added only `com.android.vending.CHECK_LICENSE`. With the phone locked,
+  an SMS woke the screen to the alert and flashed the camera light until
+  Stop. The Privacy section's button opened the policy in Chrome.
+
+### Changed
+
+- `README.md`'s Google Play section and the Play release spec's status:
+  internal testing is done, the changes are in Google's review, and the
+  next step is the closed test in `docs/store/release-checklist.md`.
+
+## [1.0.1] - 2026-11-12
+
+Version 1.0.1 (versionCode 2) on Google Play's internal testing track.
+
+### Added
+
 - A "Privacy" section at the end of Alert settings (`PrivacySection.kt`),
   because Google Play's User Data policy asks for the privacy policy within
   the app too. It has the line "Beacon keeps your settings on this phone
@@ -21,6 +42,31 @@ and the project uses [Semantic Versioning](https://semver.org/).
   all) cover the texts, the intent, the no-browser message and the largest
   font size. On the emulator, the release build handed the address to
   Chrome.
+
+### Changed
+
+- Version 1.0.1 (versionCode 2), for the in-app privacy link. It followed
+  1.0.0 (versionCode 1) on Play's internal testing track on 12 November
+  2026, before the changes went to Google's review.
+- `PRIVACY.md` (dated 12 November 2026): the contact email
+  bernhardsoftware@gmail.com, the same as on Google Play, so a person
+  without a GitHub account can write; and where the policy is found in
+  Beacon. `docs/store/release-checklist.md` section 1 marks both done, and
+  both specs describe the Privacy section.
+- `PRIVACY.md`: a "Google Play's protection" section. The owner kept
+  Play's automatic protection on, so Google adds an installer check to the
+  copy Play delivers, which asks people who got Beacon elsewhere to get it
+  from Google Play; Google says it works without a data connection.
+  `docs/store/play-console-answers.md` records the choice and the 1.0.1
+  release name and notes.
+
+## [1.0.0] - 2026-11-12
+
+The first version on Google Play's internal testing track (versionCode 1),
+with everything from Step 1 and Step 2.
+
+### Added
+
 - `LICENSE.md`: Beacon is licensed under the PolyForm Strict License 1.0.0
   (copyright 2026 Bernhard Software), as the owner chose: free for
   non-commercial use, no changes or sharing, and no liability as far as the
@@ -428,20 +474,6 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- `PRIVACY.md`: a "Google Play's protection" section. The owner kept
-  Play's automatic protection on, so Google adds an installer check to the
-  copy Play delivers, which asks people who got Beacon elsewhere to get it
-  from Google Play; Google says it works without a data connection.
-  `docs/store/play-console-answers.md` records the choice and the 1.0.1
-  release name and notes.
-- Version 1.0.1 (versionCode 2), for the in-app privacy link. 1.0.0
-  (versionCode 1) is on Play's internal testing track; 1.0.1 goes there
-  next, before the changes go to Google's review.
-- `PRIVACY.md` (dated 12 November 2026): the contact email
-  bernhardsoftware@gmail.com, the same as on Google Play, so a person
-  without a GitHub account can write; and where the policy is found in
-  Beacon. `docs/store/release-checklist.md` section 1 marks both done, and
-  both specs describe the Privacy section.
 - `docs/checks/2026-11-pause-on-battery.md`: a message during a pause, on
   the test phone later on 11 November 2026. With a second 1-hour pause on
   and the phone locked in deep idle on battery, a WhatsApp message was
