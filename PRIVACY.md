@@ -63,6 +63,16 @@ the pause, and each app's settings. They stay on your phone. Android
 backup and device-to-device transfer are turned off for Beacon, so they
 aren't copied anywhere either. Uninstalling Beacon deletes them.
 
+## Google Play's protection
+
+Beacon is delivered through Google Play with Google's "automatic
+protection" turned on. Google adds a check to the copy of Beacon that Play
+delivers: if Beacon was installed from somewhere other than Google Play,
+you are asked to get it from Google Play. Google says this check works
+without a data connection. It is part of Google Play and covered by
+[Google's privacy policy](https://policies.google.com/privacy); Beacon's
+own code still collects and sends nothing.
+
 ## Children
 
 Beacon is meant for adults and isn't directed at children.

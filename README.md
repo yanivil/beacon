@@ -583,7 +583,9 @@ testers first, and 1.0.1 (the in-app privacy link) follows it there
   each claim's source. They name SMS and WhatsApp only, since Telegram
   hasn't been tested on a phone.
 - **Privacy policy:** [`PRIVACY.md`](PRIVACY.md): Beacon collects and
-  shares nothing and has no internet access. From 1.0.1 (versionCode 2),
+  shares nothing and has no internet access. It also explains Google
+  Play's "automatic protection", which the owner kept on: Google adds an
+  installer check to the copy Play delivers. From 1.0.1 (versionCode 2),
   the Privacy section at the end of Alert settings opens it in the
   browser, as Play's User Data policy asks. On the emulator the button
   handed the address to Chrome:

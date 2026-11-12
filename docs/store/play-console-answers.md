@@ -97,9 +97,10 @@ If it asks anyway, Claude stops and asks.
 | Testers | An email list named "Beacon testers". The owner gives the addresses in chat or types them in; they never go into the repository. |
 | Feedback URL or email | The contact email from section 3 |
 | App signing | Play App Signing with a Google-generated key (the default) |
+| Automatic protection | **On** (asked on the first release form; the owner chose to keep it on, 12 November 2026). Google adds an installer check to the copy Play delivers; [`PRIVACY.md`](../../PRIVACY.md) says so. |
 | App bundle | `app/build/outputs/bundle/release/app-release.aab`, built from `main` after the merge (Task 6) |
-| Release name | 1.0.0 (1) |
-| Release notes (en-US) | First test version. |
+| Release name | 1.0.0 (1); then 2 (1.0.1), Play's suggestion |
+| Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." |
 | Rollout | Only after the owner says yes in chat |
 
 ## 6. Not in this round
