@@ -77,6 +77,7 @@ that weren't on that sheet were asked in chat first.
 | Closed test approved | 14 November, 17:23 | Submission activity: submission 3, "Closed testing - Alpha", 7 changes, "Published" on 14 November at 17:23, ten minutes after it was sent. The track shows 3 (1.0.2) "Available to selected testers" in 178 countries and regions. While it was in review the owner added 7 more addresses to "Beacon testers" (11 by about 18:00; email lists apply at once and need no review). At 18:07 the dashboard's production requirements said "0 testers currently opted-in": the 14 days haven't started. |
 | Release 4 (1.0.3) | 14 November, 18:06 | Built from `main` at `6a4df59` (PR #40, the Visual alerts switch and the widget choice): versionCode 4, signed with the upload key, the same three permissions as 1.0.2's build and no `INTERNET`. The owner uploaded `beacon-1.0.3-4.aab` with the file picker. The same two warnings; the supported devices didn't change (8,733 phones and 5,739 tablets). Release notes, as typed: You can now turn alerts OFF until you turn them back ON. Use the new Visual alerts switch at the top of Alert settings, or choose in Alert settings that one tap on the widget turns alerts OFF until you tap it again. Published with the owner's yes ("Yes, release it"): "Available to internal testers". Not on the closed test yet. |
 | 1.0.3 to the closed test, sent for review | 14 November, 18:10 | With the owner's yes ("Yes, move it"): a new release on "Closed testing - Alpha" with 4 (1.0.3) from the app bundle library and the release notes copied from the internal release. The same two warnings; the supported devices didn't change. Publishing overview listed one change, "4 (1.0.3), Start full rollout"; "Submit 1 change for review", then Play's quick checks ("Up to 14 minutes remaining"). Until Google approves it, the closed test keeps offering 1.0.2, and testers can still join. |
+| Store listing: 1.0.3's full description, sent with the closed test's 1.0.3 | 14 November, 18:19 | With the owner's yes ("Yes, send it"): Play's full description was first checked against the text in `listing.md` before 1.0.3 (both 2,823 characters, the same words), then replaced with today's [`listing.md`](../store/listing.md) text (2,983 characters; the same SHA-256 as the file). Its only change is the pause paragraph: the Visual alerts switch, "stops message alerts", and the widget's no-time-limit choice. On the review step Play asked the AI asset question again; "Don't label assets" was already selected, the owner's answer of 11 November. Publishing overview listed one new change, "Change full description". Sending it asked "Do you want to restart your review?", because 1.0.3 for the closed test was still in its quick checks. That was new, so the dialog was cancelled and the owner asked; they chose "Restart with both". Now one review holds both changes ("Up to 14 minutes remaining" for the quick checks). |
 
 Until Google's first review was done, testers saw the temporary name
 "dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
@@ -143,8 +144,8 @@ tried.
   tester had opted in yet.
 - **1.0.3 from Play on the test phone:** on internal testing since 18:06,
   not yet installed from Play.
-- **Google's review of 1.0.3 on the closed test:** sent at 18:10; the
-  result isn't in yet.
+- **Google's review of 1.0.3 on the closed test and of 1.0.3's full
+  description:** one review since 18:19; the result isn't in yet.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the

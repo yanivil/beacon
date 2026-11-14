@@ -2,8 +2,10 @@
 
 The texts for Beacon's Play Console "Main store listing", in English
 (United States). The full description below includes 1.0.3's Visual alerts
-switch and widget choice (14 November 2026); that change isn't in Play
-Console yet and goes in only with the owner's yes, with 1.0.3. Paste each field as it stands between its markers. The
+switch and widget choice (14 November 2026). With the owner's yes it went
+into Play Console and to Google's review at 18:19 that day, together with
+1.0.3 for the closed test; until Google approves it, the store shows the
+earlier text. Paste each field as it stands between its markers. The
 rules come from the spec
 ([`2026-11-11-play-release-design.md`](../specs/2026-11-11-play-release-design.md),
 section 5): the name at most 30 characters, the short description at most

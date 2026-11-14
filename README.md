@@ -664,10 +664,10 @@ widget and from the settings. The owner chose the design on 14 November
 - **On Google Play:** 1.0.3 (versionCode 4) has been on internal testing
   since 14 November 2026 at 18:06, with the owner's yes
   ([record](docs/checks/2026-11-play-release.md)). With the owner's yes it
-  went to the closed test's review at 18:10; until Google approves it, the
-  closed test offers 1.0.2. Sending the store text that mentions the new
-  choice ([`docs/store/listing.md`](docs/store/listing.md)) waits for the
-  owner's yes.
+  went to the closed test's review at 18:10, and at 18:19 the store text
+  that mentions the new choice ([`docs/store/listing.md`](docs/store/listing.md))
+  joined it in one review. Until Google approves them, the closed test
+  offers 1.0.2 and the store shows the earlier text.
 
 ## What Step 1 found
 
