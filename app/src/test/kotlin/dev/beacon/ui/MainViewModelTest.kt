@@ -18,6 +18,7 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
+import dev.beacon.settings.WidgetTap
 import dev.beacon.settings.UnreadableDataStore
 import dev.beacon.setup.SetupStatus
 import dev.beacon.widget.FakeResumeAlarm
@@ -80,6 +81,7 @@ class MainViewModelTest {
         vm.setDuration(DurationChoice.FIVE_MINUTES)
         vm.stepCustomLength(longer = true)
         vm.setSpeed(BlinkSpeed.FAST)
+        vm.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED)
         // A lost save leaves the loaded value showing.
         assertEquals(BeaconSettings.DEFAULT, vm.settings.value)
     }
@@ -126,6 +128,33 @@ class MainViewModelTest {
             assertEquals(1, refreshes.get())
             assertEquals(listOf<Long?>(null), alarm.scheduled.toList())
             assertEquals(Pause.Indefinite, repo.settings.first().pause)
+        } finally {
+            storeScope.cancel()
+        }
+    }
+
+    /**
+     * Choosing the widget's tap goes through the coordinator: the choice is stored and the widget redrawn
+     * once, since its words name the choice; the pause and the alarm aren't touched.
+     */
+    @Test fun setWidgetTapGoesThroughTheCoordinator() = runTest {
+        val storeScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            val repo = SettingsRepository(
+                PreferenceDataStoreFactory.create(scope = storeScope) { File(tmp.root, "beacon_settings.preferences_pb") },
+            )
+            val alarm = FakeResumeAlarm()
+            val refreshes = AtomicInteger()
+            val controller = AlertController(FakeTorchSwitch(), Looper.getMainLooper(), Looper.getMainLooper(), FakeAlertPlatform())
+            val pauses = PauseCoordinator(repo, alarm, refreshWidgets = { refreshes.incrementAndGet() })
+            val vm = MainViewModel(repo, controller, { NO_SETUP }, pauses)
+            vm.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED)
+            // The save finishes on the store's thread, so wait for it (bounded) rather than sleep.
+            idleMainUntil { refreshes.get() == 1 }
+            assertEquals(1, refreshes.get())
+            assertEquals(WidgetTap.OFF_UNTIL_TAPPED, repo.settings.first().widgetTap)
+            assertEquals(Pause.None, repo.settings.first().pause)
+            assertTrue(alarm.scheduled.isEmpty())
         } finally {
             storeScope.cancel()
         }

@@ -134,6 +134,9 @@ contrast, big touch targets and plain wording.
       Version 1.0.1 adds a Privacy section to Alert settings, with a
       button that opens the privacy policy in the browser, as Play's User
       Data policy asks before Google's review.
+      Version 1.0.3 (built, not yet on Play) adds a "Visual alerts" ON/OFF
+      switch to Alert settings and a choice of what the widget's tap does;
+      see "Version 1.0.3" below.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -205,7 +208,8 @@ Not in PR 2: the widget, the timed pause and its Home line (PR 3).
 - **The home-screen widget:** "Beacon" in the widget picker, 4 × 2 cells
   by default. It shows ON on yellow or PAUSED on black, in the system font,
   and the whole widget is one tap target with one spoken label. One tap
-  pauses alerts for 1 hour; a tap while paused turns them ON. Each line is
+  pauses alerts for 1 hour (from 1.0.3, or turns them OFF until the next
+  tap, if chosen in Alert settings); a tap while paused turns them ON. Each line is
   measured as the launcher will draw it. When the widget is small or the
   font is large, the tap hint goes first, then the title, then the icon,
   then the resume time, which TalkBack still reads; the state word always
@@ -625,6 +629,37 @@ Visual Message Alerts".
   Google's review at about 17:12. It needs at least 12 testers opted in
   for 14 days in a row; then comes Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
+
+## Version 1.0.3: turn alerts OFF until turned back ON
+
+Testers asked for a way to turn alerts off with no time limit, from the
+widget and from the settings. The owner chose the design on 14 November
+2026 ([Step 2 spec](docs/specs/2026-11-08-step2-design.md), sections 5, 8,
+10 and 11, and conflict 20):
+
+- **A "Visual alerts" switch at the top of Alert settings.** It shows ON
+  or OFF in words and is one Switch for TalkBack. OFF is the same pause as
+  Home's "Pause all alerts", with "You will NOT see any flashes until you
+  turn alerts back on."; ON turns alerts back on, and also ends the
+  widget's 1-hour pause early. Home, the widget and the switch always show
+  the same state.
+- **A "Widget" choice in Alert settings:** what one widget tap does while
+  alerts are ON, "Pause for 1 hour" (the default, so nothing changes for
+  anyone who doesn't choose) or "Turn OFF until I tap again". With the
+  second, the widget says "Tap to turn OFF", and a tap shows PAUSED with
+  no time, since nothing turns alerts back on by itself. The widget keeps
+  its one big button.
+- **Checked on the emulator** (Android 16): 1.0.3 installed over 1.0.2
+  kept the 1-hour choice, the switch and the widget turned alerts off and
+  on and stayed in step, no resume alarm was set for the widget's OFF, the
+  layout fit at the largest font, and TalkBack read the switch, the
+  options and the widget:
+  [`docs/checks/2026-11-alerts-off-until-on.md`](docs/checks/2026-11-alerts-off-until-on.md).
+  Not yet checked on the test phone.
+- **On Google Play:** not yet. Uploading 1.0.3 (versionCode 4) to internal
+  testing and the closed test, and the store text that mentions the new
+  choice ([`docs/store/listing.md`](docs/store/listing.md)), each wait for
+  the owner's yes.
 
 ## What Step 1 found
 

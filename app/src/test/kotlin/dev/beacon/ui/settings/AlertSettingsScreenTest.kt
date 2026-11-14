@@ -19,6 +19,8 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.getBoundsInRoot
@@ -39,6 +41,8 @@ import dev.beacon.settings.ColourMode
 import dev.beacon.settings.CustomLength
 import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
+import dev.beacon.settings.Pause
+import dev.beacon.settings.WidgetTap
 import dev.beacon.ui.WithFontScale
 import dev.beacon.ui.assertNoTextOverflow
 import dev.beacon.ui.assertOwnListPositions
@@ -108,6 +112,9 @@ class AlertSettingsScreenTest {
         },
         setEditingApp = { editing = it },
         openPrivacyPolicy = { policyTaps++; policyOpens },
+        // Like the view model: OFF is the open-ended pause Home's "Pause all alerts" sets; ON clears any pause.
+        setAlertsOn = { on -> last = last.copy(pause = if (on) Pause.None else Pause.Indefinite) },
+        setWidgetTap = { last = last.copy(widgetTap = it) },
     )
 
     /**
@@ -130,6 +137,72 @@ class AlertSettingsScreenTest {
                 }
             }
         }
+    }
+
+    /** The "Visual alerts" switch, as TalkBack finds it: one Switch node carrying the row's words. */
+    private val alertsSwitch = hasRole(Role.Switch) and hasText("Visual alerts")
+
+    /**
+     * The screen opens with the "Visual alerts" switch, above "How long to flash". It is ON by default;
+     * a tap turns alerts OFF with no time limit and says so, and another tap turns them back ON.
+     */
+    @Test fun alertsSwitchTurnsAlertsOffAndOn() {
+        show()
+        rule.onNode(alertsSwitch).assertIsOn()
+        rule.onNodeWithText("Your screen and camera light will flash", substring = true).assertExists()
+        val switchBottom = rule.onNode(alertsSwitch).getBoundsInRoot().bottom
+        assertTrue("above the first section", switchBottom <= rule.onNodeWithText("How long to flash").getBoundsInRoot().top)
+        rule.onNode(alertsSwitch).performClick()
+        assertEquals(Pause.Indefinite, last.pause)
+        rule.onNode(alertsSwitch).assertIsOff()
+        rule.onNodeWithText("You will NOT see any flashes until you turn alerts back on.").assertExists()
+        rule.onNode(alertsSwitch).performClick()
+        assertEquals(Pause.None, last.pause)
+        rule.onNode(alertsSwitch).assertIsOn()
+    }
+
+    /** During the widget's 1-hour pause the switch shows OFF with the time alerts come back; a tap ends the pause early. */
+    @Test fun alertsSwitchShowsATimedPause() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(System.currentTimeMillis() + 30 * 60_000L)))
+        rule.onNode(alertsSwitch).assertIsOff()
+        rule.onNodeWithText("Back ON by itself at", substring = true).assertExists()
+        rule.onNode(alertsSwitch).performClick()
+        assertEquals(Pause.None, last.pause)
+    }
+
+    /** A timed pause whose time has passed is ON, as on Home and the widget. */
+    @Test fun alertsSwitchTreatsAnEndedPauseAsOn() {
+        show(BeaconSettings.DEFAULT.copy(pause = Pause.Until(1L)))
+        rule.onNode(alertsSwitch).assertIsOn()
+    }
+
+    /** The two widget choices, in reading order. */
+    private val widgetOptions = listOf("Pause for 1 hour", "Turn OFF until I tap again").map { hasRole(Role.RadioButton) and hasText(it) }
+
+    /**
+     * The "Widget" section is a heading and a RadioButton group; the 1-hour pause is chosen by default,
+     * and a tap chooses "Turn OFF until I tap again".
+     */
+    @Test fun widgetChoiceIsARadioGroupDefaultOneHour() {
+        show()
+        rule.onNodeWithText("Widget").performScrollTo().assert(isHeading())
+        rule.onNode(widgetOptions[0]).assertIsSelected()
+        rule.onNode(widgetOptions[1]).performScrollTo().performClick()
+        assertEquals(WidgetTap.OFF_UNTIL_TAPPED, last.widgetTap)
+        rule.onNode(widgetOptions[1]).assertIsSelected()
+    }
+
+    /** The new controls fit at the largest font, with alerts OFF until a time and the OFF widget choice. */
+    @Test fun newControlsFitAtLargestFont() {
+        show(
+            BeaconSettings.DEFAULT.copy(
+                pause = Pause.Until(System.currentTimeMillis() + 30 * 60_000L),
+                widgetTap = WidgetTap.OFF_UNTIL_TAPPED,
+            ),
+            fontScale = 2.0f,
+        )
+        rule.onNode(alertsSwitch).assertIsOff()
+        rule.assertNoTextOverflow()
     }
 
     /** The duration options are RadioButtons, 1 min is chosen by default, and a tap changes it. */
@@ -170,6 +243,7 @@ class AlertSettingsScreenTest {
     @Test fun singleColumnGroupsReadTheirPositions() {
         show()
         rule.assertTalkBackReadsList(listOf("Slow", "Medium", "Fast").map { hasRole(Role.RadioButton) and hasText(it) })
+        rule.assertTalkBackReadsList(widgetOptions)
         rule.assertTalkBackReadsList(
             listOf("Same color for all apps", "Different color for each app").map { hasRole(Role.RadioButton) and hasText(it) },
         )

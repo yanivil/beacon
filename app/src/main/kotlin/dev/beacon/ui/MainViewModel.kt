@@ -20,6 +20,7 @@ import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
+import dev.beacon.settings.WidgetTap
 import dev.beacon.setup.SetupChecker
 import dev.beacon.setup.SetupStatus
 import dev.beacon.ui.blink.testColour
@@ -97,6 +98,16 @@ class MainViewModel(
      */
     fun setPause(pause: Pause) {
         save { pauses.set(pause) }
+    }
+
+    /**
+     * Chooses what one widget tap does while alerts are ON, through the coordinator, so the widget's
+     * words follow.
+     *
+     * @param tap the new choice.
+     */
+    fun setWidgetTap(tap: WidgetTap) {
+        save { pauses.setWidgetTap(tap) }
     }
 
     /**

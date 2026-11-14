@@ -144,6 +144,23 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[SettingsCodec.SPEED] = speed.name }
     }
 
+    /**
+     * Chooses what one tap on the widget does while alerts are ON.
+     *
+     * @param tap the new choice.
+     * @return true if the stored choice changed, so the widget's words need redrawing.
+     * @throws IOException if the settings file can't be read or written.
+     */
+    suspend fun setWidgetTap(tap: WidgetTap): Boolean {
+        var changed = false
+        dataStore.edit { p ->
+            // Compared inside the same edit, through the codec, so a missing key counts as the default.
+            changed = SettingsCodec.decode(p).widgetTap != tap
+            p[SettingsCodec.WIDGET_TAP] = tap.name
+        }
+        return changed
+    }
+
     companion object {
         /**
          * Opens the app's settings file.

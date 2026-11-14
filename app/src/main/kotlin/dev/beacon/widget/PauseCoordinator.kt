@@ -2,10 +2,12 @@ package dev.beacon.widget
 
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
+import dev.beacon.settings.WidgetTap
 import dev.beacon.settings.isExpiredAt
 import dev.beacon.settings.pauseAfterWidgetTap
 import dev.beacon.settings.resumeAtMillis
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -78,13 +80,37 @@ class PauseCoordinator(
     }
 
     /**
-     * Applies a widget tap: pauses for 1 hour while ON, turns alerts ON while paused (spec section 5).
+     * Applies a widget tap: while ON, pauses for 1 hour or turns alerts OFF until the next tap, as
+     * chosen in Alert settings; while paused, turns alerts ON (spec section 5).
      *
      * @return the pause that was saved.
      * @throws java.io.IOException if the settings can't be read or saved, and then the alarm and the widget
      *   are left as they were; or if the widget refresh fails, after the pause was saved and the alarm set.
      */
-    suspend fun tapFromWidget(): Pause = change({ pauseAfterWidgetTap(it, now()) })
+    suspend fun tapFromWidget(): Pause {
+        // Read before the edit, outside it: the choice is changed only in Alert settings, so at worst a
+        // change made in the same instant as a tap applies from the next tap. An unreadable file gives
+        // the default here, and then the save below fails with its IOException anyway.
+        val tap = repo.settings.first().widgetTap
+        return change({ pauseAfterWidgetTap(it, now(), tap) })
+    }
+
+    /**
+     * Saves what one widget tap does while ON, and redraws the widget if the choice changed, since its
+     * tap hint and spoken label name the choice. It goes through here because this is the one place
+     * that redraws the widget; the pause and the alarm aren't touched. Like a pause change, it runs to
+     * the end once started, so leaving Beacon can't leave the widget showing the old choice.
+     *
+     * @param tap the new choice.
+     * @throws java.io.IOException if the settings can't be read or saved, and then the widget is left as
+     *   it was; or if the widget refresh fails, after the choice was saved.
+     */
+    suspend fun setWidgetTap(tap: WidgetTap) {
+        withContext(NonCancellable) {
+            // Unchanged (the chosen option tapped again): no Glance session, as for an unchanged pause (ruling F3).
+            if (repo.setWidgetTap(tap)) refreshWidgets()
+        }
+    }
 
     /**
      * Cleans up a timed pause whose deadline has passed: it becomes ON. Any other pause is kept, and

@@ -86,6 +86,8 @@ internal fun WidgetBody(
     WidgetContent(
         state = state,
         resumeTime = resumeTime,
+        // From the same settings as the state, so a choice made in Alert settings shows at the next draw.
+        tap = current.widgetTap,
         measure = measure,
         modifier = GlanceModifier.clickable(actionRunCallback<TogglePauseAction>()),
     )
@@ -97,7 +99,7 @@ class BeaconWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = BeaconWidget()
 }
 
-/** The widget's one tap: pauses for 1 hour while ON, turns alerts ON while paused. */
+/** The widget's one tap: while ON, pauses for 1 hour or turns alerts OFF, as chosen; while paused, turns alerts ON. */
 class TogglePauseAction : ActionCallback {
     /**
      * Applies the tap through the coordinator, which saves it, sets the alarm and refreshes the widget.

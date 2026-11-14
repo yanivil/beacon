@@ -42,6 +42,7 @@ class SettingsRepositoryTest {
         repo.setAppColour(MessageSource.SMS, FlashColour.RED); repo.setColourMode(ColourMode.PER_APP)
         repo.setGlobalColour(FlashColour.WHITE); repo.setDuration(DurationChoice.CUSTOM)
         repo.stepCustomLength(longer = true); repo.setSpeed(BlinkSpeed.FAST)
+        repo.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED)
         val s = repo.settings.first()
         assertEquals(Pause.Until(1234L), s.pause)
         assertTrue(s.apps.getValue(MessageSource.TELEGRAM).enabled)
@@ -51,6 +52,7 @@ class SettingsRepositoryTest {
         assertEquals(DurationChoice.CUSTOM, s.duration)
         assertEquals(15, s.customLength.minutes)
         assertEquals(BlinkSpeed.FAST, s.speed)
+        assertEquals(WidgetTap.OFF_UNTIL_TAPPED, s.widgetTap)
     }
 
     /** A damaged settings file is replaced and the defaults are used. */
