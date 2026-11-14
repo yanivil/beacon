@@ -663,10 +663,11 @@ widget and from the settings. The owner chose the design on 14 November
   while alerts were OFF.
 - **On Google Play:** 1.0.3 (versionCode 4) has been on internal testing
   since 14 November 2026 at 18:06, with the owner's yes
-  ([record](docs/checks/2026-11-play-release.md)). The closed test still
-  has 1.0.2. Moving 1.0.3 there and sending the store text that mentions
-  the new choice ([`docs/store/listing.md`](docs/store/listing.md)) each
-  wait for the owner's yes.
+  ([record](docs/checks/2026-11-play-release.md)). With the owner's yes it
+  went to the closed test's review at 18:10; until Google approves it, the
+  closed test offers 1.0.2. Sending the store text that mentions the new
+  choice ([`docs/store/listing.md`](docs/store/listing.md)) waits for the
+  owner's yes.
 
 ## What Step 1 found
 

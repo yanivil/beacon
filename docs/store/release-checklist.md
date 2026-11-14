@@ -44,11 +44,12 @@ Before the closed test, which Google reviews:
 - **Done, 14 November 2026, with the owner's yes: 1.0.3 (versionCode 4)
   on internal testing at 18:06**, the Visual alerts switch and the widget
   choice testers asked for, checked on the emulator
-  ([record](../checks/2026-11-alerts-off-until-on.md)). Still to do, each
-  with the owner's yes: promote it to the closed test (Google reviews it
-  again; an update doesn't restart the testers' 14 days), send the new
-  full description from [`listing.md`](listing.md) to Google's review,
-  and check it from Play on the test phone.
+  ([record](../checks/2026-11-alerts-off-until-on.md)). **Sent to the
+  closed test at 18:10**, with the owner's yes; Google reviews it, and an
+  update doesn't restart the testers' 14 days. Still to do, each with the
+  owner's yes: send the new full description from
+  [`listing.md`](listing.md) to Google's review, and check 1.0.3 from Play
+  on the test phone.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
