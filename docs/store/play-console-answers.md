@@ -99,8 +99,8 @@ If it asks anyway, Claude stops and asks.
 | App signing | Play App Signing with a Google-generated key (the default) |
 | Automatic protection | **On** (asked on the first release form; the owner chose to keep it on, 12 November 2026). Google adds an installer check to the copy Play delivers; [`PRIVACY.md`](../../PRIVACY.md) says so. |
 | App bundle | `app/build/outputs/bundle/release/app-release.aab`, built from `main` after the merge (Task 6) |
-| Release name | 1.0.0 (1); then 2 (1.0.1), Play's suggestion |
-| Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." |
+| Release name | 1.0.0 (1); then 2 (1.0.1) and 3 (1.0.2), Play's suggestions |
+| Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." For 1.0.2, as typed: The "Read the privacy policy" button now always opens your web browser, and TalkBack says where it leads. If no browser can open the page, Beacon now says so clearly. |
 | Rollout | Only after the owner says yes in chat |
 
 ## 6. Not in this round

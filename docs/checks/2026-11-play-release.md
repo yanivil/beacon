@@ -69,9 +69,13 @@ that weren't on that sheet were asked in chat first.
 | Release 1.0.0 (1) | 12 November, 09:49 | "Available to internal testers", "Not reviewed". Play App Signing with a Google-generated key. Bundle: API 29+, target SDK 36. Two warnings, both expected: no deobfuscation file (shrinking is off) and no native debug symbols. |
 | Release 2 (1.0.1) | 12 November, 10:22 | The same two warnings; the supported devices didn't change (8,722 phones, 5,732 tablets). Release notes: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." Published with the owner's yes. |
 | Sent for review | 12 November, about 10:27 | The owner said yes to "Submit 8 changes for review": the store listing, content rating, target audience, privacy policy, ads, Data safety, health apps and category. Play's quick checks passed, and by about 10:42 Publishing overview said "Your changes are now in review". Managed publishing is off, so the changes go live when Google approves them. |
+| Google's review | 12 November | Approved. Play Console's notification "App update published" is dated 12 November. Seen on 14 November: the app's name is "Beacon: Visual Message Alerts" and Publishing overview had nothing waiting. |
+| Release 3 (1.0.2) | 14 November, 09:23 | Built from `main` at `04772d9`: versionCode 3, signed with the upload key, the same permissions as 1.0.1's build and no `INTERNET`. The same two warnings; the supported devices didn't change from 1.0.1 (8,731 phones and 5,733 tablets in Play's device catalog that day). Release notes, as typed: The "Read the privacy policy" button now always opens your web browser, and TalkBack says where it leads. If no browser can open the page, Beacon now says so clearly. Published with the owner's yes: "Available to internal testers". |
+| Store listing update sent for review | 14 November, about 09:25 | The owner uploaded the new feature graphic ("See when messages arrive") and the widget screenshot on black; the old ones were removed, so the listing has 1 feature graphic and 5 screenshots in their old order. The full description now matches [`listing.md`](../store/listing.md) ("color"). Play asked the AI asset question again; the answer is "Don't label assets", the owner's answer of 11 November for images made the same way. With the owner's yes, "Submit 3 changes for review": the full description, the phone screenshots and the feature graphic. Play's quick checks then ran ("Up to 14 minutes remaining"). Until Google approves them, the store keeps the old graphic, screenshot and spelling. |
 
-Until Google's review is done, testers see the temporary name
-"dev.beacon (unreviewed)".
+Until Google's first review was done, testers saw the temporary name
+"dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
+Alerts".
 
 ## Beacon from Play on the test phone
 
@@ -115,9 +119,11 @@ tried.
 - **Telegram,** as in every check so far.
 - **WhatsApp with the copy from Play:** the locked check used an SMS.
   WhatsApp alerts were checked on the debug build on 11 November.
-- **Google's review:** sent on 12 November; the result isn't in yet.
+- **Google's review of the 14 November listing changes:** sent; the
+  result isn't in yet.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the
   emulator has it; `PrivacyPolicyIntentTest` covers it with a fake app.
-- **1.0.2 on the test phone:** it isn't on Play yet.
+- **1.0.2 on the test phone:** it's on internal testing since 14
+  November, but it hasn't been installed from Play and checked yet.
