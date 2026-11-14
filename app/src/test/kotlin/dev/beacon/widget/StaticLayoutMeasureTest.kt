@@ -176,6 +176,17 @@ class StaticLayoutMeasureLargestFontTest {
         }
     }
 
+    /** With the "Turn OFF until I tap again" choice, ON at 3 x 2 and 4 x 2 keeps "ON" on one row and clips nothing. */
+    @Test fun onWithTheOffChoiceFitsAtTheLargestFont() {
+        val m = measure()
+        val onOff = widgetLines(app, WidgetState.On, null, WidgetTap.OFF_UNTIL_TAPPED)
+        for (w in listOf(266f, 360f)) {
+            val fit = fitLines(onOff, w, 224f, m)
+            assertTrue("at $w dp: $fit", STATE in fit.lines)
+            assertNothingClipped(onOff, fit, w, 224f, m); assertStateOnOneRow(onOff, fit, w, m)
+        }
+    }
+
     /** At 4 x 2 the timed pause keeps the icon with "PAUSED" and the resume line on two rows. */
     @Test fun paused4x2KeepsTheResumeLine() {
         val m = measure()

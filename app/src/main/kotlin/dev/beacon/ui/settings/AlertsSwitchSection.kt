@@ -32,8 +32,8 @@ import dev.beacon.ui.theme.BeaconType
  * Why a switch at the top of Alert settings: testers asked to turn alerts OFF
  * from the settings with no time limit (the owner's decision, 14 November
  * 2026). OFF is the same open-ended pause as Home's "Pause all alerts", and
- * ON clears any pause, the widget's 1-hour one included, so Home, the widget
- * and this switch always show one state. It sits first because it decides
+ * ON clears any pause, the widget's 1-hour one included. Home, the widget and
+ * this switch all draw the one saved pause. It sits first because it decides
  * whether any of the settings below matter right now.
  *
  * Why it looks like an app row on Home: the whole card is one Switch, so a

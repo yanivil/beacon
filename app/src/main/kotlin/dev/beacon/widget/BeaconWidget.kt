@@ -36,7 +36,10 @@ import kotlinx.coroutines.flow.first
  * change formats its resume time again (follow-up R1).
  */
 
-/** The home-screen widget: shows ON or PAUSED, and one tap pauses for 1 hour or turns alerts ON. */
+/**
+ * The home-screen widget: shows ON or PAUSED. While ON, one tap pauses for 1 hour or turns alerts OFF until
+ * the next tap, as chosen in Alert settings; while PAUSED, a tap turns alerts ON.
+ */
 class BeaconWidget : GlanceAppWidget() {
     /** Exact: the content is drawn for the size the launcher gives, so the fit sees the real space. */
     override val sizeMode: SizeMode = SizeMode.Exact

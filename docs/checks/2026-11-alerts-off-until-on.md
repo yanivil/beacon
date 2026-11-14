@@ -19,7 +19,7 @@ Each result says **"Tested on emulator beacon-api36, Android 16"** or
 | Install | `adb install -r` over 1.0.2 (versionCode 3) from the same key, so the saved settings came from 1.0.2 |
 | TalkBack | Android Accessibility Suite 16.0.0.738667889, read from its verbose log and driven through the emulator console, as in [`2026-11-step2-pr1.md`](2026-11-step2-pr1.md); the log level was set back to ERROR and TalkBack switched off afterwards |
 | Date | 14 November 2026, about 17:35 to 17:50 |
-| Automated | 403 unit and Robolectric tests passed; `lintDebug` found no issues |
+| Automated | 408 unit and Robolectric tests passed; `lintDebug` found no issues |
 
 ## Checks
 

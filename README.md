@@ -641,8 +641,8 @@ widget and from the settings. The owner chose the design on 14 November
   or OFF in words and is one Switch for TalkBack. OFF is the same pause as
   Home's "Pause all alerts", with "You will NOT see any flashes until you
   turn alerts back on."; ON turns alerts back on, and also ends the
-  widget's 1-hour pause early. Home, the widget and the switch always show
-  the same state.
+  widget's 1-hour pause early. Home, the widget and the switch all draw
+  the one saved pause.
 - **A "Widget" choice in Alert settings:** what one widget tap does while
   alerts are ON, "Pause for 1 hour" (the default, so nothing changes for
   anyone who doesn't choose) or "Turn OFF until I tap again". With the
@@ -655,7 +655,10 @@ widget and from the settings. The owner chose the design on 14 November
   layout fit at the largest font, and TalkBack read the switch, the
   options and the widget:
   [`docs/checks/2026-11-alerts-off-until-on.md`](docs/checks/2026-11-alerts-off-until-on.md).
-  Not yet checked on the test phone.
+  Once, right after a font change and quick test swipes over the switch,
+  alerts were found OFF; three replays didn't repeat it (same record,
+  "Seen once"). Not yet checked on the test phone, and no message was sent
+  while alerts were OFF.
 - **On Google Play:** not yet. Uploading 1.0.3 (versionCode 4) to internal
   testing and the closed test, and the store text that mentions the new
   choice ([`docs/store/listing.md`](docs/store/listing.md)), each wait for

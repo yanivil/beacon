@@ -115,6 +115,12 @@ class PauseCoordinatorTest {
         assertEquals(Pause.None, repo.settings.first().pause); assertTrue(alarm.scheduled.isEmpty())
     }
 
+    /** Choosing the 1-hour pause on a store that has no choice saved is no change: it is the default, so no redraw. */
+    @Test fun choosingTheDefaultOnAnEmptyStoreDoesntRedraw() = runTest {
+        c.setWidgetTap(WidgetTap.PAUSE_ONE_HOUR)
+        assertEquals(WidgetTap.PAUSE_ONE_HOUR, repo.settings.first().widgetTap); assertEquals(0, refreshes)
+    }
+
     /** Pausing from Home during a widget pause stores the open-ended pause and cancels the alarm. */
     @Test fun homePauseCancelsTheAlarm() = runTest {
         c.tapFromWidget(); c.set(Pause.Indefinite)

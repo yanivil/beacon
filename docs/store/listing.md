@@ -40,7 +40,7 @@ MAKE IT YOURS
 • Try it any time with the 3-second Test alert.
 
 PAUSE WHEN YOU NEED QUIET
-• "Pause all alerts" on the Home screen, or the Visual alerts switch in Alert settings, stops every flash until you turn alerts back on.
+• "Pause all alerts" on the Home screen, or the Visual alerts switch in Alert settings, stops message alerts until you turn them back on.
 • Or add the Beacon widget to your home screen: one tap pauses alerts for 1 hour, and they come back on by themselves. Tap again to turn them on sooner.
 • Prefer no time limit? In Alert settings, choose that one widget tap turns alerts OFF until you tap it again.
 
@@ -103,8 +103,8 @@ The "Shown on" column says how strongly each claim is shown, never more. **Phone
 | 1 minute, 5 minutes, a chosen length, or until stopped | `strings.xml` (`duration_*`) | Phone (1 minute); Emulator (the options and a Custom 10 min set in Alert settings); no real alert at 5 minutes, a custom length or "Until I stop it" |
 | Each app ON or OFF; a 3-second Test alert | `strings.xml` (`apps_hint`, `test_button_length`) | Phone (Test alert); Emulator (the app switches) |
 | "Pause all alerts" until turned back on | `strings.xml` (`alerts_pause_button`, `alerts_paused_body`) | Emulator |
-| The Visual alerts switch in Alert settings stops every flash until turned back on (1.0.3) | `AlertsSwitchSection.kt`; [`docs/checks/2026-11-alerts-off-until-on.md`](../checks/2026-11-alerts-off-until-on.md) | Emulator; Unit tests |
-| The widget's tap can turn alerts OFF until the next tap, chosen in Alert settings (1.0.3) | `WidgetSection.kt`, `pauseAfterWidgetTap`; [`docs/checks/2026-11-alerts-off-until-on.md`](../checks/2026-11-alerts-off-until-on.md) | Emulator; Unit tests |
+| The Visual alerts switch in Alert settings stops message alerts until turned back on (1.0.3) | `AlertsSwitchSection.kt`; [`docs/checks/2026-11-alerts-off-until-on.md`](../checks/2026-11-alerts-off-until-on.md) | Emulator (the switch saved the same open-ended pause as "Pause all alerts", and Home and the widget showed it; no message was sent while OFF); Unit tests |
+| The widget's tap can turn alerts OFF until the next tap, chosen in Alert settings (1.0.3) | `WidgetSection.kt`, `pauseAfterWidgetTap`; [`docs/checks/2026-11-alerts-off-until-on.md`](../checks/2026-11-alerts-off-until-on.md) | Emulator (the tap saved the open-ended pause with no resume alarm; no message was sent while OFF); Unit tests |
 | Widget: one tap pauses for 1 hour, alerts come back by themselves, tap again for ON | [Step 2 spec](../specs/2026-11-08-step2-design.md) section 1, "Done means" 4; [`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md); [`docs/checks/2026-11-play-release.md`](../checks/2026-11-play-release.md), check 3 | Phone (the resume alarm itself was never seen firing; alerts came back on at the first message after the pause) |
 | Big, high-contrast text; switches say ON or OFF; two tabs | `CLAUDE.md`, "Accessibility" (7:1 contrast, 20 sp body, 64 dp targets, ON/OFF text, two tabs) | Phone (screens and contrast seen at font 1.45); Emulator (64 dp targets); Rule (the 7:1, 20 sp and 64 dp limits) |
 | Works with TalkBack and with the largest text size | TalkBack on the phone, by the owner's report only ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)); TalkBack and font scale 2.0 on the emulator ([`docs/checks/2026-11-step2-pr1.md`](../checks/2026-11-step2-pr1.md), [`docs/checks/2026-11-step2-pr3.md`](../checks/2026-11-step2-pr3.md)). The largest text size was never checked on the phone: the owner was satisfied at 1.45 (phone checks, decision 4). | Phone (TalkBack by the owner's report, on Home, the test alert and the widget; font 1.45); Emulator (TalkBack on the other screens; font 2.0) |
