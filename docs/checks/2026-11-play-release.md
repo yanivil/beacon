@@ -114,6 +114,21 @@ tried.
 | 14. TalkBack on the Privacy section | Tested on emulator beacon-api36, Android 16. Touching the summary line, then swiping right: "Beacon keeps your settings on this phone and sends nothing anywhere.", then "Read the privacy policy. Button. Double-tap to open in your web browser", then "Opens in your web browser.". A TalkBack double tap on the button opened Chrome (`pkg=com.android.chrome`). |
 | 15. A traversal index for the note | Tested on emulator beacon-api36, Android 16, and dropped. A first version gave the note `traversalIndex = -1` in a traversal group; Robolectric showed the order changed, but TalkBack still read the button first. So the button's click label carries "open in your web browser" instead. |
 
+## Version 1.0.2 from Play on the test phone
+
+| | |
+|---|---|
+| Phone | Redmi 15C 5G (`2508CRN2BE`), Android 16, HyperOS 3, Hebrew (`he-IL`), font scale 1.45 |
+| Install | The owner updated Beacon from Play over 1.0.1, so the permissions stayed granted |
+| Date | 14 November 2026, 09:30 to 09:34 |
+
+| Check | Result |
+|---|---|
+| 16. It comes from Play, at 1.0.2 | Tested on Redmi 15C 5G, Android 16. `dumpsys package dev.beacon`: `versionName=1.0.2`, `versionCode=3`, `installerPackageName=com.android.vending`, updated 09:30:19; first installed 12 November 10:44:06, and the uid is still 10300. |
+| 17. No internet permission, and setup kept | Tested on Redmi 15C 5G, Android 16. The same four requested permissions as 1.0.1 from Play, with no `INTERNET`. After the update, Display over other apps was still allowed (`appops`), Beacon's notification listener still enabled, and Beacon still on the battery exemption list (`deviceidle whitelist`). |
+| 18. The Privacy button opens the browser by name | Tested on Redmi 15C 5G, Android 16. At the end of Alert settings, in the right-to-left layout at font scale 1.45, a tap on "Read the privacy policy" logged `START u0 {act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https://github.com/... pkg=com.android.chrome ...} ... callingPackage dev.beacon`. Chrome showed "Beacon privacy policy", "Last updated: 12 November 2026". Back returned to Beacon. 1.0.1 started the same intent with no package. |
+| 19. With the phone locked, a message flashes | Tested on Redmi 15C 5G, Android 16. The owner locked the phone with the power button at 09:33:17.86 and had a message sent to Google Messages; it arrived as an RCS chat message (Google Messages' receiving pipeline started at 09:33:31.6). At 09:33:34.37 Beacon's alert screen turned the screen on (`WAKE_REASON_APPLICATION`, `TURN_ON`) over the lock screen; `AlertActivity` was displayed 323 ms later. The camera light came on 5 times, once a second (Medium, 60 a minute), for Beacon's process (`CameraService`). The owner touched Stop at 09:33:38.97 and the light went off at 09:33:38.98. The owner saw it flash. |
+
 ## Not tested
 
 - **Telegram,** as in every check so far.
@@ -125,5 +140,6 @@ tried.
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the
   emulator has it; `PrivacyPolicyIntentTest` covers it with a fake app.
-- **1.0.2 on the test phone:** it's on internal testing since 14
-  November, but it hasn't been installed from Play and checked yet.
+- **A plain SMS from the phone network with 1.0.2:** the 14 November
+  message reached Google Messages as an RCS chat message. Beacon reads the
+  notification either way, as the earlier SMS checks did.
