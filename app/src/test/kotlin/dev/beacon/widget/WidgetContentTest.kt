@@ -15,6 +15,7 @@ import androidx.glance.text.EmittableText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.R
+import dev.beacon.settings.WidgetTap
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -50,7 +51,7 @@ class WidgetContentTest {
     @Test fun onShowsItsThreeLines() = runGlanceAppWidgetUnitTest {
         setContext(app)
         setAppWidgetSize(DpSize(350.dp, 200.dp))
-        provideComposable { WidgetContent(WidgetState.On, null, EstimateMeasure { it }) }
+        provideComposable { WidgetContent(WidgetState.On, null, WidgetTap.PAUSE_ONE_HOUR, EstimateMeasure { it }) }
         onNode(hasText("Visual alerts")).assertExists()
         onNode(hasText("ON")).assertExists()
         onNode(hasText("Tap to pause for 1 hour")).assertExists()
@@ -60,11 +61,36 @@ class WidgetContentTest {
         onNode(hasImage(R.drawable.widget_pause)).assertDoesNotExist()
     }
 
+    /**
+     * With "Turn OFF until I tap again" chosen, ON says a tap turns alerts OFF, in the hint and in the
+     * spoken label, and never mentions 1 hour.
+     */
+    @Test fun onWithTheOffChoiceSaysTapToTurnOff() = runGlanceAppWidgetUnitTest {
+        setContext(app)
+        setAppWidgetSize(DpSize(350.dp, 200.dp))
+        provideComposable { WidgetContent(WidgetState.On, null, WidgetTap.OFF_UNTIL_TAPPED, EstimateMeasure { it }) }
+        onNode(hasText("ON")).assertExists()
+        onNode(hasText("Tap to turn OFF")).assertExists()
+        onNode(hasText("Tap to pause for 1 hour")).assertDoesNotExist()
+        onNode(hasContentDescription("Visual alerts are ON. Tap to turn them OFF until you tap again.")).assertExists()
+    }
+
+    /** After a tap with the OFF choice, the widget shows PAUSED with no time and says a tap turns alerts ON. */
+    @Test fun offFromTheWidgetShowsPausedWithNoTime() = runGlanceAppWidgetUnitTest {
+        setContext(app)
+        setAppWidgetSize(DpSize(350.dp, 200.dp))
+        provideComposable { WidgetContent(WidgetState.Paused(null), null, WidgetTap.OFF_UNTIL_TAPPED, EstimateMeasure { it }) }
+        onNode(hasText("PAUSED")).assertExists()
+        onNode(startsWithText("Back ON")).assertDoesNotExist()
+        onNode(hasText("Tap to turn ON now")).assertExists()
+        onNode(hasContentDescription("Visual alerts are PAUSED. Tap to turn them back on now.")).assertExists()
+    }
+
     /** A timed pause adds the resume line and names the time in the label. */
     @Test fun timedPauseShowsTheResumeLine() = runGlanceAppWidgetUnitTest {
         setContext(app)
         setAppWidgetSize(DpSize(350.dp, 200.dp))
-        provideComposable { WidgetContent(WidgetState.Paused(1L), "10:30", EstimateMeasure { it }) }
+        provideComposable { WidgetContent(WidgetState.Paused(1L), "10:30", WidgetTap.PAUSE_ONE_HOUR, EstimateMeasure { it }) }
         onNode(hasText("PAUSED")).assertExists()
         onNode(hasText("Back ON by itself at 10:30")).assertExists()
         onNode(
@@ -80,7 +106,7 @@ class WidgetContentTest {
         // At 190 x 160 dp the 40 sp "PAUSED" and its icon need 180 dp of the 166 left inside, so the
         // icon goes before the word would wrap; the word and the resume line then fit.
         setAppWidgetSize(DpSize(190.dp, 160.dp))
-        provideComposable { WidgetContent(WidgetState.Paused(1L), "10:30", EstimateMeasure { it }) }
+        provideComposable { WidgetContent(WidgetState.Paused(1L), "10:30", WidgetTap.PAUSE_ONE_HOUR, EstimateMeasure { it }) }
         onNode(hasText("PAUSED")).assertExists()
         onNode(hasText("Back ON by itself at 10:30")).assertExists()
         onNode(hasImage(R.drawable.widget_pause)).assertDoesNotExist()
@@ -91,7 +117,7 @@ class WidgetContentTest {
     @Test fun openPauseHasNoResumeLine() = runGlanceAppWidgetUnitTest {
         setContext(app)
         setAppWidgetSize(DpSize(350.dp, 200.dp))
-        provideComposable { WidgetContent(WidgetState.Paused(null), null, EstimateMeasure { it }) }
+        provideComposable { WidgetContent(WidgetState.Paused(null), null, WidgetTap.PAUSE_ONE_HOUR, EstimateMeasure { it }) }
         onNode(hasText("PAUSED")).assertExists()
         onNode(startsWithText("Back ON")).assertDoesNotExist()
         onNode(hasContentDescription("Visual alerts are PAUSED. Tap to turn them back on now.")).assertExists()
@@ -101,7 +127,7 @@ class WidgetContentTest {
     @Test fun largestFontKeepsTheStateWord() = runGlanceAppWidgetUnitTest {
         setContext(app)
         setAppWidgetSize(DpSize(350.dp, 200.dp))
-        provideComposable { WidgetContent(WidgetState.On, null, EstimateMeasure { it * 2 }) }
+        provideComposable { WidgetContent(WidgetState.On, null, WidgetTap.PAUSE_ONE_HOUR, EstimateMeasure { it * 2 }) }
         onNode(hasText("ON")).assertExists()
         onNode(hasText("Tap to pause for 1 hour")).assertDoesNotExist()
         onNode(hasText("Visual alerts")).assertDoesNotExist()

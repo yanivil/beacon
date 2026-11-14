@@ -54,6 +54,9 @@ object SettingsCodec {
     /** Stored [BlinkSpeed] name. */
     val SPEED = stringPreferencesKey("speed")
 
+    /** Stored [WidgetTap] name. */
+    val WIDGET_TAP = stringPreferencesKey("widget_tap")
+
     /**
      * Builds settings from stored preferences.
      *
@@ -77,6 +80,8 @@ object SettingsCodec {
             // CustomLength.of snaps anything that is not a step to the default.
             customLength = prefs[CUSTOM_MINUTES]?.let { CustomLength.of(it) } ?: d.customLength,
             speed = enumOrNull<BlinkSpeed>(prefs[SPEED]) ?: d.speed,
+            // Missing before 1.0.3, so every earlier install keeps the 1-hour pause.
+            widgetTap = enumOrNull<WidgetTap>(prefs[WIDGET_TAP]) ?: d.widgetTap,
         )
     }
 

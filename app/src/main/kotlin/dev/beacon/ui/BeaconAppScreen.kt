@@ -254,6 +254,9 @@ private fun TabContent(
                             setAppColour = viewModel::setAppColour,
                             setEditingApp = setEditingApp,
                             openPrivacyPolicy = { openPrivacyPolicy(context) },
+                            // The same pauses as Home's two buttons, so Home, the widget and the switch agree.
+                            setAlertsOn = { on -> viewModel.setPause(if (on) Pause.None else Pause.Indefinite) },
+                            setWidgetTap = viewModel::setWidgetTap,
                         ),
                     )
                 }

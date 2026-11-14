@@ -12,13 +12,16 @@ import dev.beacon.settings.BlinkSpeed
 import dev.beacon.settings.ColourMode
 import dev.beacon.settings.DurationChoice
 import dev.beacon.settings.FlashColour
+import dev.beacon.settings.WidgetTap
 import dev.beacon.ui.components.ScreenTitle
 
 /*
- * Why the screen only wires sections together: each section (duration,
- * speed, colour, privacy) owns its layout and its radio group, so the screen
- * holds just the title and the 40 dp rhythm between sections, as the design
- * does. The privacy section is the Play release's addition, not the design's.
+ * Why the screen only wires sections together: each section (the alerts
+ * switch, duration, speed, colour, widget, privacy) owns its layout and its
+ * radio group, so the screen holds just the title and the 40 dp rhythm
+ * between sections, as the design does. The privacy section is the Play
+ * release's addition, and the alerts switch and the widget section the
+ * owner's of 14 November 2026; none of the three is in the design.
  * The actions are plain callbacks so the screen can be tested without a
  * view model.
  */
@@ -36,6 +39,8 @@ import dev.beacon.ui.components.ScreenTitle
  * @property setEditingApp opens one app's colour grid, or closes it with null.
  * @property openPrivacyPolicy opens the privacy policy in the browser; returns false if nothing
  *   could open it, so the screen can say so.
+ * @property setAlertsOn turns alerts ON (true), or OFF until turned back on (false).
+ * @property setWidgetTap chooses what one widget tap does while alerts are ON.
  */
 data class SettingsActions(
     val setDuration: (DurationChoice) -> Unit,
@@ -46,23 +51,33 @@ data class SettingsActions(
     val setAppColour: (MessageSource, FlashColour) -> Unit,
     val setEditingApp: (MessageSource?) -> Unit,
     val openPrivacyPolicy: () -> Boolean,
+    val setAlertsOn: (Boolean) -> Unit,
+    val setWidgetTap: (WidgetTap) -> Unit,
 )
 
 /**
- * The Alert settings tab: the title, then "How long to flash", "Blink
- * speed", "Screen flash color" and "Privacy".
+ * The Alert settings tab: the title, then the "Visual alerts" switch, "How long to flash", "Blink
+ * speed", "Screen flash color", "Widget" and "Privacy".
  *
  * @param settings the current settings.
  * @param editingApp the app whose colour grid is open in per-app mode, or null.
  * @param actions the changes the screen can ask for.
+ * @param nowEpochMillis the clock, in epoch milliseconds, for whether a timed pause has ended.
  */
 @Composable
-fun AlertSettingsScreen(settings: BeaconSettings, editingApp: MessageSource?, actions: SettingsActions) {
+fun AlertSettingsScreen(
+    settings: BeaconSettings,
+    editingApp: MessageSource?,
+    actions: SettingsActions,
+    nowEpochMillis: () -> Long = System::currentTimeMillis,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(40.dp)) {
         ScreenTitle(stringResource(R.string.settings_title))
+        AlertsSwitchSection(settings, actions.setAlertsOn, nowEpochMillis)
         DurationSection(settings, actions)
         SpeedSection(settings, actions)
         ColourSection(settings, editingApp, actions)
+        WidgetSection(settings, actions)
         PrivacySection(actions.openPrivacyPolicy)
     }
 }

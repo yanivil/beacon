@@ -8,19 +8,27 @@ import org.junit.Test
 
 /** Tests the plain pause rules: the widget tap, expiry and the resume time. */
 class PauseTest {
-    /** A tap while alerts are on pauses them for an hour. */
+    /** A tap while alerts are on pauses them for an hour, with the 1-hour choice. */
     @Test fun widgetTapWhileOnPausesForAnHour() =
-        assertEquals(Pause.Until(1_000 + 3_600_000), pauseAfterWidgetTap(Pause.None, 1_000))
+        assertEquals(Pause.Until(1_000 + 3_600_000), pauseAfterWidgetTap(Pause.None, 1_000, WidgetTap.PAUSE_ONE_HOUR))
 
-    /** A tap while a pause is in effect turns alerts back on. */
+    /** With the "until I tap again" choice, a tap while alerts are on turns them OFF with no deadline. */
+    @Test fun widgetTapWhileOnTurnsOffUntilTapped() =
+        assertEquals(Pause.Indefinite, pauseAfterWidgetTap(Pause.None, 1_000, WidgetTap.OFF_UNTIL_TAPPED))
+
+    /** A tap while a pause is in effect turns alerts back on, whichever choice is set. */
     @Test fun widgetTapWhilePausedTurnsOn() {
-        assertEquals(Pause.None, pauseAfterWidgetTap(Pause.Indefinite, 1_000))
-        assertEquals(Pause.None, pauseAfterWidgetTap(Pause.Until(5_000), 4_999))
+        for (tap in WidgetTap.entries) {
+            assertEquals(Pause.None, pauseAfterWidgetTap(Pause.Indefinite, 1_000, tap))
+            assertEquals(Pause.None, pauseAfterWidgetTap(Pause.Until(5_000), 4_999, tap))
+        }
     }
 
-    /** An expired timed pause counts as ON, so a tap pauses again (spec section 5). */
-    @Test fun widgetTapAfterTheDeadlinePausesAgain() =
-        assertEquals(Pause.Until(5_000 + 3_600_000), pauseAfterWidgetTap(Pause.Until(5_000), 5_000))
+    /** An expired timed pause counts as ON, so a tap pauses again, as the choice says (spec section 5). */
+    @Test fun widgetTapAfterTheDeadlinePausesAgain() {
+        assertEquals(Pause.Until(5_000 + 3_600_000), pauseAfterWidgetTap(Pause.Until(5_000), 5_000, WidgetTap.PAUSE_ONE_HOUR))
+        assertEquals(Pause.Indefinite, pauseAfterWidgetTap(Pause.Until(5_000), 5_000, WidgetTap.OFF_UNTIL_TAPPED))
+    }
 
     /** A timed pause is expired exactly at its deadline; other pauses never expire. */
     @Test fun expiryEdge() {

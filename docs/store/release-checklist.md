@@ -40,6 +40,14 @@ Before the closed test, which Google reviews:
   17:12 so the review runs while the owner finds more. The owner is
   adding testers; the 14 days count only while at least 12 are opted
   in. Record: [`2026-11-play-release.md`](../checks/2026-11-play-release.md).
+- **Built, 14 November 2026: 1.0.3 (versionCode 4)**, the Visual alerts
+  switch and the widget choice testers asked for, checked on the emulator
+  ([record](../checks/2026-11-alerts-off-until-on.md)). Still to do, each
+  with the owner's yes: upload it to internal testing, then promote it to
+  the closed test (Google reviews it again; an update doesn't restart the
+  testers' 14 days), send the new full description from
+  [`listing.md`](listing.md) to Google's review, and check it from Play on
+  the test phone.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it

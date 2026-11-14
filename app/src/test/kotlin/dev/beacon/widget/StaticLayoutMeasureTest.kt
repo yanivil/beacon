@@ -3,6 +3,7 @@ package dev.beacon.widget
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dev.beacon.settings.WidgetTap
 import dev.beacon.ui.FontScaleRule
 import dev.beacon.widget.WidgetLine.RESUME_TIME
 import dev.beacon.widget.WidgetLine.STATE
@@ -81,10 +82,10 @@ class StaticLayoutMeasureTest {
     private val measure = StaticLayoutMeasure(app.resources.displayMetrics)
 
     /** The ON widget's lines. */
-    private val on = widgetLines(app, WidgetState.On, null)
+    private val on = widgetLines(app, WidgetState.On, null, WidgetTap.PAUSE_ONE_HOUR)
 
     /** The timed-pause widget's lines. */
-    private val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM")
+    private val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM", WidgetTap.PAUSE_ONE_HOUR)
 
     /**
      * The heights match what the emulator's launcher drew at 4 x 2, font 1.0, with 2 dp of margin:
@@ -129,6 +130,16 @@ class StaticLayoutMeasureTest {
         assertNothingClipped(paused, pausedFit, 360f, 224f, measure); assertStateOnOneRow(paused, pausedFit, 360f, measure)
     }
 
+    /** With the "Turn OFF until I tap again" choice, ON keeps every line and the icon at 3 x 2 and 4 x 2. */
+    @Test fun onWithTheOffChoiceKeepsEverything() {
+        val onOff = widgetLines(app, WidgetState.On, null, WidgetTap.OFF_UNTIL_TAPPED)
+        for (w in listOf(266f, 360f)) {
+            val fit = fitLines(onOff, w, 224f, measure)
+            assertEquals("at $w dp", WidgetFit(setOf(TITLE, STATE, TAP_HINT), true), fit)
+            assertNothingClipped(onOff, fit, w, 224f, measure); assertStateOnOneRow(onOff, fit, w, measure)
+        }
+    }
+
     /** A width of zero or less (an icon wider than the room left) is measured as 1 px instead of throwing. */
     @Test fun aWidthOfZeroOrLessIsMeasured() {
         val oneRow = measure.heightDp(paused[1], 10_000f)
@@ -157,7 +168,7 @@ class StaticLayoutMeasureLargestFontTest {
     /** At 3 x 2 and 4 x 2, ON drops the tap hint and keeps the title and the bolt with "ON". */
     @Test fun onDropsTheTapHint() {
         val m = measure()
-        val on = widgetLines(app, WidgetState.On, null)
+        val on = widgetLines(app, WidgetState.On, null, WidgetTap.PAUSE_ONE_HOUR)
         for (w in listOf(266f, 360f)) {
             val fit = fitLines(on, w, 224f, m)
             assertEquals("at $w dp", WidgetFit(setOf(TITLE, STATE), true), fit)
@@ -165,10 +176,21 @@ class StaticLayoutMeasureLargestFontTest {
         }
     }
 
+    /** With the "Turn OFF until I tap again" choice, ON at 3 x 2 and 4 x 2 keeps "ON" on one row and clips nothing. */
+    @Test fun onWithTheOffChoiceFitsAtTheLargestFont() {
+        val m = measure()
+        val onOff = widgetLines(app, WidgetState.On, null, WidgetTap.OFF_UNTIL_TAPPED)
+        for (w in listOf(266f, 360f)) {
+            val fit = fitLines(onOff, w, 224f, m)
+            assertTrue("at $w dp: $fit", STATE in fit.lines)
+            assertNothingClipped(onOff, fit, w, 224f, m); assertStateOnOneRow(onOff, fit, w, m)
+        }
+    }
+
     /** At 4 x 2 the timed pause keeps the icon with "PAUSED" and the resume line on two rows. */
     @Test fun paused4x2KeepsTheResumeLine() {
         val m = measure()
-        val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM")
+        val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM", WidgetTap.PAUSE_ONE_HOUR)
         val fit = fitLines(paused, 360f, 224f, m)
         assertEquals(WidgetFit(setOf(STATE, RESUME_TIME), true), fit)
         assertNothingClipped(paused, fit, 360f, 224f, m); assertStateOnOneRow(paused, fit, 360f, m)
@@ -181,7 +203,7 @@ class StaticLayoutMeasureLargestFontTest {
      */
     @Test fun paused3x2KeepsTheResumeTime() {
         val m = measure()
-        val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM")
+        val paused = widgetLines(app, WidgetState.Paused(1L), "12:59 PM", WidgetTap.PAUSE_ONE_HOUR)
         val fit = fitLines(paused, 266f, 224f, m)
         assertEquals(WidgetFit(setOf(STATE, RESUME_TIME), true), fit)
         assertNothingClipped(paused, fit, 266f, 224f, m); assertStateOnOneRow(paused, fit, 266f, m)

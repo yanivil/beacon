@@ -143,12 +143,22 @@
     <string name="setup_state_on">On</string>
     <string name="setup_state_off">Off</string>
 
+    <!-- Alert settings: what one widget tap does -->
+    <string name="widget_heading">Widget</string>
+    <string name="widget_hint">What one tap on the Beacon widget does while alerts are ON. While they are paused, a tap always turns them back ON.</string>
+    <string name="widget_choice_hour">Pause for 1 hour</string>
+    <string name="widget_choice_hour_sub">Alerts come back ON by themselves.</string>
+    <string name="widget_choice_off">Turn OFF until I tap again</string>
+    <string name="widget_choice_off_sub">Alerts stay OFF until you tap the widget again, or turn them ON here or on Home.</string>
+
     <!-- Home-screen widget -->
     <string name="widget_tap_pause">Tap to pause for 1 hour</string>
+    <string name="widget_tap_off">Tap to turn OFF</string>
     <string name="widget_tap_resume">Tap to turn ON now</string>
     <string name="widget_back_on_at">Back ON by itself at %1$s</string>
     <string name="widget_label_on">Visual alerts are ON. Tap to pause for 1 hour.</string>
+    <string name="widget_label_on_off">Visual alerts are ON. Tap to turn them OFF until you tap again.</string>
     <string name="widget_label_paused_until">Visual alerts are PAUSED until %1$s. Tap to turn them back on now.</string>
     <string name="widget_label_paused">Visual alerts are PAUSED. Tap to turn them back on now.</string>
-    <string name="widget_description">Shows whether visual alerts are ON. One tap pauses them for 1 hour.</string>
+    <string name="widget_description">Shows whether visual alerts are ON. One tap pauses them for 1 hour, or turns them OFF until you tap again: you choose in Alert settings.</string>
 </resources>

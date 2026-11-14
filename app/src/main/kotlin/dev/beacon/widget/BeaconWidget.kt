@@ -36,7 +36,10 @@ import kotlinx.coroutines.flow.first
  * change formats its resume time again (follow-up R1).
  */
 
-/** The home-screen widget: shows ON or PAUSED, and one tap pauses for 1 hour or turns alerts ON. */
+/**
+ * The home-screen widget: shows ON or PAUSED. While ON, one tap pauses for 1 hour or turns alerts OFF until
+ * the next tap, as chosen in Alert settings; while PAUSED, a tap turns alerts ON.
+ */
 class BeaconWidget : GlanceAppWidget() {
     /** Exact: the content is drawn for the size the launcher gives, so the fit sees the real space. */
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -86,6 +89,8 @@ internal fun WidgetBody(
     WidgetContent(
         state = state,
         resumeTime = resumeTime,
+        // From the same settings as the state, so a choice made in Alert settings shows at the next draw.
+        tap = current.widgetTap,
         measure = measure,
         modifier = GlanceModifier.clickable(actionRunCallback<TogglePauseAction>()),
     )
@@ -97,7 +102,7 @@ class BeaconWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = BeaconWidget()
 }
 
-/** The widget's one tap: pauses for 1 hour while ON, turns alerts ON while paused. */
+/** The widget's one tap: while ON, pauses for 1 hour or turns alerts OFF, as chosen; while paused, turns alerts ON. */
 class TogglePauseAction : ActionCallback {
     /**
      * Applies the tap through the coordinator, which saves it, sets the alarm and refreshes the widget.

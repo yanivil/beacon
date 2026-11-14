@@ -20,6 +20,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.Pause
+import dev.beacon.settings.WidgetTap
 import dev.beacon.ui.formatResumeTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -155,6 +156,39 @@ class BeaconWidgetTest {
                 listOf("Visual alerts", "PAUSED", "Back ON by itself at $twentyFourHour", "Tap to turn ON now"),
                 texts(root),
             )
+        } finally {
+            composition.dispose()
+            recomposer.cancel()
+            session.cancel()
+        }
+    }
+
+    /**
+     * The widget draws the saved widget-tap choice: with "Turn OFF until I tap again" its ON hint is
+     * "Tap to turn OFF", and when the choice changes under a running session it draws the 1-hour hint.
+     */
+    @Test fun theWidgetDrawsTheSavedTapChoice() = runTest {
+        val root = RemoteViewsRoot(maxDepth = 10)
+        val recomposer = Recomposer(coroutineContext)
+        val composition = Composition(Applier(root), recomposer)
+        val session = launch(ImmediateFrameClock) { recomposer.runRecomposeAndApplyChanges() }
+        val config = MutableStateFlow(WidgetConfigKey.of(app, app.resources.configuration))
+        val off = BeaconSettings.DEFAULT.copy(widgetTap = WidgetTap.OFF_UNTIL_TAPPED)
+        val settings = MutableStateFlow(off)
+        try {
+            composition.setContent {
+                CompositionLocalProvider(LocalContext provides app, LocalSize provides DpSize(360.dp, 224.dp)) {
+                    WidgetBody(app, settings, off, config)
+                }
+            }
+            advanceUntilIdle()
+            assertEquals(listOf("Visual alerts", "ON", "Tap to turn OFF"), texts(root))
+
+            settings.value = off.copy(widgetTap = WidgetTap.PAUSE_ONE_HOUR)
+            advanceUntilIdle()
+            Snapshot.sendApplyNotifications()
+            advanceUntilIdle()
+            assertEquals(listOf("Visual alerts", "ON", "Tap to pause for 1 hour"), texts(root))
         } finally {
             composition.dispose()
             recomposer.cancel()

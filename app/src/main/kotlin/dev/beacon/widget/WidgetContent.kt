@@ -1,6 +1,7 @@
 package dev.beacon.widget
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +30,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import dev.beacon.R
+import dev.beacon.settings.WidgetTap
 import dev.beacon.ui.theme.BeaconColors
 
 /*
@@ -47,6 +49,7 @@ import dev.beacon.ui.theme.BeaconColors
  *
  * @param state ON or PAUSED.
  * @param resumeTime the formatted resume time of a timed pause; null otherwise.
+ * @param tap what a tap does while ON, as chosen in Alert settings; it sets the ON hint and label.
  * @param measure sizes the text at the user's font size, for the fit and the icon.
  * @param modifier the modifier for the root, which is the widget's one tap target: the widget passes its tap action here.
  */
@@ -54,6 +57,7 @@ import dev.beacon.ui.theme.BeaconColors
 fun WidgetContent(
     state: WidgetState,
     resumeTime: String?,
+    tap: WidgetTap,
     measure: LineMeasure,
     modifier: GlanceModifier = GlanceModifier,
 ) {
@@ -62,7 +66,7 @@ fun WidgetContent(
     val textColour = if (on) BeaconColors.OnAccent else BeaconColors.Text
     val colour = ColorProvider(textColour)
 
-    val specs = widgetLines(context, state, resumeTime)
+    val specs = widgetLines(context, state, resumeTime, tap)
     val size = LocalSize.current
     val fit = fitLines(specs, size.width.value, size.height.value, measure)
 
@@ -71,7 +75,7 @@ fun WidgetContent(
             .fillMaxSize()
             .background(ImageProvider(if (on) R.drawable.widget_on_bg else R.drawable.widget_paused_bg))
             .padding(WIDGET_PADDING_DP.dp)
-            .semantics { contentDescription = spokenLabel(context, state, resumeTime) },
+            .semantics { contentDescription = spokenLabel(context, state, resumeTime, tap) },
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -109,9 +113,10 @@ internal const val STATE_PAUSED_SP = 40f
  * @param context supplies the strings.
  * @param state ON or PAUSED.
  * @param resumeTime the formatted resume time of a timed pause; null otherwise.
+ * @param tap what a tap does while ON; it chooses the ON tap hint.
  * @return the lines, before the fit leaves any out.
  */
-internal fun widgetLines(context: Context, state: WidgetState, resumeTime: String?): List<LineSpec> {
+internal fun widgetLines(context: Context, state: WidgetState, resumeTime: String?, tap: WidgetTap): List<LineSpec> {
     val on = state is WidgetState.On
     val stateWord = context.getString(if (on) R.string.alerts_on else R.string.alerts_paused)
     // Only a timed pause has a resume line; an open-ended pause has no time to name.
@@ -126,11 +131,25 @@ internal fun widgetLines(context: Context, state: WidgetState, resumeTime: Strin
         resumeText?.let { LineSpec(WidgetLine.RESUME_TIME, it, 22f, false) },
         LineSpec(
             WidgetLine.TAP_HINT,
-            context.getString(if (on) R.string.widget_tap_pause else R.string.widget_tap_resume),
+            context.getString(tapHintRes(on, tap)),
             22f,
             false,
         ),
     )
+}
+
+/**
+ * Chooses the tap hint: what the next tap will do.
+ *
+ * @param on true while alerts are ON.
+ * @param tap what a tap does while ON.
+ * @return the hint's string: turn ON while paused, whichever the choice, else the chosen kind of pause.
+ */
+@StringRes
+private fun tapHintRes(on: Boolean, tap: WidgetTap): Int = when {
+    !on -> R.string.widget_tap_resume
+    tap == WidgetTap.OFF_UNTIL_TAPPED -> R.string.widget_tap_off
+    else -> R.string.widget_tap_pause
 }
 
 /**
@@ -180,9 +199,11 @@ private fun lineStyle(sp: Float, bold: Boolean, colour: ColorProvider): TextStyl
  * @param context supplies the strings.
  * @param state ON or PAUSED.
  * @param resumeTime the formatted resume time of a timed pause; null otherwise.
+ * @param tap what a tap does while ON; it chooses the ON label.
  * @return the label.
  */
-private fun spokenLabel(context: Context, state: WidgetState, resumeTime: String?): String = when {
+private fun spokenLabel(context: Context, state: WidgetState, resumeTime: String?, tap: WidgetTap): String = when {
+    state is WidgetState.On && tap == WidgetTap.OFF_UNTIL_TAPPED -> context.getString(R.string.widget_label_on_off)
     state is WidgetState.On -> context.getString(R.string.widget_label_on)
     resumeTime != null -> context.getString(R.string.widget_label_paused_until, resumeTime)
     else -> context.getString(R.string.widget_label_paused)

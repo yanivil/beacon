@@ -50,8 +50,8 @@ android {
         //noinspection OldTargetApi
         targetSdk = 36
         // Every upload to Google Play needs a higher versionCode.
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

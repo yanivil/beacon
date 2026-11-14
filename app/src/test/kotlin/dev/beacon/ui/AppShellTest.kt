@@ -1,5 +1,13 @@
 package dev.beacon.ui
 
+import dev.beacon.BeaconApp
+import dev.beacon.settings.BeaconSettings
+import dev.beacon.settings.Pause
+import dev.beacon.settings.WidgetTap
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.Role
 import dev.beacon.widget.NoWidgetRefreshRule
 import androidx.compose.ui.test.assertCountEquals
@@ -136,6 +144,37 @@ class AppShellTest {
         val started = Shadows.shadowOf(rule.activity).nextStartedActivity
         assertEquals(Intent.ACTION_VIEW, started?.action)
         assertEquals("https://github.com/yanivil/beacon/blob/main/PRIVACY.md", started?.dataString)
+    }
+
+    /**
+     * Reads the saved settings from Beacon's own store, the one the real view model writes.
+     *
+     * @return the settings as saved now.
+     */
+    private fun saved(): BeaconSettings = runBlocking { (rule.activity.application as BeaconApp).settingsRepository.settings.first() }
+
+    /**
+     * The shell connects Alert settings' "Visual alerts" switch to the same pauses as Home's buttons: OFF
+     * saves the open-ended pause, so Home shows PAUSED, and ON saves no pause.
+     */
+    @Test fun alertsSwitchSavesThePausesHomeUses() {
+        val alertsSwitch = hasRole(Role.Switch) and hasText("Visual alerts")
+        rule.onNode(hasRole(Role.Tab) and hasText("Alert settings")).performClick()
+        rule.onNode(alertsSwitch).performClick()
+        rule.waitUntil(timeoutMillis = 5_000) { saved().pause == Pause.Indefinite }
+        rule.onNode(alertsSwitch).assertIsOff()
+        rule.onNode(hasRole(Role.Tab) and hasText("Home")).performClick()
+        rule.onNodeWithText("PAUSED").assertExists()
+        rule.onNode(hasRole(Role.Tab) and hasText("Alert settings")).performClick()
+        rule.onNode(alertsSwitch).performClick()
+        rule.waitUntil(timeoutMillis = 5_000) { saved().pause == Pause.None }
+    }
+
+    /** The shell connects the Widget choice to the saved settings. */
+    @Test fun widgetChoiceIsSaved() {
+        rule.onNode(hasRole(Role.Tab) and hasText("Alert settings")).performClick()
+        rule.onNode(hasRole(Role.RadioButton) and hasText("Turn OFF until I tap again")).performScrollTo().performClick()
+        rule.waitUntil(timeoutMillis = 5_000) { saved().widgetTap == WidgetTap.OFF_UNTIL_TAPPED }
     }
 
     /** A keyboard user who starts the test from the shell's Test alert button has focus moved to Stop, and Tab can't leave it. */

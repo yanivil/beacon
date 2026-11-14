@@ -23,12 +23,27 @@ class SettingsCodecTest {
             stringPreferencesKey("global_colour") to "PINK",
             intPreferencesKey("custom_minutes") to 7,
             stringPreferencesKey("pause_kind") to "SOMETIMES",
+            stringPreferencesKey("widget_tap") to "SOMETIMES",
         )
         val s = SettingsCodec.decode(p)
         assertEquals(BlinkSpeed.MEDIUM, s.speed)
+        assertEquals(WidgetTap.PAUSE_ONE_HOUR, s.widgetTap)
         assertEquals(FlashColour.YELLOW, s.globalColour)
         assertEquals(10, s.customLength.minutes)
         assertEquals(Pause.None, s.pause)
+    }
+
+    /** The widget's tap starts as the 1-hour pause, so nothing changes for people who already use the widget. */
+    @Test fun widgetTapDefaultsToOneHour() {
+        assertEquals(WidgetTap.PAUSE_ONE_HOUR, BeaconSettings.DEFAULT.widgetTap)
+    }
+
+    /** Both stored widget-tap names decode; they are spelled out so a renamed constant fails here. */
+    @Test fun widgetTapDecodes() {
+        val off = preferencesOf(stringPreferencesKey("widget_tap") to "OFF_UNTIL_TAPPED")
+        val hour = preferencesOf(stringPreferencesKey("widget_tap") to "PAUSE_ONE_HOUR")
+        assertEquals(WidgetTap.OFF_UNTIL_TAPPED, SettingsCodec.decode(off).widgetTap)
+        assertEquals(WidgetTap.PAUSE_ONE_HOUR, SettingsCodec.decode(hour).widgetTap)
     }
 
     /** A stored INDEFINITE kind decodes to a pause until alerts are turned back on. */

@@ -8,6 +8,19 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Alert settings starts with a "Visual alerts" switch, ON or OFF in words.
+  OFF turns alerts off until they are turned back on (the same pause as
+  Home's "Pause all alerts"); ON turns them back on and ends the widget's
+  1-hour pause early. TalkBack reads it as a Switch, "On" or "Off".
+- A "Widget" section in Alert settings chooses what one widget tap does
+  while alerts are ON: "Pause for 1 hour" (the default, as before) or
+  "Turn OFF until I tap again". With the second, the widget says "Tap to
+  turn OFF" and its spoken label says so; a tap while paused still turns
+  alerts ON. Changing the choice redraws the widget at once.
+- `docs/checks/2026-11-alerts-off-until-on.md`: the emulator checks of the
+  switch, the widget choice and the widget, at the largest font and with
+  TalkBack.
+
 - `docs/checks/2026-11-play-release.md`: Google approved the store listing
   and Play forms on 12 November 2026 (seen on 14 November). On 14 November,
   with the owner's yes, 3 (1.0.2) went to internal testing at 09:23, with
@@ -32,6 +45,12 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Version 1.0.3 (versionCode 4). The widget picker's description now says
+  a tap can also turn alerts OFF until the next tap.
+- The Step 2 spec (sections 5, 8, 10 and 11, conflict 20), `README.md`,
+  `docs/store/listing.md` (the pause paragraph and its claims),
+  `docs/store/play-console-answers.md` (1.0.3's proposed release notes)
+  and `docs/store/release-checklist.md`: the switch and the widget choice.
 - `README.md`, the Play release spec's status and version lines,
   `docs/store/release-checklist.md` section 1 and
   `docs/store/play-console-answers.md` (the 1.0.2 release name and

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), merged on 11 November 2026 (yanivil/beacon#18). The owner's decision that a real alert flashes only with the screen off or locked (sections 6 and 7) merged on 11 November 2026 (yanivil/beacon#19). P5, a Background autostart row on Xiaomi phones (sections 9 and 13), merged on 11 November 2026 (yanivil/beacon#20). Home's ON card now says it flashes when the phone isn't in use (section 8), merged on 11 November 2026 (yanivil/beacon#21). The owner's cable-out check ran SMS and WhatsApp alerts on battery in Doze on the test phone, on 11 November 2026 ([`docs/checks/2026-11-alerts-on-battery.md`](../checks/2026-11-alerts-on-battery.md)). A second one that evening set the widget's 1-hour pause on battery: alerts came back on time, and the widget came back to ON when an alert woke the screen ([`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md)). The resume alarm never fired, so it firing in Doze is still not tested there. With a second pause on and the phone locked in deep idle, a WhatsApp message was ignored as `PAUSED` and didn't flash. |
+| Status | Approved by the owner, 8 November 2026. PR 1 built (screens and test alert), with the emulator checks' defects D1 to D5 fixed. PR 2 built (the alert engine and the "Finish setup" card), with its emulator checks' defects D1 and D2 fixed. PR 3 built (the widget and the timed pause), with its emulator checks' defects D1 to D3 fixed and re-checked on the emulator, and its final review's follow-up R1 (the widget following a 12/24-hour, time-zone or language change) fixed and re-checked on the emulator. PR 3 and the launcher icon (section 8) merged on 9 November 2026 (yanivil/beacon#8 and #9). PR 4 (PR 2's last two carry-overs: the camera light's refusal reported to the alert controller, section 7, and the battery steps for each Android version, section 9) merged on 9 November 2026 (yanivil/beacon#10). The lint clean-up (sections 5, 10, 11, 12 and 16) merged on 10 November 2026 (yanivil/beacon#11). The dependency versions (Gradle 9.9.1 and Kotlin 2.4.21, sections 4 and 16) merged on 11 November 2026 (yanivil/beacon#12). compileSdk 37, with Compose 1.12, Lifecycle 2.11 and Core KTX 1.19 (sections 4 and 16), merged on 11 November 2026 (yanivil/beacon#13). The first phone checks ([`docs/checks/2026-11-phone-checks.md`](../checks/2026-11-phone-checks.md)) merged on 11 November 2026 (yanivil/beacon#14). P1, English text laid out right to left on a Hebrew phone (section 12), merged on 11 November 2026 (yanivil/beacon#15). P3, the owner's own WhatsApp reply flashing (section 6), merged on 11 November 2026 (yanivil/beacon#16). P2, the Xiaomi battery step (section 9), merged on 11 November 2026 (yanivil/beacon#17). P4, the widget's text size, by the owner's choice (sections 3 and 10), merged on 11 November 2026 (yanivil/beacon#18). The owner's decision that a real alert flashes only with the screen off or locked (sections 6 and 7) merged on 11 November 2026 (yanivil/beacon#19). P5, a Background autostart row on Xiaomi phones (sections 9 and 13), merged on 11 November 2026 (yanivil/beacon#20). Home's ON card now says it flashes when the phone isn't in use (section 8), merged on 11 November 2026 (yanivil/beacon#21). The owner's cable-out check ran SMS and WhatsApp alerts on battery in Doze on the test phone, on 11 November 2026 ([`docs/checks/2026-11-alerts-on-battery.md`](../checks/2026-11-alerts-on-battery.md)). A second one that evening set the widget's 1-hour pause on battery: alerts came back on time, and the widget came back to ON when an alert woke the screen ([`docs/checks/2026-11-pause-on-battery.md`](../checks/2026-11-pause-on-battery.md)). The resume alarm never fired, so it firing in Doze is still not tested there. With a second pause on and the phone locked in deep idle, a WhatsApp message was ignored as `PAUSED` and didn't flash. The "Visual alerts" switch in Alert settings and the widget-tap choice (sections 5, 8, 10 and 11; conflict 20), the owner's decision of 14 November 2026, built for 1.0.3 ([`docs/checks/2026-11-alerts-off-until-on.md`](../checks/2026-11-alerts-off-until-on.md)). |
 | Date | 8 November 2026 |
 | Approved | The technical design in chat, with the package name `dev.beacon`, then this written spec, both on 8 November 2026 |
 | Plan for PR 1 | [`docs/plans/2026-11-08-step2-pr1-screens.md`](../plans/2026-11-08-step2-pr1-screens.md) |
@@ -88,6 +88,7 @@ The project rules win. Each conflict and its resolution:
 | 17 | The PAUSED card has the "Visual alerts" heading; section 8's list had left it out. | Both cards have the heading. |
 | 18 | The widget's state word is 64 sp (ON) and 52 sp (PAUSED). | 48 and 40 sp, with 12 dp of padding instead of 16: at the owner's text size the design's sizes hid the resume time at 4 × 2 on the test phone (the phone checks' P4). The owner chose these values from a preview on the phone, 11 November 2026. |
 | 19 | The design doesn't say whether an alert flashes while the phone is in use. | It doesn't: a real alert flashes only when the screen is off or the lock screen is showing (the owner's decision, 11 November 2026; section 6, rule 7). Home's ON card adds "and you aren’t using the phone" to its line (owner, 11 November 2026). |
+| 20 | The widget's one tap always pauses for 1 hour, and Alert settings has no way to turn alerts off. | Testers asked to turn alerts off with no time limit from the widget and from the settings (the owner's decision, 14 November 2026). Alert settings starts with a "Visual alerts" switch (section 8), and a "Widget" choice there sets what the widget's tap does: "Pause for 1 hour" (the default) or "Turn OFF until I tap again" (sections 5 and 10). The widget keeps its one big button. |
 
 ## 4. Architecture
 
@@ -155,6 +156,7 @@ data class BeaconSettings(
     val duration: DurationChoice,              // ONE_MINUTE, FIVE_MINUTES, CUSTOM, UNTIL_STOPPED
     val customLength: CustomLength,            // kept even when duration isn't CUSTOM
     val speed: BlinkSpeed,
+    val widgetTap: WidgetTap,                  // PAUSE_ONE_HOUR, OFF_UNTIL_TAPPED (1.0.3)
 )
 ```
 
@@ -175,6 +177,9 @@ data class BeaconSettings(
   value becomes 10 minutes, as in the design.
 - An app's effective colour is its own colour in `PER_APP` mode, and the
   global colour otherwise.
+- **`WidgetTap`** (1.0.3) is what one widget tap does while alerts are ON:
+  `PAUSE_ONE_HOUR` or `OFF_UNTIL_TAPPED`. It is stored under `widget_tap`;
+  installs from before 1.0.3 have no key and so keep the 1-hour pause.
 
 ### Defaults
 
@@ -187,6 +192,7 @@ data class BeaconSettings(
 | Screen flash colour | Same colour for all apps, Yellow |
 | How long to flash | 1 min (custom length 10 min) |
 | Blink speed | Medium |
+| Widget tap | Pause for 1 hour |
 
 ### Storage
 
@@ -209,8 +215,17 @@ data class BeaconSettings(
 |---|---|
 | Home: "Pause all alerts" | `Indefinite` |
 | Home: "Turn alerts back ON" | `None` |
-| Widget tap while ON | `Until(now + 1 hour)` |
-| Widget tap while PAUSED, either kind | `None` |
+| Alert settings: "Visual alerts" switched OFF | `Indefinite` |
+| Alert settings: "Visual alerts" switched ON | `None` |
+| Widget tap while ON, "Pause for 1 hour" chosen | `Until(now + 1 hour)` |
+| Widget tap while ON, "Turn OFF until I tap again" chosen | `Indefinite` |
+| Widget tap while PAUSED, either kind, either choice | `None` |
+
+- **The widget-tap choice** is read before the tap's edit, so a choice
+  changed in the same instant as a tap applies from the next tap. Changing
+  the choice goes through `PauseCoordinator.setWidgetTap`, which saves it
+  and redraws the widget once if it changed, since the widget's tap hint
+  and spoken label name the choice; the pause and the alarm aren't touched.
 
 - **Alert check:** an alert checks `isPausedAt(now)`. `Until(t)` counts as
   paused only while `now < t`. So alerts come back on time even if nothing
@@ -551,6 +566,18 @@ From top to bottom:
 ### Alert settings
 
 1. **H1 "Alert settings".**
+   - **The "Visual alerts" switch** (1.0.3, the owner's decision of
+     14 November 2026; not in the design) comes first, as a card like an
+     app row on Home without the icon tile: "Visual alerts" (24 sp), a
+     line under it and the ON/OFF pill, which wraps under the text at
+     large fonts. The whole card is one Switch, ON while alerts aren't
+     paused (from the clock, as on Home).
+     - ON: "Your screen and camera light will flash when a message arrives
+       and you aren't using the phone." Switching OFF sets `Indefinite`,
+       the same pause as Home's "Pause all alerts".
+     - OFF: "You will NOT see any flashes until you turn alerts back on.",
+       or "Back ON by itself at HH:MM." during the widget's 1-hour pause.
+       Switching ON sets `None`, which also ends a 1-hour pause early.
 2. **"How long to flash"**, with the line "After a message arrives."
    - Four options, each at least 120 dp tall:
      - "1 min"
@@ -587,7 +614,14 @@ From top to bottom:
      - The selected swatch has a dark and white ring, and a check in its
        label.
 
-5. **"Privacy"** (added for Google Play in 1.0.1, 12 November 2026; not in
+5. **"Widget"** (1.0.3, the owner's decision of 14 November 2026; not in
+   the design), with the line "What one tap on the Beacon widget does while
+   alerts are ON. While they are paused, a tap always turns them back ON."
+   - Two options, each at least 96 dp tall, as a one-column radio group:
+     "Pause for 1 hour", with "Alerts come back ON by themselves." (the
+     default), and "Turn OFF until I tap again", with "Alerts stay OFF until
+     you tap the widget again, or turn them ON here or on Home."
+6. **"Privacy"** (added for Google Play in 1.0.1, 12 November 2026; not in
    the design). Play's User Data policy asks for the privacy policy within
    the app as well as on the store listing.
    - The line "Beacon keeps your settings on this phone and sends nothing
@@ -835,9 +869,9 @@ be resized.
 | | ON | PAUSED |
 |---|---|---|
 | Background | Yellow `#FFD60A`, 28 dp radius | `#0B0B0D`, 4 dp white border, 28 dp radius |
-| Lines | "Visual alerts" (28 sp), bolt icon + "ON" (48 sp; the design's 64, by the owner's choice), "Tap to pause for 1 hour" (22 sp) | "Visual alerts" (28 sp), pause icon + "PAUSED" (40 sp; the design's 52, by the owner's choice), "Back ON by itself at HH:MM" (22 sp, timed pause only), "Tap to turn ON now" (22 sp) |
-| Tap | Pause for 1 hour | Turn ON now |
-| Spoken label | "Visual alerts are ON. Tap to pause for 1 hour." | "Visual alerts are PAUSED until HH:MM. Tap to turn them back on now." For an open-ended pause from the app: "Visual alerts are PAUSED. Tap to turn them back on now." |
+| Lines | "Visual alerts" (28 sp), bolt icon + "ON" (48 sp; the design's 64, by the owner's choice), "Tap to pause for 1 hour" (22 sp), or "Tap to turn OFF" with the "Turn OFF until I tap again" choice (1.0.3) | "Visual alerts" (28 sp), pause icon + "PAUSED" (40 sp; the design's 52, by the owner's choice), "Back ON by itself at HH:MM" (22 sp, timed pause only), "Tap to turn ON now" (22 sp) |
+| Tap | Pause for 1 hour, or turn OFF until the next tap, as chosen in Alert settings | Turn ON now |
+| Spoken label | "Visual alerts are ON. Tap to pause for 1 hour." With the OFF choice: "Visual alerts are ON. Tap to turn them OFF until you tap again." | "Visual alerts are PAUSED until HH:MM. Tap to turn them back on now." For an open-ended pause from the app: "Visual alerts are PAUSED. Tap to turn them back on now." |
 
 The text is `#0B0B0D` on yellow and `#FFFFFF` on black, in the system font.
 The icons are decorative. The whole widget is one tap target.
@@ -870,7 +904,9 @@ The icons are decorative. The whole widget is one tap target.
   Real cell sizes differ per launcher and phone.
 - **Picker entry:** the widget receiver's label, "Beacon", and the
   description "Shows whether visual alerts are ON. One tap pauses them for
-  1 hour." There is no custom preview image, so the picker shows Beacon's
+  1 hour, or turns them OFF until you tap again: you choose in Alert
+  settings." (1.0.3; before, it ended at "1 hour."). There is no custom
+  preview image, so the picker shows Beacon's
   app icon.
 
 ### When lines don't fit
@@ -1051,7 +1087,8 @@ Headings are marked as headings for TalkBack.
 | Control | Role | State read aloud | Label |
 |---|---|---|---|
 | App row | Switch | "On" / "Off" | App name and its flash line, such as "Texts (SMS), Yellow flash" |
-| Duration, speed, mode and swatch options | RadioButton, in a group read as a one-column list ("In list, 4 items", then "2 of 4") | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
+| "Visual alerts" in Alert settings (1.0.3) | Switch | "On" / "Off" | "Visual alerts" and the line under it, such as "Visual alerts, You will NOT see any flashes until you turn alerts back on." |
+| Duration, speed, mode, widget-tap and swatch options | RadioButton, in a group read as a one-column list ("In list, 4 items", then "2 of 4") | "Selected" / "Not selected" | The visible text, such as "Fast, 90 blinks a minute, Highest safe speed" |
 | Tabs | Tab, in a selectable group | "Selected" | "Home" / "Alert settings" |
 | Per-app Change/Done | Button | "Expanded" / "Collapsed" | "Change color for Telegram" / "Done choosing color for Telegram" |
 | Shorter/Longer | Button | "Disabled" at the ends | "Shorter" / "Longer" |

@@ -28,6 +28,7 @@ enum class ColourMode { SAME_FOR_ALL, PER_APP }
  * @property duration how long to flash.
  * @property customLength the length used when [duration] is CUSTOM; kept otherwise.
  * @property speed the blink-speed preset.
+ * @property widgetTap what one tap on the widget does while alerts are ON.
  */
 data class BeaconSettings(
     val pause: Pause,
@@ -37,6 +38,7 @@ data class BeaconSettings(
     val duration: DurationChoice,
     val customLength: CustomLength,
     val speed: BlinkSpeed,
+    val widgetTap: WidgetTap,
 ) {
     /**
      * The colour a message from [source] flashes.
@@ -63,7 +65,7 @@ data class BeaconSettings(
     }
 
     companion object {
-        /** First-run settings: alerts on, SMS and WhatsApp enabled, yellow, 1 minute, Medium. */
+        /** First-run settings: alerts on, SMS and WhatsApp enabled, yellow, 1 minute, Medium, widget pauses 1 hour. */
         val DEFAULT = BeaconSettings(
             pause = Pause.None,
             // One entry per source, from each source's own defaults.
@@ -73,6 +75,7 @@ data class BeaconSettings(
             duration = DurationChoice.ONE_MINUTE,
             customLength = CustomLength.DEFAULT,
             speed = BlinkSpeed.MEDIUM,
+            widgetTap = WidgetTap.PAUSE_ONE_HOUR,
         )
     }
 }

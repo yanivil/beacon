@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.beacon.settings.Pause
 import dev.beacon.settings.SettingsRepository
 import dev.beacon.settings.UnreadableDataStore
+import dev.beacon.settings.WidgetTap
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
@@ -88,6 +89,36 @@ class PauseCoordinatorTest {
     /** A second tap turns alerts back ON and cancels the alarm; it never makes a 2-hour pause. */
     @Test fun twoTapsPauseThenResume() = runTest {
         c.tapFromWidget(); assertEquals(Pause.None, c.tapFromWidget()); assertEquals(listOf<Long?>(3_601_000, null), alarm.scheduled)
+    }
+
+    /**
+     * With "Turn OFF until I tap again" chosen, a tap stores the open-ended pause, cancels the alarm
+     * (nothing turns alerts back on by itself) and refreshes the widget; the next tap turns them ON.
+     */
+    @Test fun offUntilTappedChoiceTurnsOffThenOn() = runTest {
+        repo.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED)
+        assertEquals(Pause.Indefinite, c.tapFromWidget())
+        assertEquals(Pause.Indefinite, repo.settings.first().pause)
+        assertEquals(listOf<Long?>(null), alarm.scheduled); assertEquals(1, refreshes)
+        assertEquals(Pause.None, c.tapFromWidget()); assertEquals(2, refreshes)
+    }
+
+    /**
+     * Choosing what the widget's tap does saves the choice and redraws the widget once, since its hint and
+     * label change; choosing the same again doesn't redraw. The pause and the alarm aren't touched.
+     */
+    @Test fun widgetTapChoiceSavesAndRedrawsOnlyWhenChanged() = runTest {
+        c.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED)
+        assertEquals(WidgetTap.OFF_UNTIL_TAPPED, repo.settings.first().widgetTap); assertEquals(1, refreshes)
+        c.setWidgetTap(WidgetTap.OFF_UNTIL_TAPPED); assertEquals(1, refreshes)
+        c.setWidgetTap(WidgetTap.PAUSE_ONE_HOUR); assertEquals(2, refreshes)
+        assertEquals(Pause.None, repo.settings.first().pause); assertTrue(alarm.scheduled.isEmpty())
+    }
+
+    /** Choosing the 1-hour pause on a store that has no choice saved is no change: it is the default, so no redraw. */
+    @Test fun choosingTheDefaultOnAnEmptyStoreDoesntRedraw() = runTest {
+        c.setWidgetTap(WidgetTap.PAUSE_ONE_HOUR)
+        assertEquals(WidgetTap.PAUSE_ONE_HOUR, repo.settings.first().widgetTap); assertEquals(0, refreshes)
     }
 
     /** Pausing from Home during a widget pause stores the open-ended pause and cancels the alarm. */

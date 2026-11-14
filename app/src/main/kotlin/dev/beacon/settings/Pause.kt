@@ -56,8 +56,14 @@ fun Pause.isExpiredAt(nowEpochMillis: Long): Boolean = this is Pause.Until && no
  *
  * @param current the stored pause.
  * @param nowEpochMillis the moment of the tap, in epoch milliseconds.
- * @return [Pause.None] if a pause is in effect, so the tap turns alerts on; otherwise a pause until
- *   [WIDGET_PAUSE_MILLIS] from now. An expired [Pause.Until] is no longer in effect, so it counts as ON.
+ * @param tap what the person chose a tap does while alerts are ON.
+ * @return [Pause.None] if a pause is in effect, so the tap turns alerts on, whichever the choice;
+ *   otherwise a pause until [WIDGET_PAUSE_MILLIS] from now for [WidgetTap.PAUSE_ONE_HOUR], or
+ *   [Pause.Indefinite] for [WidgetTap.OFF_UNTIL_TAPPED]. An expired [Pause.Until] is no longer in
+ *   effect, so it counts as ON.
  */
-fun pauseAfterWidgetTap(current: Pause, nowEpochMillis: Long): Pause =
-    if (current.isPausedAt(nowEpochMillis)) Pause.None else Pause.Until(nowEpochMillis + WIDGET_PAUSE_MILLIS)
+fun pauseAfterWidgetTap(current: Pause, nowEpochMillis: Long, tap: WidgetTap): Pause = when {
+    current.isPausedAt(nowEpochMillis) -> Pause.None
+    tap == WidgetTap.OFF_UNTIL_TAPPED -> Pause.Indefinite
+    else -> Pause.Until(nowEpochMillis + WIDGET_PAUSE_MILLIS)
+}

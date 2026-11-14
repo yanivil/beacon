@@ -102,6 +102,7 @@ If it asks anyway, Claude stops and asks.
 | Release name | 1.0.0 (1); then 2 (1.0.1) and 3 (1.0.2), Play's suggestions |
 | Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." For 1.0.2, as typed: The "Read the privacy policy" button now always opens your web browser, and TalkBack says where it leads. If no browser can open the page, Beacon now says so clearly. |
 | Rollout | Only after the owner says yes in chat |
+| Proposed for 1.0.3 (not yet typed) | 4 (1.0.3), Play's suggestion. Notes: You can now turn alerts OFF until you turn them back ON. Use the new Visual alerts switch at the top of Alert settings, or choose in Alert settings that one tap on the widget turns alerts OFF until you tap it again. |
 
 ## 6. Closed testing
 
