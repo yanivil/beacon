@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Status | Approved by the owner, 11 November 2026: the design in chat, then this written spec. Internal testing done, 12 November 2026: 1.0.0 (1) and 1.0.1 (2) on the internal testing track, 1.0.1 checked from Play on the test phone, and the store listing and forms sent for Google's review ([record](../checks/2026-11-play-release.md)). Next: [`release-checklist.md`](../store/release-checklist.md), section 1. |
+| Status | Approved by the owner, 11 November 2026: the design in chat, then this written spec. Internal testing done, 12 November 2026: 1.0.0 (1) and 1.0.1 (2) on the internal testing track, 1.0.1 checked from Play on the test phone, and the store listing and forms sent for Google's review ([record](../checks/2026-11-play-release.md)). Google approved them on 12 November. On 14 November, 1.0.2 (3) went to internal testing and the store listing update went to Google's review. Next: [`release-checklist.md`](../store/release-checklist.md), section 1. |
 | Plan | [`docs/plans/2026-11-11-play-release.md`](../plans/2026-11-11-play-release.md) |
 | Date | 11 November 2026 |
 | Builds on | Step 2 ([`2026-11-08-step2-design.md`](2026-11-08-step2-design.md)), whose section 2 left Google Play, release signing and the store listing out of Step 2 |
@@ -71,8 +71,8 @@ tracks.
 `versionName` 1.0.0 and `versionCode` 1 in `app/build.gradle.kts`. Every
 later upload to Play needs a higher `versionCode`. 1.0.1 (versionCode 2,
 12 November 2026) adds the in-app privacy link (section 11) before the
-changes go to Google's review. 1.0.2 (versionCode 3) holds the fixes from
-that link's review and is the next upload.
+changes go to Google's review. 1.0.2 (versionCode 3, 14 November 2026)
+holds the fixes from that link's review.
 
 ### Upload key
 

@@ -8,6 +8,29 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-play-release.md`: Google approved the store listing
+  and Play forms on 12 November 2026 (seen on 14 November). On 14 November,
+  with the owner's yes, 3 (1.0.2) went to internal testing at 09:23, with
+  the same two warnings and supported devices as 1.0.1, and the store
+  listing update (feature graphic, widget screenshot, "color") went to
+  Google's review. The AI asset question came up again and got the
+  owner's 11 November answer, "Don't label assets".
+
+### Changed
+
+- `README.md`, the Play release spec's status and version lines,
+  `docs/store/release-checklist.md` section 1 and
+  `docs/store/play-console-answers.md` (the 1.0.2 release name and
+  notes): Google's first review passed, 1.0.2 is on internal testing, the
+  listing update is in review, and the next step is checking 1.0.2 from
+  Play on the test phone.
+
+## [1.0.2] - 2026-11-14
+
+Version 1.0.2 (versionCode 3) on Google Play's internal testing track.
+
+### Added
+
 - `PrivacyPolicyIntentTest`: the policy opens as a browsable VIEW, from
   an activity in its task and from any other context in a new one, goes
   to the browser even when an app claims GitHub links, leaves the choice
@@ -33,7 +56,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- Version 1.0.2 (versionCode 3), with the fixes below; the next upload.
+- Version 1.0.2 (versionCode 3), with the fixes below. It followed 1.0.1 on
+  Play's internal testing track on 14 November 2026.
 - The privacy section, from the review of PR #33:
   - the button names the phone's browser (the default one, or the only
     one), so the GitHub app, which claims github.com links, can't take the
@@ -62,8 +86,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   "See every message" (the owner's choice, 12 November 2026), since Beacon
   can miss a message. Screenshot 5 shows the widget on a black background
   instead of the emulator's stock wallpaper. The full description spells
-  "color" the US way, like the app. These go to Play Console after Google's
-  current review.
+  "color" the US way, like the app. They went to Play Console on 14
+  November 2026, after Google approved the first listing, and from there
+  to Google's review.
 - `docs/store/play-console-answers.md` no longer shows the Play developer
   account ID.
 - `README.md`: on a fresh clone without the upload key, `./gradlew build`

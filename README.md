@@ -118,11 +118,13 @@ contrast, big touch targets and plain wording.
         with the phone locked, didn't flash. Checks:
         [`docs/checks/2026-11-pause-on-battery.md`](docs/checks/2026-11-pause-on-battery.md).
 - [ ] **Google Play (in progress):** internal testing is done. Beacon
-      1.0.1 is on Play's internal testing track for a few testers, was
-      installed from Play on the test phone and flashed for a message
-      with the phone locked (12 November 2026). The store listing and
-      Play forms were sent for Google's review the same day. Next: the
-      closed test in
+      1.0.1 was installed from Play on the test phone and flashed for a
+      message with the phone locked (12 November 2026). Google approved
+      the store listing and Play forms the same day. Since 14 November,
+      1.0.2 is on Play's internal testing track for a few testers, and a
+      store listing update (new feature graphic, widget screenshot and
+      spelling) is in Google's review. Next: 1.0.2 from Play on the test
+      phone, then the closed test in
       [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
       The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
@@ -574,12 +576,14 @@ from the phone's own records. Nothing in the code changed.
 ## Google Play
 
 Beacon is on Google Play's internal testing track, for a few testers:
-1.0.0 (versionCode 1) since 12 November 2026 at 09:49, and 1.0.1
-(versionCode 2, the in-app privacy link) since 10:22 the same day
+1.0.0 (versionCode 1) since 12 November 2026 at 09:49, 1.0.1
+(versionCode 2, the in-app privacy link) since 10:22 the same day, and
+1.0.2 (versionCode 3, the privacy link's fixes) since 14 November at 09:23
 ([spec](docs/specs/2026-11-11-play-release-design.md),
 [plan](docs/plans/2026-11-11-play-release.md)). The store listing and the
-Play forms were sent for Google's review at about 10:27; until it's done,
-testers see the temporary name "dev.beacon (unreviewed)".
+Play forms went to Google's review at about 10:27 on 12 November, and
+Google approved them the same day, so testers see the name "Beacon:
+Visual Message Alerts".
 
 - **Release build:** signed with the upload key from outside the
   repository (see "Release builds for Google Play" under Building). On the
@@ -602,12 +606,13 @@ testers see the temporary name "dev.beacon (unreviewed)".
   check (`com.android.vending.CHECK_LICENSE`). With the phone locked, an
   SMS woke the screen to the alert and flashed the camera light until
   Stop, and the Privacy button opened the policy in Chrome (same record).
-- **Next version:** 1.0.2 (versionCode 3) on `main`, with the privacy
-  link's review fixes, is the next upload. The store's feature graphic
-  ("See when messages arrive"), the widget screenshot (on a black
-  background) and the US spelling "color" in the full description are
-  updated in [`docs/store/`](docs/store) and go to Play Console after
-  Google's current review, with the owner's yes.
+- **1.0.2 and the listing update (14 November 2026):** 1.0.2
+  (versionCode 3), with the privacy link's review fixes, went to internal
+  testing with the owner's yes. The store's feature graphic ("See when
+  messages arrive"), the widget screenshot (on a black background) and
+  the US spelling "color" in the full description, from
+  [`docs/store/`](docs/store), went to Google's review the same morning.
+  1.0.2 hasn't been checked from Play on the test phone yet.
 - **After internal testing:** a closed test with at least 12 testers for
   14 days, then Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
