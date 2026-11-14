@@ -8,6 +8,27 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-play-release.md`: Google approved the closed test
+  at 17:23 on 14 November 2026, ten minutes after it was sent (17:13 by
+  Play's clock); at 18:07 Play's dashboard showed 0 of the 12 testers
+  opted in. With the owner's yes, 4 (1.0.3) went to internal testing at
+  18:06, with the same two warnings and no change in supported devices.
+
+### Changed
+
+- `README.md`, the Play release spec's status line,
+  `docs/store/release-checklist.md` section 1,
+  `docs/store/play-console-answers.md` (1.0.3's release notes, as typed)
+  and `docs/checks/2026-11-alerts-off-until-on.md` ("Not tested"): 1.0.3
+  is on internal testing, and the closed test is approved and open for
+  testers to join.
+
+## [1.0.3] - 2026-11-14
+
+Version 1.0.3 (versionCode 4) on Google Play's internal testing track.
+
+### Added
+
 - Alert settings starts with a "Visual alerts" switch, ON or OFF in words.
   OFF turns alerts off until they are turned back on (the same pause as
   Home's "Pause all alerts"); ON turns them back on and ends the widget's
@@ -20,7 +41,6 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/checks/2026-11-alerts-off-until-on.md`: the emulator checks of the
   switch, the widget choice and the widget, at the largest font and with
   TalkBack.
-
 - `docs/checks/2026-11-play-release.md`: Google approved the store listing
   and Play forms on 12 November 2026 (seen on 14 November). On 14 November,
   with the owner's yes, 3 (1.0.2) went to internal testing at 09:23, with

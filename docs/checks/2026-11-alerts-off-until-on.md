@@ -62,4 +62,6 @@ If it shows up on the phone, it is a defect to fix.
   ([`2026-11-pause-on-battery.md`](2026-11-pause-on-battery.md)); not run
   again with 1.0.3.
 - **Android 10 to 12.**
-- **1.0.3 from Google Play:** not uploaded yet.
+- **1.0.3 from Google Play:** on internal testing since 14 November 2026
+  at 18:06 ([Play record](2026-11-play-release.md)), not yet installed
+  from Play on a phone.
