@@ -29,8 +29,9 @@ Before the closed test, which Google reviews:
   screenshot 5 (`05-widget.jpg`, on a black background) and the full
   description from [`listing.md`](listing.md) ("color", US spelling).
   Record: [`2026-11-play-release.md`](../checks/2026-11-play-release.md).
-- **Before the closed test:** install 1.0.2 from Play on the test phone
-  and check the Privacy button and a locked-phone alert.
+- **Done, 14 November 2026:** 1.0.2 from Play on the test phone. The
+  Privacy button opened the policy in Chrome, named by Beacon, and a
+  message flashed with the phone locked (record checks 16 to 19).
 
 - In Play Console: Test and release → Testing → Closed testing → create a
   track (for example "Beacon closed test").

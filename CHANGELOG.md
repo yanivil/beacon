@@ -15,6 +15,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
   listing update (feature graphic, widget screenshot, "color") went to
   Google's review. The AI asset question came up again and got the
   owner's 11 November answer, "Don't label assets".
+- `docs/checks/2026-11-play-release.md`, checks 16 to 19: 1.0.2 from Play
+  on the test phone (Redmi 15C 5G, Android 16), on 14 November 2026. It
+  updated in place with its setup kept and no internet permission. The
+  Privacy button opened the policy in Chrome, named by Beacon, at font
+  scale 1.45 in Hebrew. With the phone locked, a message (an RCS chat
+  message in Google Messages) woke the screen to the alert and flashed
+  the camera light once a second until Stop.
 
 ### Changed
 
@@ -22,8 +29,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `docs/store/release-checklist.md` section 1 and
   `docs/store/play-console-answers.md` (the 1.0.2 release name and
   notes): Google's first review passed, 1.0.2 is on internal testing, the
-  listing update is in review, and the next step is checking 1.0.2 from
-  Play on the test phone.
+  listing update is in review, 1.0.2 passed its checks from Play on the
+  test phone, and the next step is the closed test.
 
 ## [1.0.2] - 2026-11-14
 

@@ -123,8 +123,8 @@ contrast, big touch targets and plain wording.
       the store listing and Play forms the same day. Since 14 November,
       1.0.2 is on Play's internal testing track for a few testers, and a
       store listing update (new feature graphic, widget screenshot and
-      spelling) is in Google's review. Next: 1.0.2 from Play on the test
-      phone, then the closed test in
+      spelling) is in Google's review. 1.0.2 from Play passed its checks on
+      the test phone the same morning. Next: the closed test in
       [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
       The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
@@ -612,7 +612,9 @@ Visual Message Alerts".
   messages arrive"), the widget screenshot (on a black background) and
   the US spelling "color" in the full description, from
   [`docs/store/`](docs/store), went to Google's review the same morning.
-  1.0.2 hasn't been checked from Play on the test phone yet.
+  On the test phone, 1.0.2 from Play kept its setup, its Privacy button
+  opened the policy in Chrome, and a message flashed with the phone locked
+  ([record](docs/checks/2026-11-play-release.md), checks 16 to 19).
 - **After internal testing:** a closed test with at least 12 testers for
   14 days, then Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
