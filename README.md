@@ -121,10 +121,12 @@ contrast, big touch targets and plain wording.
       1.0.1 was installed from Play on the test phone and flashed for a
       message with the phone locked (12 November 2026). Google approved
       the store listing and Play forms the same day. Since 14 November,
-      1.0.2 is on Play's internal testing track for a few testers, and a
-      store listing update (new feature graphic, widget screenshot and
-      spelling) is in Google's review. 1.0.2 from Play passed its checks on
-      the test phone the same morning. Next: the closed test in
+      1.0.2 is on Play's internal testing track for a few testers, and
+      Google approved a store listing update (new feature graphic, widget
+      screenshot and spelling) the same morning. 1.0.2 from Play passed its
+      checks on the test phone. The closed test, with the owner's first 4
+      testers, went to Google's review that afternoon; it needs at least
+      12 testers for 14 days:
       [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
       The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
@@ -611,12 +613,17 @@ Visual Message Alerts".
   testing with the owner's yes. The store's feature graphic ("See when
   messages arrive"), the widget screenshot (on a black background) and
   the US spelling "color" in the full description, from
-  [`docs/store/`](docs/store), went to Google's review the same morning.
+  [`docs/store/`](docs/store), went to Google's review the same morning,
+  and Google approved them at 10:34.
   On the test phone, 1.0.2 from Play kept its setup, its Privacy button
   opened the policy in Chrome, and a message flashed with the phone locked
   ([record](docs/checks/2026-11-play-release.md), checks 16 to 19).
-- **After internal testing:** a closed test with at least 12 testers for
-  14 days, then Google's production review:
+- **Closed test (started 14 November 2026):** the owner said yes to
+  setting it up with the first 4 testers, so Google's review of it runs
+  while more are found. It uses Play's "Closed testing - Alpha" track,
+  the "Beacon testers" list, all countries and 1.0.2, and went to
+  Google's review at about 17:12. It needs at least 12 testers opted in
+  for 14 days in a row; then comes Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
 
 ## What Step 1 found

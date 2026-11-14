@@ -22,6 +22,13 @@ and the project uses [Semantic Versioning](https://semver.org/).
   scale 1.45 in Hebrew. With the phone locked, a message (an RCS chat
   message in Google Messages) woke the screen to the alert and flashed
   the camera light once a second until Stop.
+- `docs/checks/2026-11-play-release.md`: Google approved the store listing
+  update at 10:34 on 14 November 2026. With the owner's yes, the closed
+  test went to Google's review at about 17:12: Play's "Closed testing -
+  Alpha" track, the "Beacon testers" list (4 testers so far), all
+  countries and release 3 (1.0.2).
+- `docs/store/play-console-answers.md`, section 6: the closed testing
+  answers, with all countries by the owner's choice.
 
 ### Changed
 
@@ -31,6 +38,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   notes): Google's first review passed, 1.0.2 is on internal testing, the
   listing update is in review, 1.0.2 passed its checks from Play on the
   test phone, and the next step is the closed test.
+- `README.md`, the Play release spec's status line and
+  `docs/store/release-checklist.md` section 1: the listing update is
+  approved, and the closed test is in Google's review with 4 of the 12
+  testers it needs.
 
 ## [1.0.2] - 2026-11-14
 

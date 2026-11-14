@@ -103,8 +103,23 @@ If it asks anyway, Claude stops and asks.
 | Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." For 1.0.2, as typed: The "Read the privacy policy" button now always opens your web browser, and TalkBack says where it leads. If no browser can open the page, Beacon now says so clearly. |
 | Rollout | Only after the owner says yes in chat |
 
-## 6. Not in this round
+## 6. Closed testing
 
-Countries and regions for production, closed testing, pre-registration,
-and the production application. They are in
+Answered on 14 November 2026, with the owner's yes.
+
+| Field | Answer |
+|---|---|
+| Track | "Closed testing - Alpha", the track Play already has |
+| Testers | The "Beacon testers" email list, the same one as internal testing. New testers are added to it in Play Console. |
+| Feedback URL or email | The contact email from section 3 |
+| Countries and regions | All of them (177 and "rest of world"), the owner's choice: only opted-in testers on the list can install, and a tester's Play country must be on it. This doesn't decide production's countries. |
+| App bundle | 3 (1.0.2), added from the app bundle library |
+| Release name | 3 (1.0.2), Play's suggestion |
+| Release notes (en-US) | Copied from the internal release 3 (1.0.2) |
+| Sent for review | Only after the owner says yes in chat |
+
+## 7. Not in this round
+
+Countries and regions for production, pre-registration, and the
+production application. They are in
 [`release-checklist.md`](release-checklist.md).

@@ -32,12 +32,26 @@ Before the closed test, which Google reviews:
 - **Done, 14 November 2026:** 1.0.2 from Play on the test phone. The
   Privacy button opened the policy in Chrome, named by Beacon, and a
   message flashed with the phone locked (record checks 16 to 19).
+- **Done, 14 November 2026:** Google approved the listing update at
+  10:34, so the store shows the new feature graphic, screenshot 5 and the
+  full description.
+- **Started, 14 November 2026, with the owner's yes:** the closed test,
+  with the owner's first 4 testers, sent to Google's review at about
+  17:12 so the review runs while the owner finds more. The owner is
+  adding testers; the 14 days count only while at least 12 are opted
+  in. Record: [`2026-11-play-release.md`](../checks/2026-11-play-release.md).
 
-- In Play Console: Test and release → Testing → Closed testing → create a
-  track (for example "Beacon closed test").
+- In Play Console: Test and release → Testing → Closed testing. Play
+  already has a track, "Closed testing - Alpha"; Beacon uses it
+  (14 November 2026) rather than a second one.
 - Add at least 12 testers, as an email list or a Google Group. They must
   opt in through the track's link and **stay opted in for 14 days in a
-  row**. If the count drops below 12, the 14 days start again.
+  row**. If the count drops below 12, the 14 days start again. Testers
+  on the internal test don't count: they join the closed test too, on
+  Android at `https://play.google.com/store/apps/details?id=dev.beacon`
+  or on the web at `https://play.google.com/apps/testing/dev.beacon`, once
+  Google has approved the track. New testers go into the "Beacon
+  testers" list in Play Console, never into the repository.
 - Promote the release that passed internal testing to the track, or upload
   a newer one with a higher `versionCode`.
 - Closed testing is reviewed by Google before testers can install it.
