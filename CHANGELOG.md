@@ -16,6 +16,11 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `docs/checks/2026-11-play-release.md`: with the owner's yes, 4 (1.0.3)
   went to the closed test's review at 18:10 on 14 November 2026, as one
   change, with the notes copied from the internal release.
+- `docs/checks/2026-11-play-release.md`: with the owner's yes, the store's
+  full description from `listing.md` (the Visual alerts switch and the
+  widget's no-time-limit choice) went to Google's review at 18:19 on
+  14 November 2026. Play restarted the review then in progress so 1.0.3
+  and the description are reviewed together; the owner chose that.
 
 ### Changed
 
