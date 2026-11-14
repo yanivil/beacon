@@ -125,8 +125,8 @@ contrast, big touch targets and plain wording.
       Google approved a store listing update (new feature graphic, widget
       screenshot and spelling) the same morning. 1.0.2 from Play passed its
       checks on the test phone. The closed test, with the owner's first 4
-      testers, went to Google's review that afternoon; it needs at least
-      12 testers for 14 days:
+      testers, went to Google's review that afternoon and was approved ten
+      minutes later; it needs at least 12 testers opted in for 14 days:
       [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
       The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
@@ -134,7 +134,7 @@ contrast, big touch targets and plain wording.
       Version 1.0.1 adds a Privacy section to Alert settings, with a
       button that opens the privacy policy in the browser, as Play's User
       Data policy asks before Google's review.
-      Version 1.0.3 (built, not yet on Play) adds a "Visual alerts" ON/OFF
+      Version 1.0.3 (on internal testing since 14 November) adds a "Visual alerts" ON/OFF
       switch to Alert settings and a choice of what the widget's tap does;
       see "Version 1.0.3" below.
 
@@ -584,8 +584,9 @@ from the phone's own records. Nothing in the code changed.
 Beacon is on Google Play's internal testing track, for a few testers:
 1.0.0 (versionCode 1) since 12 November 2026 at 09:49, 1.0.1
 (versionCode 2, the in-app privacy link) since 10:22 the same day, and
-1.0.2 (versionCode 3, the privacy link's fixes) since 14 November at 09:23
-([spec](docs/specs/2026-11-11-play-release-design.md),
+1.0.2 (versionCode 3, the privacy link's fixes) since 14 November at 09:23,
+and 1.0.3 (versionCode 4, the Visual alerts switch and the widget choice)
+since 18:06 the same day ([spec](docs/specs/2026-11-11-play-release-design.md),
 [plan](docs/plans/2026-11-11-play-release.md)). The store listing and the
 Play forms went to Google's review at about 10:27 on 12 November, and
 Google approved them the same day, so testers see the name "Beacon:
@@ -625,9 +626,10 @@ Visual Message Alerts".
 - **Closed test (started 14 November 2026):** the owner said yes to
   setting it up with the first 4 testers, so Google's review of it runs
   while more are found. It uses Play's "Closed testing - Alpha" track,
-  the "Beacon testers" list, all countries and 1.0.2, and went to
-  Google's review at about 17:12. It needs at least 12 testers opted in
-  for 14 days in a row; then comes Google's production review:
+  the "Beacon testers" list, all countries and 1.0.2. It went to Google's
+  review at 17:13 and was approved at 17:23. By that evening the list had
+  11 people, none opted in yet. It needs at least 12 testers opted in for
+  14 days in a row; then comes Google's production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
 
 ## Version 1.0.3: turn alerts OFF until turned back ON
@@ -659,10 +661,12 @@ widget and from the settings. The owner chose the design on 14 November
   alerts were found OFF; three replays didn't repeat it (same record,
   "Seen once"). Not yet checked on the test phone, and no message was sent
   while alerts were OFF.
-- **On Google Play:** not yet. Uploading 1.0.3 (versionCode 4) to internal
-  testing and the closed test, and the store text that mentions the new
-  choice ([`docs/store/listing.md`](docs/store/listing.md)), each wait for
-  the owner's yes.
+- **On Google Play:** 1.0.3 (versionCode 4) has been on internal testing
+  since 14 November 2026 at 18:06, with the owner's yes
+  ([record](docs/checks/2026-11-play-release.md)). The closed test still
+  has 1.0.2. Moving 1.0.3 there and sending the store text that mentions
+  the new choice ([`docs/store/listing.md`](docs/store/listing.md)) each
+  wait for the owner's yes.
 
 ## What Step 1 found
 
