@@ -13,6 +13,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   Play's clock); at 18:07 Play's dashboard showed 0 of the 12 testers
   opted in. With the owner's yes, 4 (1.0.3) went to internal testing at
   18:06, with the same two warnings and no change in supported devices.
+- `docs/checks/2026-11-play-release.md`: with the owner's yes, 4 (1.0.3)
+  went to the closed test's review at 18:10 on 14 November 2026, as one
+  change, with the notes copied from the internal release.
 
 ### Changed
 
@@ -20,8 +23,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
   `docs/store/release-checklist.md` section 1,
   `docs/store/play-console-answers.md` (1.0.3's release notes, as typed)
   and `docs/checks/2026-11-alerts-off-until-on.md` ("Not tested"): 1.0.3
-  is on internal testing, and the closed test is approved and open for
-  testers to join.
+  is on internal testing and in the closed test's review, and the closed
+  test is approved and open for testers to join.
 
 ## [1.0.3] - 2026-11-14
 
