@@ -56,8 +56,9 @@ Before the closed test, which Google reviews:
   on internal testing at 11:48**, which ends Alert settings with a line
   naming Beacon's version (notes in
   [`play-console-answers.md`](play-console-answers.md) section 5). **Sent
-  to the closed test at 11:51**, with the owner's yes; Google reviews it,
-  and a new version doesn't restart the testers' 14 days.
+  to the closed test at 11:51**, with the owner's yes, and **Google
+  approved it at 12:05**; a new version doesn't restart the testers'
+  14 days. At 12:26, 4 testers had opted in.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it

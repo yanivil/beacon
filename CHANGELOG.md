@@ -13,13 +13,14 @@ and the project uses [Semantic Versioning](https://semver.org/).
   warnings and no change in supported devices.
 - `docs/checks/2026-11-play-release.md`: with the owner's yes, 5 (1.0.4)
   went to the closed test's review at 11:51 on 15 November 2026, as one
-  change, with the same notes as the internal release.
+  change, with the same notes as the internal release. Google approved it
+  at 12:05; at 12:26 Play showed 4 testers opted in.
 
 ### Changed
 
 - `README.md`, `docs/store/play-console-answers.md` (1.0.4's release
   notes, as typed) and `docs/store/release-checklist.md` section 1: 1.0.4
-  is on internal testing and in the closed test's review.
+  is on internal testing and on the closed test.
 
 ## [1.0.4] - 2026-11-15
 
