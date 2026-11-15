@@ -94,7 +94,7 @@ If it asks anyway, Claude stops and asks.
 
 | Field | Answer |
 |---|---|
-| Testers | An email list named "Beacon testers". The owner gives the addresses in chat or types them in; they never go into the repository. |
+| Testers | An email list named "Beacon testers". The owner gives the addresses in chat or types them in; they never go into the repository. Since 15 November 2026, at the owner's request, internal testing uses its own list, "Beacon internal testers", with two addresses the owner named, so the closed test's testers can't end up on the internal test by mistake (a user who joins the internal test can't be on the closed test). |
 | Feedback URL or email | The contact email from section 3 |
 | App signing | Play App Signing with a Google-generated key (the default) |
 | Automatic protection | **On** (asked on the first release form; the owner chose to keep it on, 12 November 2026). Google adds an installer check to the copy Play delivers; [`PRIVACY.md`](../../PRIVACY.md) says so. |
@@ -112,7 +112,7 @@ Answered on 14 November 2026, with the owner's yes.
 | Field | Answer |
 |---|---|
 | Track | "Closed testing - Alpha", the track Play already has |
-| Testers | The "Beacon testers" email list, the same one as internal testing. New testers are added to it in Play Console. |
+| Testers | The "Beacon testers" email list. Until 15 November 2026 internal testing used it too; since then internal testing has its own list. New testers are added to "Beacon testers" in Play Console. |
 | Feedback URL or email | The contact email from section 3 |
 | Countries and regions | All of them (177 and "rest of world"), the owner's choice: only opted-in testers on the list can install, and a tester's Play country must be on it. This doesn't decide production's countries. |
 | App bundle | 3 (1.0.2), added from the app bundle library |

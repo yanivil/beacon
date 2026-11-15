@@ -636,8 +636,11 @@ Visual Message Alerts".
   review at 17:13 and was approved at 17:23, and has offered 1.0.3 since
   18:26. On 15 November the list had 15 addresses and the owner sent the
   join link; Play showed 2 testers opted in that morning and 4 at
-  12:26. It needs at
-  least 12 testers opted in for 14 days in a row; then comes Google's
+  12:26, still 4 at 15:31. That afternoon, at the owner's request,
+  internal testing got its own list, "Beacon internal testers", with two
+  addresses, so "Beacon testers" is on the closed test only (Google says
+  someone who joins the internal test can't be on the closed test). It
+  needs at least 12 testers opted in for 14 days in a row; then comes Google's
   production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
 

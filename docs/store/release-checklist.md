@@ -59,6 +59,10 @@ Before the closed test, which Google reviews:
   to the closed test at 11:51**, with the owner's yes, and **Google
   approved it at 12:05**; a new version doesn't restart the testers'
   14 days. At 12:26, 4 testers had opted in.
+- **Done, 15 November 2026, at the owner's request:** internal testing
+  now uses its own list, "Beacon internal testers" (two addresses), and
+  "Beacon testers" is on the closed test only. Play still showed 4
+  opted in at 15:31.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
@@ -66,7 +70,10 @@ Before the closed test, which Google reviews:
 - Add at least 12 testers, as an email list or a Google Group. They must
   opt in through the track's link and **stay opted in for 14 days in a
   row**. If the count drops below 12, the 14 days start again. Testers
-  on the internal test don't count: they join the closed test too, on
+  on the internal test don't count, and Google says someone who joins
+  the internal test can't be on the closed test until they leave the
+  internal one. So the internal track has its own list, and testers
+  get only the closed test's links: they join on
   Android at `https://play.google.com/store/apps/details?id=dev.beacon`
   or on the web at `https://play.google.com/apps/testing/dev.beacon`, once
   Google has approved the track. New testers go into the "Beacon

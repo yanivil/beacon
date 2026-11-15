@@ -15,12 +15,19 @@ and the project uses [Semantic Versioning](https://semver.org/).
   went to the closed test's review at 11:51 on 15 November 2026, as one
   change, with the same notes as the internal release. Google approved it
   at 12:05; at 12:26 Play showed 4 testers opted in.
+- `docs/checks/2026-11-play-release.md`: at the owner's request, on
+  15 November 2026 internal testing got its own email list, "Beacon
+  internal testers" (two addresses), so "Beacon testers" is on the closed
+  test only. Play still showed 4 testers opted in at 15:31.
 
 ### Changed
 
 - `README.md`, `docs/store/play-console-answers.md` (1.0.4's release
   notes, as typed) and `docs/store/release-checklist.md` section 1: 1.0.4
   is on internal testing and on the closed test.
+- `README.md`, `docs/store/play-console-answers.md` (sections 5 and 6) and
+  `docs/store/release-checklist.md`: internal testing uses its own list;
+  testers get only the closed test's links.
 
 ## [1.0.4] - 2026-11-15
 
