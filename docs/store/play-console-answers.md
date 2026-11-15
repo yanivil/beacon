@@ -99,11 +99,11 @@ If it asks anyway, Claude stops and asks.
 | App signing | Play App Signing with a Google-generated key (the default) |
 | Automatic protection | **On** (asked on the first release form; the owner chose to keep it on, 12 November 2026). Google adds an installer check to the copy Play delivers; [`PRIVACY.md`](../../PRIVACY.md) says so. |
 | App bundle | `app/build/outputs/bundle/release/app-release.aab`, built from `main` after the merge (Task 6) |
-| Release name | 1.0.0 (1); then 2 (1.0.1), 3 (1.0.2), 4 (1.0.3) and, next, 5 (1.0.4), Play's suggestions |
+| Release name | 1.0.0 (1); then 2 (1.0.1), 3 (1.0.2), 4 (1.0.3) and 5 (1.0.4), Play's suggestions |
 | Release notes (en-US) | First test version. For 1.0.1: "Adds a Privacy section at the end of Alert settings, with a button that opens the privacy policy." For 1.0.2, as typed: The "Read the privacy policy" button now always opens your web browser, and TalkBack says where it leads. If no browser can open the page, Beacon now says so clearly. |
 | Rollout | Only after the owner says yes in chat |
 | Release notes for 1.0.3, as typed (14 November 2026) | You can now turn alerts OFF until you turn them back ON. Use the new Visual alerts switch at the top of Alert settings, or choose in Alert settings that one tap on the widget turns alerts OFF until you tap it again. |
-| Release notes for 1.0.4, proposed (15 November 2026; not typed yet) | Alert settings now ends with Beacon's version, such as "Beacon version 1.0.4", so you can see which version you have. |
+| Release notes for 1.0.4, as typed (15 November 2026) | Alert settings now ends with Beacon's version, such as "Beacon version 1.0.4", so you can see which version you have. |
 
 ## 6. Closed testing
 

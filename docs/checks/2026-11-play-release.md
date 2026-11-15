@@ -80,6 +80,7 @@ that weren't on that sheet were asked in chat first.
 | Store listing: 1.0.3's full description, sent with the closed test's 1.0.3 | 14 November, 18:19 | With the owner's yes ("Yes, send it"): Play's full description was first checked against the text in `listing.md` before 1.0.3 (both 2,823 characters, the same words), then replaced with today's [`listing.md`](../store/listing.md) text (2,983 characters; the same SHA-256 as the file). Its only change is the pause paragraph: the Visual alerts switch, "stops message alerts", and the widget's no-time-limit choice. On the review step Play asked the AI asset question again; "Don't label assets" was already selected, the owner's answer of 11 November. Publishing overview listed one new change, "Change full description". Sending it asked "Do you want to restart your review?", because 1.0.3 for the closed test was still in its quick checks. That was new, so the dialog was cancelled and the owner asked; they chose "Restart with both". Now one review holds both changes ("Up to 14 minutes remaining" for the quick checks). |
 | 1.0.3 and its description approved | 14 November, 18:26 | Checked on 15 November: Submission activity lists submission 5 ("Closed testing - Alpha, Store Listing", sent at 18:18 by Play's clock) as "Published" on 14 November at 18:26, with two changes, "4 (1.0.3), Start full rollout" and "Change full description". The closed track shows 4 (1.0.3), "Available to selected testers", in 178 countries and regions. Publishing overview has nothing waiting. |
 | Testers, 15 November | 15 November | The "Beacon testers" list has 15 addresses (12 besides the owner's own two); the owner sent the join link that day. In the afternoon Play's dashboard showed "2 testers currently opted-in". The 14 days start once 12 are opted in. |
+| Release 5 (1.0.4) | 15 November, 11:48 | Built from `main` at `9574253` (PR #44, the version line at the end of Alert settings): versionCode 5, signed with the upload key, the same three permissions as 1.0.3's build and no `INTERNET`. The owner uploaded `beacon-1.0.4-5.aab` with the file picker. The same two warnings (no deobfuscation file; native code without debug symbols); the supported devices didn't change (8,733 phones and 5,739 tablets). Release notes, as typed: Alert settings now ends with Beacon's version, such as "Beacon version 1.0.4", so you can see which version you have. Published with the owner's yes ("Yes, release it"): "Available to internal testers". Not on the closed test yet. |
 
 Until Google's first review was done, testers saw the temporary name
 "dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
@@ -148,6 +149,8 @@ tried.
   version 1.0.3 there on 15 November and turned alerts off with the
   Visual alerts switch, but no message was sent while alerts were off,
   and the widget's "Turn OFF until I tap again" choice wasn't tried.
+- **1.0.4 from Play on the test phone:** on internal testing since 11:48
+  on 15 November, not yet installed from Play.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the
