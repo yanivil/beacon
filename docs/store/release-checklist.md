@@ -55,9 +55,9 @@ Before the closed test, which Google reviews:
 - **Done, 15 November 2026, with the owner's yes: 1.0.4 (versionCode 5)
   on internal testing at 11:48**, which ends Alert settings with a line
   naming Beacon's version (notes in
-  [`play-console-answers.md`](play-console-answers.md) section 5). Still to
-  do, with the owner's yes: send it to the closed test's review. A new
-  version doesn't restart the testers' 14 days.
+  [`play-console-answers.md`](play-console-answers.md) section 5). **Sent
+  to the closed test at 11:51**, with the owner's yes; Google reviews it,
+  and a new version doesn't restart the testers' 14 days.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
