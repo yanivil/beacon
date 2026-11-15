@@ -83,6 +83,7 @@ that weren't on that sheet were asked in chat first.
 | Release 5 (1.0.4) | 15 November, 11:48 | Built from `main` at `9574253` (PR #44, the version line at the end of Alert settings): versionCode 5, signed with the upload key, the same three permissions as 1.0.3's build and no `INTERNET`. The owner uploaded `beacon-1.0.4-5.aab` with the file picker. The same two warnings (no deobfuscation file; native code without debug symbols); the supported devices didn't change (8,733 phones and 5,739 tablets). Release notes, as typed: Alert settings now ends with Beacon's version, such as "Beacon version 1.0.4", so you can see which version you have. Published with the owner's yes ("Yes, release it"): "Available to internal testers". Not on the closed test yet. |
 | 1.0.4 to the closed test, sent for review | 15 November, 11:51 | With the owner's yes ("Yes, send it"): a new release on "Closed testing - Alpha" with 5 (1.0.4) from the app bundle library and the same release notes as the internal release. The same two warnings; the supported devices didn't change; rollout 100%. Nothing else was in review, so no review was restarted. Publishing overview listed one change, "5 (1.0.4), Start full rollout"; "Submit 1 change for review", then Play's quick checks ("Up to 14 minutes remaining"). Until Google approves it, the closed test keeps offering 1.0.3, and testers can still join. |
 | 1.0.4 approved for the closed test | 15 November, 12:05 | Checked at 12:26: Submission activity lists submission 6 ("Closed testing - Alpha", sent at 11:52 by Play's clock) as "Published" on 15 November at 12:05, thirteen minutes later, with one change, "5 (1.0.4), Start full rollout". At 12:26 Play's dashboard showed "4 testers currently opted-in". |
+| Internal testing gets its own list | 15 November, about 15:45 | Play still showed "4 testers currently opted-in" at 14:16 and 15:31, though the owner counted more people who had joined. The internal and closed tracks both used "Beacon testers", and Google's help ("Set up an open, closed, or internal test", "Can I run multiple tests per app at the same time?") says a user who opts into the internal test is no longer eligible for a closed test until they leave the internal test. So, at the owner's request ("remove all (beside aba and michal) from the internal testers"), "Beacon testers" was left as it was, a new email list, "Beacon internal testers", was made with the two addresses the owner named, and the internal track now uses only that list. Checked after a reload: internal testing uses "Beacon internal testers" (2 addresses) and the closed test uses "Beacon testers" (15). Play applied it at once: Publishing overview had nothing waiting and nothing went to review. Before the change, the owner's main account was checked in the browser: the closed test's web link said "You are a tester." and the internal link still offered "Accept invite", so it is on the closed test. Play Console doesn't show who opted in; a tester can check on the web link, signed in with the address on the list. |
 
 Until Google's first review was done, testers saw the temporary name
 "dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
@@ -145,14 +146,15 @@ tried.
 - **Telegram,** as in every check so far.
 - **WhatsApp with the copy from Play:** the locked check used an SMS.
   WhatsApp alerts were checked on the debug build on 11 November.
-- **The closed test's 14 days:** approved at 17:23; at 12:26 on
-  15 November 4 testers had opted in.
+- **The closed test's 14 days:** approved at 17:23; at 12:26 and still
+  at 15:31 on 15 November 4 testers had opted in.
 - **1.0.3 from Play on the test phone, with a message:** the owner saw
   version 1.0.3 there on 15 November and turned alerts off with the
   Visual alerts switch, but no message was sent while alerts were off,
   and the widget's "Turn OFF until I tap again" choice wasn't tried.
-- **1.0.4 from Play on the test phone:** on internal testing since 11:48
-  on 15 November, not yet installed from Play.
+- **1.0.4 from Play on the test phone:** on the closed test since 12:05
+  on 15 November, not yet installed from Play. The phone's account is a
+  closed tester, not an internal one.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the
