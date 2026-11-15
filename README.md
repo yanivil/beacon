@@ -138,7 +138,8 @@ contrast, big touch targets and plain wording.
       switch to Alert settings and a choice of what the widget's tap does;
       see "Version 1.0.3" below. Google approved it for the closed test on
       14 November at 18:26.
-      Version 1.0.4 (on internal testing since 15 November at 11:48) ends
+      Version 1.0.4 (on internal testing since 15 November at 11:48, and
+      in the closed test's review since 11:51) ends
       Alert settings with a line naming Beacon's version; see "Version
       1.0.4" below.
 
@@ -698,8 +699,9 @@ section 8, item 7):
   check it is plain text), and the test phone (Hebrew, right to left).
 - **Version:** 1.0.4 (versionCode 5), on Google Play's internal testing
   since 15 November 2026 at 11:48, with the owner's yes
-  ([record](docs/checks/2026-11-play-release.md)). It isn't on the closed
-  test yet; that step waits for the owner's yes too.
+  ([record](docs/checks/2026-11-play-release.md)). With the owner's yes it
+  went to the closed test's review at 11:51; until Google approves it,
+  the closed test offers 1.0.3.
 
 ## What Step 1 found
 

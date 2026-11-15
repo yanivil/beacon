@@ -81,6 +81,7 @@ that weren't on that sheet were asked in chat first.
 | 1.0.3 and its description approved | 14 November, 18:26 | Checked on 15 November: Submission activity lists submission 5 ("Closed testing - Alpha, Store Listing", sent at 18:18 by Play's clock) as "Published" on 14 November at 18:26, with two changes, "4 (1.0.3), Start full rollout" and "Change full description". The closed track shows 4 (1.0.3), "Available to selected testers", in 178 countries and regions. Publishing overview has nothing waiting. |
 | Testers, 15 November | 15 November | The "Beacon testers" list has 15 addresses (12 besides the owner's own two); the owner sent the join link that day. In the afternoon Play's dashboard showed "2 testers currently opted-in". The 14 days start once 12 are opted in. |
 | Release 5 (1.0.4) | 15 November, 11:48 | Built from `main` at `9574253` (PR #44, the version line at the end of Alert settings): versionCode 5, signed with the upload key, the same three permissions as 1.0.3's build and no `INTERNET`. The owner uploaded `beacon-1.0.4-5.aab` with the file picker. The same two warnings (no deobfuscation file; native code without debug symbols); the supported devices didn't change (8,733 phones and 5,739 tablets). Release notes, as typed: Alert settings now ends with Beacon's version, such as "Beacon version 1.0.4", so you can see which version you have. Published with the owner's yes ("Yes, release it"): "Available to internal testers". Not on the closed test yet. |
+| 1.0.4 to the closed test, sent for review | 15 November, 11:51 | With the owner's yes ("Yes, send it"): a new release on "Closed testing - Alpha" with 5 (1.0.4) from the app bundle library and the same release notes as the internal release. The same two warnings; the supported devices didn't change; rollout 100%. Nothing else was in review, so no review was restarted. Publishing overview listed one change, "5 (1.0.4), Start full rollout"; "Submit 1 change for review", then Play's quick checks ("Up to 14 minutes remaining"). Until Google approves it, the closed test keeps offering 1.0.3, and testers can still join. |
 
 Until Google's first review was done, testers saw the temporary name
 "dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
@@ -151,6 +152,8 @@ tried.
   and the widget's "Turn OFF until I tap again" choice wasn't tried.
 - **1.0.4 from Play on the test phone:** on internal testing since 11:48
   on 15 November, not yet installed from Play.
+- **Google's review of 1.0.4 on the closed test:** sent at 11:51 on
+  15 November; the result isn't in yet.
 - **Beacon from Play on Android 10 to 12:** only the Android 16 test phone
   and the Android 16 emulator were used.
 - **1.0.2 with the GitHub app installed:** neither the test phone nor the
