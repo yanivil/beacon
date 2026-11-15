@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.beacon.BuildConfig
 import dev.beacon.R
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
@@ -17,11 +18,12 @@ import dev.beacon.ui.components.ScreenTitle
 
 /*
  * Why the screen only wires sections together: each section (the alerts
- * switch, duration, speed, colour, widget, privacy) owns its layout and its
- * radio group, so the screen holds just the title and the 40 dp rhythm
- * between sections, as the design does. The privacy section is the Play
- * release's addition, and the alerts switch and the widget section the
- * owner's of 14 November 2026; none of the three is in the design.
+ * switch, duration, speed, colour, widget, privacy, version) owns its layout
+ * and its radio group, so the screen holds just the title and the 40 dp
+ * rhythm between sections, as the design does. The privacy section is the
+ * Play release's addition, the alerts switch and the widget section the
+ * owner's of 14 November 2026, and the version line the owner's of
+ * 15 November 2026; none of the four is in the design.
  * The actions are plain callbacks so the screen can be tested without a
  * view model.
  */
@@ -57,7 +59,7 @@ data class SettingsActions(
 
 /**
  * The Alert settings tab: the title, then the "Visual alerts" switch, "How long to flash", "Blink
- * speed", "Screen flash color", "Widget" and "Privacy".
+ * speed", "Screen flash color", "Widget", "Privacy" and the line naming Beacon's version.
  *
  * @param settings the current settings.
  * @param editingApp the app whose colour grid is open in per-app mode, or null.
@@ -79,5 +81,7 @@ fun AlertSettingsScreen(
         ColourSection(settings, editingApp, actions)
         WidgetSection(settings, actions)
         PrivacySection(actions.openPrivacyPolicy)
+        // From the build, so it always names the version this app was built as.
+        VersionLine(BuildConfig.VERSION_NAME)
     }
 }

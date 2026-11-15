@@ -49,8 +49,15 @@ Before the closed test, which Google reviews:
   update doesn't restart the testers' 14 days. **The new full description**
   from [`listing.md`](listing.md) followed at 18:19, with the owner's yes;
   Play restarted the review so both are reviewed together (the owner chose
-  that). Still to do, with the owner's yes: check 1.0.3 from Play on the
-  test phone.
+  that). **Google approved both at 18:26.** On 15 November the owner saw
+  1.0.3 from Play on the test phone, the list had 15 addresses and 2
+  testers had opted in.
+- **Built, 15 November 2026: 1.0.4 (versionCode 5)**, which ends Alert
+  settings with a line naming Beacon's version. Still to do, each with the
+  owner's yes: upload it to internal testing with the proposed notes in
+  [`play-console-answers.md`](play-console-answers.md) section 5, then
+  send it to the closed test's review. A new version doesn't restart the
+  testers' 14 days.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
