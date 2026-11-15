@@ -34,6 +34,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import dev.beacon.BuildConfig
 import dev.beacon.alert.MessageSource
 import dev.beacon.settings.BeaconSettings
 import dev.beacon.settings.BlinkSpeed
@@ -50,6 +51,7 @@ import dev.beacon.ui.assertTalkBackReadsList
 import dev.beacon.ui.enableAccessibilityService
 import dev.beacon.ui.recordAccessibilityEvents
 import dev.beacon.ui.hasRole
+import dev.beacon.ui.theme.BeaconColors
 import dev.beacon.ui.theme.BeaconTheme
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
@@ -480,6 +482,44 @@ class AlertSettingsScreenTest {
         show(fontScale = 2.0f)
         val button = rule.onNodeWithText("Read the privacy policy").performScrollTo().fetchSemanticsNode()
         assertTrue("64 dp tall", button.boundsInRoot.height >= with(rule.density) { 64.dp.toPx() } - 0.5f)
+        rule.assertNoTextOverflow()
+    }
+
+    /*
+     * The version line (the owner's request of 15 November 2026): the owner
+     * and the testers need to see which Beacon a phone has, so the end of
+     * Alert settings names the version the app was built as.
+     */
+
+    /** The version line as the screen shows it: "Beacon version" and the built version name, never typed by hand. */
+    private val versionText = "Beacon version ${BuildConfig.VERSION_NAME}"
+
+    /** The version line is the last thing on the screen, below the privacy section. */
+    @Test fun versionLineIsLastAndShowsTheBuiltVersion() {
+        show()
+        val line = rule.onNodeWithText(versionText).performScrollTo().assertIsDisplayed().fetchSemanticsNode()
+        val lowestOther = rule.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .fetchSemanticsNodes()
+            .filter { it.id != line.id }
+            .maxOf { it.boundsInRoot.bottom }
+        assertTrue("below everything else", line.boundsInRoot.top >= lowestOther)
+    }
+
+    /** It is body text: 20 sp in the secondary colour, a pair already checked for 7:1 on the page. */
+    @Test fun versionLineIsBodyText() {
+        show()
+        val results = mutableListOf<TextLayoutResult>()
+        rule.onNodeWithText(versionText, useUnmergedTree = true).performScrollTo().fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
+        val style = results.first().layoutInput.style
+        assertEquals(20f, style.fontSize.value)
+        assertEquals(BeaconColors.TextSecondary, style.color)
+    }
+
+    /** At the largest font the line is still shown whole. */
+    @Test fun versionLineFitsAtLargestFont() {
+        show(fontScale = 2.0f)
+        rule.onNodeWithText(versionText).performScrollTo().assertIsDisplayed()
         rule.assertNoTextOverflow()
     }
 }

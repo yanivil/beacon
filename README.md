@@ -136,7 +136,11 @@ contrast, big touch targets and plain wording.
       Data policy asks before Google's review.
       Version 1.0.3 (on internal testing since 14 November) adds a "Visual alerts" ON/OFF
       switch to Alert settings and a choice of what the widget's tap does;
-      see "Version 1.0.3" below.
+      see "Version 1.0.3" below. Google approved it for the closed test on
+      14 November at 18:26.
+      Version 1.0.4 (built 15 November, not on Google Play yet) ends Alert
+      settings with a line naming Beacon's version; see "Version 1.0.4"
+      below.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -627,9 +631,11 @@ Visual Message Alerts".
   setting it up with the first 4 testers, so Google's review of it runs
   while more are found. It uses Play's "Closed testing - Alpha" track,
   the "Beacon testers" list, all countries and 1.0.2. It went to Google's
-  review at 17:13 and was approved at 17:23. By that evening the list had
-  11 people, none opted in yet. It needs at least 12 testers opted in for
-  14 days in a row; then comes Google's production review:
+  review at 17:13 and was approved at 17:23, and has offered 1.0.3 since
+  18:26. On 15 November the list had 15 addresses and the owner sent the
+  join link; that afternoon Play showed 2 testers opted in. It needs at
+  least 12 testers opted in for 14 days in a row; then comes Google's
+  production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
 
 ## Version 1.0.3: turn alerts OFF until turned back ON
@@ -666,8 +672,31 @@ widget and from the settings. The owner chose the design on 14 November
   ([record](docs/checks/2026-11-play-release.md)). With the owner's yes it
   went to the closed test's review at 18:10, and at 18:19 the store text
   that mentions the new choice ([`docs/store/listing.md`](docs/store/listing.md))
-  joined it in one review. Until Google approves them, the closed test
-  offers 1.0.2 and the store shows the earlier text.
+  joined it in one review. Google approved both at 18:26, so the closed
+  test offers 1.0.3 and the store shows the new text. On 15 November the
+  owner saw version 1.0.3 from Play on the test phone and turned alerts
+  off with the Visual alerts switch.
+
+## Version 1.0.4: the version in Alert settings
+
+The owner couldn't tell from the app which version a phone had, and asked
+for it on 15 November 2026 ([Step 2 spec](docs/specs/2026-11-08-step2-design.md),
+section 8, item 7):
+
+- **The last line of Alert settings,** under Privacy: "Beacon version
+  1.0.4", in 20 sp body text and the secondary colour already checked for
+  7:1. TalkBack reads it as plain text.
+- **From the build:** the number is `BuildConfig.VERSION_NAME`, the
+  `versionName` in `app/build.gradle.kts`, so it changes with each release
+  and is never typed by hand.
+- **Checked on the emulator** (beacon-api36, Android 16, 15 November
+  2026): the signed 1.0.4 release build installed over 1.0.3 and kept its
+  settings; the end of Alert settings showed "Beacon version 1.0.4" under
+  "Opens in your web browser.", and at font scale 2.0 it was whole on one
+  line. Not tested: TalkBack reading it on the emulator (the unit tests
+  check it is plain text), and the test phone (Hebrew, right to left).
+- **Version:** 1.0.4 (versionCode 5). It isn't on Google Play yet; each
+  Play step waits for the owner's yes.
 
 ## What Step 1 found
 
