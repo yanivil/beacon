@@ -138,9 +138,9 @@ contrast, big touch targets and plain wording.
       switch to Alert settings and a choice of what the widget's tap does;
       see "Version 1.0.3" below. Google approved it for the closed test on
       14 November at 18:26.
-      Version 1.0.4 (built 15 November, not on Google Play yet) ends Alert
-      settings with a line naming Beacon's version; see "Version 1.0.4"
-      below.
+      Version 1.0.4 (on internal testing since 15 November at 11:48) ends
+      Alert settings with a line naming Beacon's version; see "Version
+      1.0.4" below.
 
 The app lives in [`app/`](app): one Gradle module, package `dev.beacon`,
 Kotlin and Jetpack Compose. [`spikes/feasibility/`](spikes/feasibility)
@@ -587,10 +587,11 @@ from the phone's own records. Nothing in the code changed.
 
 Beacon is on Google Play's internal testing track, for a few testers:
 1.0.0 (versionCode 1) since 12 November 2026 at 09:49, 1.0.1
-(versionCode 2, the in-app privacy link) since 10:22 the same day, and
+(versionCode 2, the in-app privacy link) since 10:22 the same day,
 1.0.2 (versionCode 3, the privacy link's fixes) since 14 November at 09:23,
-and 1.0.3 (versionCode 4, the Visual alerts switch and the widget choice)
-since 18:06 the same day ([spec](docs/specs/2026-11-11-play-release-design.md),
+1.0.3 (versionCode 4, the Visual alerts switch and the widget choice)
+since 18:06 the same day, and 1.0.4 (versionCode 5, the version line in
+Alert settings) since 15 November at 11:48 ([spec](docs/specs/2026-11-11-play-release-design.md),
 [plan](docs/plans/2026-11-11-play-release.md)). The store listing and the
 Play forms went to Google's review at about 10:27 on 12 November, and
 Google approved them the same day, so testers see the name "Beacon:
@@ -695,8 +696,10 @@ section 8, item 7):
   "Opens in your web browser.", and at font scale 2.0 it was whole on one
   line. Not tested: TalkBack reading it on the emulator (the unit tests
   check it is plain text), and the test phone (Hebrew, right to left).
-- **Version:** 1.0.4 (versionCode 5). It isn't on Google Play yet; each
-  Play step waits for the owner's yes.
+- **Version:** 1.0.4 (versionCode 5), on Google Play's internal testing
+  since 15 November 2026 at 11:48, with the owner's yes
+  ([record](docs/checks/2026-11-play-release.md)). It isn't on the closed
+  test yet; that step waits for the owner's yes too.
 
 ## What Step 1 found
 

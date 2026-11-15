@@ -8,10 +8,25 @@ and the project uses [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `docs/checks/2026-11-play-release.md`: with the owner's yes, 5 (1.0.4)
+  went to internal testing at 11:48 on 15 November 2026, with the same two
+  warnings and no change in supported devices. Not on the closed test yet.
+
+### Changed
+
+- `README.md`, `docs/store/play-console-answers.md` (1.0.4's release
+  notes, as typed) and `docs/store/release-checklist.md` section 1: 1.0.4
+  is on internal testing.
+
+## [1.0.4] - 2026-11-15
+
+Version 1.0.4 (versionCode 5) on Google Play's internal testing track.
+
+### Added
+
 - Alert settings ends with a line naming Beacon's version, such as
   "Beacon version 1.0.4", taken from the build (the owner's request of
-  15 November 2026). Version 1.0.4 (versionCode 5), not on Google Play
-  yet.
+  15 November 2026).
 - `docs/checks/2026-11-play-release.md`: Google approved 1.0.3 for the
   closed test and 1.0.3's full description at 18:26 on 14 November 2026
   (checked on 15 November). On 15 November the "Beacon testers" list had
