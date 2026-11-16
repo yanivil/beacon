@@ -19,6 +19,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   15 November 2026 internal testing got its own email list, "Beacon
   internal testers" (two addresses), so "Beacon testers" is on the closed
   test only. Play still showed 4 testers opted in at 15:31.
+- `docs/checks/2026-11-play-release.md`: the owner added 5 more testers
+  on 15 November 2026 (20 on the list), and by 10:00 on 16 November Play
+  marked "at least 12 testers opted in" as done, so the closed test's
+  14 days are running.
 
 ### Changed
 
@@ -28,6 +32,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md`, `docs/store/play-console-answers.md` (sections 5 and 6) and
   `docs/store/release-checklist.md`: internal testing uses its own list;
   testers get only the closed test's links.
+- `README.md` and `docs/store/release-checklist.md` section 1: at least
+  12 testers are opted in and the 14 days are running (30 November at
+  the earliest).
 
 ## [1.0.4] - 2026-11-15
 
