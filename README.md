@@ -126,7 +126,8 @@ contrast, big touch targets and plain wording.
       screenshot and spelling) the same morning. 1.0.2 from Play passed its
       checks on the test phone. The closed test, with the owner's first 4
       testers, went to Google's review that afternoon and was approved ten
-      minutes later; it needs at least 12 testers opted in for 14 days:
+      minutes later. Since 16 November at least 12 testers are opted in,
+      and the 14 days are running:
       [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
       The spec is approved (11 November 2026):
       [`docs/specs/2026-11-11-play-release-design.md`](docs/specs/2026-11-11-play-release-design.md).
@@ -639,8 +640,10 @@ Visual Message Alerts".
   12:26, still 4 at 15:31. That afternoon, at the owner's request,
   internal testing got its own list, "Beacon internal testers", with two
   addresses, so "Beacon testers" is on the closed test only (Google says
-  someone who joins the internal test can't be on the closed test). It
-  needs at least 12 testers opted in for 14 days in a row; then comes Google's
+  someone who joins the internal test can't be on the closed test). That
+  evening the list grew to 20 addresses. By 10:00 on 16 November at
+  least 12 testers had opted in, so the 14 days in a row are running
+  (they end on 30 November at the earliest); then comes Google's
   production review:
   [`docs/store/release-checklist.md`](docs/store/release-checklist.md).
 
