@@ -23,6 +23,10 @@ and the project uses [Semantic Versioning](https://semver.org/).
   on 15 November 2026 (20 on the list), and by 10:00 on 16 November Play
   marked "at least 12 testers opted in" as done, so the closed test's
   14 days are running.
+- `docs/checks/2026-11-play-release.md`: the owner added 3 more testers
+  on 16 November 2026 (23 on the list), and on 17 November Play's
+  dashboard showed the 14-day count for the first time: "12 testers
+  have currently been opted in for 1 day".
 
 ### Changed
 
@@ -35,6 +39,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md` and `docs/store/release-checklist.md` section 1: at least
   12 testers are opted in and the 14 days are running (30 November at
   the earliest).
+- `README.md` and `docs/store/release-checklist.md` section 1: the list
+  has 23 addresses, and Play now shows the 14-day count (1 day on
+  17 November).
 
 ## [1.0.4] - 2026-11-15
 
