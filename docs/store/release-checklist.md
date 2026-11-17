@@ -68,7 +68,13 @@ Before the closed test, which Google reviews:
   opted in at 17:34, 10 at 22:00, 11 at 23:17 and still 11 at 08:35 on
   16 November; by 10:00 it marked the 12-tester requirement as done.
   The 14 days are running, so they end on 30 November at the earliest.
-  Play shows no day count. Keep at least 12 opted in until then.
+  Play showed no day count that day. Keep at least 12 opted in until
+  then.
+- **17 November 2026: Play shows the day count.** At 22:56 the
+  dashboard said "12 testers have currently been opted in for
+  1 day". The owner added 3 more addresses on 16 November (23 on the
+  list). Play doesn't say whether more than 12 are opted in, so the
+  newest testers should opt in too, to keep a margin above 12.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
