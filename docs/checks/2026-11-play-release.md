@@ -87,6 +87,7 @@ that weren't on that sheet were asked in chat first.
 | More testers | 15 November, about 17:40 to 21:30 | At 17:34 Play's dashboard showed "5 testers currently opted-in", the first change since 12:26. At the owner's request, 5 more addresses went into "Beacon testers", one at a time (three Gmail addresses and two others that, the owner said, those testers use with Google Play). After each save a reload showed the list's new size, ending at 20, still on the closed test only. Email lists apply at once, with no review. The dashboard showed "10 testers currently opted-in" at 22:00 and "11" at 23:17. |
 | 12 testers opted in | 16 November, between 08:35 and 10:00 | At 08:35 the dashboard still showed "11 testers currently opted-in". At 10:00 its production requirements showed "Have at least 12 testers opted-in to your closed test" as done (ticked; the number is no longer shown). "Run your closed test with at least 12 testers, for at least 14 days" is still open and shows no day count, and "Apply for production" is greyed out. If the 14 days started on 16 November, they end on 30 November at the earliest; if fewer than 12 testers stay opted in, they start again. |
 | Day count shown, 23 on the list | 16 and 17 November | On 16 November, at the owner's request, 3 more addresses went into "Beacon testers", one at a time (all Gmail). After each save a reload showed the list's new size, ending at 23, still on the closed test only. At 22:56 on 17 November (the Mac's clock) the dashboard's "Run your closed test with at least 12 testers, for at least 14 days" step showed a count for the first time: "12 testers have currently been opted in for 1 day". "Have at least 12 testers opted-in to your closed test" was still ticked, and "Apply for production" was greyed out. Play doesn't say whether 12 is the real number or only the requirement, so how many testers are opted in above 12 isn't known. One day counted by that evening fits the 14 days starting on 16 November, so they end on 30 November at the earliest. |
+| 4 days counted, 25 on the list | 19 and 20 November | On 19 November Play Console had signed out in the browser pane, so nothing was read that day; the owner signed in again on 20 November. Then, at the owner's request, 2 more addresses went into "Beacon testers" (both Gmail), saved together. A reload showed 25, still on the closed test only. At 19:07 on 20 November (the Mac's clock) the dashboard said "12 testers have currently been opted in for 4 days continuously". "Have at least 12 testers opted-in to your closed test" was still ticked, and "Apply for production" was greyed out. Four days by 20 November fits the 14 days starting on 16 November, so they end on 30 November at the earliest. Play still shows 12, so how many are opted in above 12 isn't known. |
 
 Until Google's first review was done, testers saw the temporary name
 "dev.beacon (unreviewed)"; since then they see "Beacon: Visual Message
@@ -150,9 +151,10 @@ tried.
 - **WhatsApp with the copy from Play:** the locked check used an SMS.
   WhatsApp alerts were checked on the debug build on 11 November.
 - **The closed test's 14 days:** 12 testers had opted in by 10:00 on
-  16 November, and at 22:56 on 17 November Play showed "12 testers
-  have currently been opted in for 1 day". The 14 days end on
-  30 November at the earliest.
+  16 November. Play showed "12 testers have currently been opted in
+  for 1 day" at 22:56 on 17 November and "for 4 days continuously"
+  at 19:07 on 20 November. The 14 days end on 30 November at the
+  earliest.
 - **1.0.3 from Play on the test phone, with a message:** the owner saw
   version 1.0.3 there on 15 November and turned alerts off with the
   Visual alerts switch, but no message was sent while alerts were off,

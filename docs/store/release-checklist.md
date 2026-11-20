@@ -75,6 +75,10 @@ Before the closed test, which Google reviews:
   1 day". The owner added 3 more addresses on 16 November (23 on the
   list). Play doesn't say whether more than 12 are opted in, so the
   newest testers should opt in too, to keep a margin above 12.
+- **20 November 2026: 4 days counted.** At 19:07 the dashboard said
+  "12 testers have currently been opted in for 4 days
+  continuously". The owner added 2 more addresses that day (25 on
+  the list). On track for 30 November at the earliest.
 
 - In Play Console: Test and release → Testing → Closed testing. Play
   already has a track, "Closed testing - Alpha"; Beacon uses it
