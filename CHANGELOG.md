@@ -27,6 +27,9 @@ and the project uses [Semantic Versioning](https://semver.org/).
   on 16 November 2026 (23 on the list), and on 17 November Play's
   dashboard showed the 14-day count for the first time: "12 testers
   have currently been opted in for 1 day".
+- `docs/checks/2026-11-play-release.md`: the owner added 2 more testers
+  on 20 November 2026 (25 on the list), and that evening Play showed
+  "12 testers have currently been opted in for 4 days continuously".
 
 ### Changed
 
@@ -42,6 +45,8 @@ and the project uses [Semantic Versioning](https://semver.org/).
 - `README.md` and `docs/store/release-checklist.md` section 1: the list
   has 23 addresses, and Play now shows the 14-day count (1 day on
   17 November).
+- `README.md` and `docs/store/release-checklist.md` section 1: the list
+  has 25 addresses, and Play counted 4 days on 20 November.
 
 ## [1.0.4] - 2026-11-15
 
